@@ -1,8 +1,7 @@
 # Instrucciones para levantar React + Vite
-
-  cd front-restaurante
-  pnpm install
-  pnpm run dev
+1. cd front-restaurante
+2. pnpm install
+3. pnpm run dev
 
 
 
