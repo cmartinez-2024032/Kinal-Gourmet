@@ -1,3 +1,11 @@
+# Instrucciones para levantar React + Vite
+
+  cd front-restaurante
+  pnpm install
+  pnpm run dev
+
+
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
