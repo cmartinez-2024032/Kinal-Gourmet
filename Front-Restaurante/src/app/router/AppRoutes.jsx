@@ -6,12 +6,13 @@ import { DashboardLayout } from '../layouts/DashboardLayout'
 import { PrivateRoute } from './PrivateRoute'
 
 import { RegisterForm } from '../../features/auth/components/RegisterForm'
+import { LandingPage } from '../../features/auth/pages/LandingPage'
 
 export const AppRoutes = () => {
     return (
         <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="*" element={<Navigate to="/login" />} />
+        <Route path="/" element={<LandingPage />} /> 
+        <Route path="*" element={<LandingPage />} /> 
         <Route path="/login" element={<AuthPage />} />
         <Route path="/register" element={<AuthPage><RegisterForm /></AuthPage>} />
         <Route path="/verify/:token" element={<VerifyPage />} />
