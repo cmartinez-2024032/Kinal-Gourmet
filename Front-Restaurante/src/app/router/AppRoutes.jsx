@@ -7,7 +7,7 @@ import { PrivateRoute } from './PrivateRoute'
 
 import { RegisterForm } from '../../features/auth/components/RegisterForm'
 import { LandingPage } from '../../features/auth/pages/LandingPage'
-
+import{AdminGeneralPage} from '../../features/admin-general/pages/AdminGeneralPage.jsx'
 export const AppRoutes = () => {
     return (
         <Routes>
@@ -23,6 +23,17 @@ export const AppRoutes = () => {
             <PrivateRoute>
                 <DashboardLayout>
                 <DashboardPage />
+                </DashboardLayout>
+            </PrivateRoute>
+            }
+        />
+
+        <Route
+            path="/adminGeneral"
+            element={
+            <PrivateRoute>
+                <DashboardLayout>
+                <AdminGeneralPage />
                 </DashboardLayout>
             </PrivateRoute>
             }
