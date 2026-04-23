@@ -1,8 +1,10 @@
-import { useState } from "react"
-import { registerRequest } from "../../../shared/api/auth"
+import { useState, useEffect } from "react"
+import { registerRequest , getUsersRequest} from "../../../shared/api/auth"
 
 export const AdminGeneralPage = () => {
   const [showForm, setShowForm] = useState(false)
+  const [users, setUsers] = useState([]) // lista de usuarios
+  const [search, setSearch] = useState("")// busqueda por nombre o email
 
   const [form, setForm] = useState({
     name: "",
@@ -13,32 +15,49 @@ export const AdminGeneralPage = () => {
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value })
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-
-        try {
-        await registerRequest({
-            name: form.name,
-            email: form.email,
-            password: form.password,
-            role: "ADMIN_RESTAURANTE"
-        })
-
-        setForm({
-            name: "",
-            email: "",
-            password: ""
-        })
-
-        // opcional mensaje
-        alert("Administrador creado correctamente")
-
-        setShowForm(false)
-
-        } catch (error) {
-        console.log(error.response?.data)
-        }
+  const getUsers = async () => {
+    try {
+      const { data } = await getUsersRequest()
+      setUsers(data.users || data)
+    } catch (error) {
+      console.log(error)
     }
+  }
+
+  useEffect(() => {
+    getUsers()
+  }, [])
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    try {
+      await registerRequest({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        role: "ADMIN_RESTAURANTE"
+      })
+
+      setForm({
+        name: "",
+        email: "",
+        password: ""
+      })
+
+      await getUsers()
+      alert("Administrador creado correctamente")
+      setShowForm(false)
+
+    } catch (error) {
+      console.log(error.response?.data)
+    }
+  }
+
+  const filteredUsers = users.filter(user =>
+    user.name.toLowerCase().includes(search.toLowerCase()) ||
+    user.email.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
     <div className="w-full h-full">
@@ -82,7 +101,7 @@ export const AdminGeneralPage = () => {
                 name="name"
                 value={form.name}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-3 mt-1 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full border rounded-lg px-3 py-3 mt-1"
               />
             </div>
 
@@ -95,7 +114,7 @@ export const AdminGeneralPage = () => {
                 name="email"
                 value={form.email}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-3 mt-1 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full border rounded-lg px-3 py-3 mt-1"
               />
             </div>
 
@@ -109,7 +128,7 @@ export const AdminGeneralPage = () => {
                 name="password"
                 value={form.password}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-3 mt-1 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full border rounded-lg px-3 py-3 mt-1"
               />
             </div>
 
@@ -124,7 +143,7 @@ export const AdminGeneralPage = () => {
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="border px-6 py-3 rounded-lg hover:bg-gray-50"
+                className="border px-6 py-3 rounded-lg"
               >
                 Cancelar
               </button>
@@ -134,6 +153,38 @@ export const AdminGeneralPage = () => {
 
         </div>
       )}
+
+      <div className="w-full bg-white border rounded-xl p-6 mt-6">
+        <h2 className="text-lg font-semibold mb-4">
+          Usuarios registrados
+        </h2>
+
+        <input
+          type="text"
+          placeholder="Buscar por nombre o correo..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full border rounded-lg px-3 py-2 mb-4"
+        />
+
+        <div className="space-y-2">
+            {filteredUsers.map((user) => (
+                <div
+                key={user.id}
+                className="border rounded-lg px-3 py-2 flex justify-between items-center"
+                >
+                <div>
+                    <p className="font-medium text-sm">{user.name}</p>
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                </div>
+
+                <span className="bg-gray-100 px-2 py-1 rounded text-xs">
+                    {user.Role?.name || user.role?.name}
+                </span>
+                </div>
+            ))}
+        </div>
+      </div>
 
     </div>
   )

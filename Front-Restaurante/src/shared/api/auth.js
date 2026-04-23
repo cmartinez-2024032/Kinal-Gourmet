@@ -19,3 +19,11 @@ export const verifyRequest = (token) =>
 // PROFILE
 export const profileRequest = () =>
   api.get('/auth/profile')
+
+//Listar Usuarios
+export const getUsersRequest = () =>
+  api.get('/auth/users', {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    }
+  })
