@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { Mail, Lock } from 'lucide-react'
 
 export const LoginForm = () => {
-    const { login, loading, error } = useAuthStore()
+    const { login, loading, error, user } = useAuthStore()
     const navigate = useNavigate()
 
     const [form, setForm] = useState({ email: '', password: '' })
@@ -15,7 +15,16 @@ export const LoginForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         const res = await login(form)
-        if (res?.success) navigate('/dashboard')
+
+        if (res?.success) {
+            const role = res.user.role.name
+
+            if (role === "ADMIN_GENERAL") {
+                navigate("/adminGeneral")
+            } else {
+                navigate("/dashboard")
+            }
+        }
     }
 
     return (

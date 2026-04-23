@@ -21,7 +21,10 @@ export const useAuthStore = create((set) => ({
             loading: false
         })
 
-        return { success: true }
+        return { 
+            success: true, 
+            user: res.data.user 
+        }
 
         } catch (err) {
         set({
