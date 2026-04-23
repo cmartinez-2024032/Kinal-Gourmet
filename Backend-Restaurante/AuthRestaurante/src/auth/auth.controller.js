@@ -28,3 +28,12 @@ export const verify = async (req, res) => {
     res.status(400).json({ message: error.message })
   }
 }
+
+export const getUsers = async (req, res) => {
+  try {
+    const users = await authService.getUsers()
+    res.json(users)
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+}

@@ -9,30 +9,36 @@ import { config } from '../../configs/config.js'
 
 
 export const registerUser = async (data) => {
-  const { name, email, password } = data
+  const { name, email, password, role } = data
 
   // Validaciones de campos vacíos
-  if (!name     || !name.trim())     throw new Error('El nombre es requerido')
-  if (!email    || !email.trim())    throw new Error('El correo es requerido')
+  if (!name || !name.trim()) throw new Error('El nombre es requerido')
+  if (!email || !email.trim()) throw new Error('El correo es requerido')
   if (!password || !password.trim()) throw new Error('La contraseña es requerida')
 
-  // Validar longitud mínima antes de hashear
-  if (password.trim().length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres')
+  if (password.trim().length < 6)
+    throw new Error('La contraseña debe tener al menos 6 caracteres')
 
   // Verificar duplicados
-  const emailExists = await User.findOne({ where: { email: email.trim() } })
+  const emailExists = await User.findOne({
+    where: { email: email.trim() }
+  })
   if (emailExists) throw new Error('El correo ya está registrado')
 
-  const clientRole = await Role.findOne({ where: { name: 'CLIENTE' } })
-  if (!clientRole) throw new Error('Rol CLIENTE no encontrado')
+  // 🔥 ROL DINÁMICO (default CLIENTE)
+  const userRole = await Role.findOne({
+    where: { name: role || 'CLIENTE' }
+  })
+
+  if (!userRole) throw new Error('Rol no válido')
 
   const hashedPassword = await hashPassword(password.trim())
 
   const user = await User.create({
-    name:     name.trim(),
-    email:    email.trim(),
+    name: name.trim(),
+    email: email.trim(),
     password: hashedPassword,
-    roleId:   clientRole.id,
+    roleId: userRole.id,
     isActive: false
   })
 
@@ -49,26 +55,32 @@ export const registerUser = async (data) => {
   }
 }
 
+
 export const loginUser = async (identifier, password) => {
-  // Validaciones de campos vacíos
-  if (!identifier || !identifier.trim()) throw new Error('El correo o username es requerido')
-  if (!password   || !password.trim())   throw new Error('La contraseña es requerida')
+  if (!identifier || !identifier.trim())
+    throw new Error('El correo o username es requerido')
+
+  if (!password || !password.trim())
+    throw new Error('La contraseña es requerida')
 
   const user = await User.findOne({
     where: {
-      [Op.or]: [
-        { email: identifier.trim() }
-      ]
+      [Op.or]: [{ email: identifier.trim() }]
     },
     include: Role
   })
 
   if (!user) throw new Error('Credenciales inválidas')
 
-  const validPassword = await comparePassword(password.trim(), user.password)
+  const validPassword = await comparePassword(
+    password.trim(),
+    user.password
+  )
+
   if (!validPassword) throw new Error('Credenciales inválidas')
 
-  if (!user.isActive) throw new Error('Cuenta no verificada. Revisa tu correo')
+  if (!user.isActive)
+    throw new Error('Cuenta no verificada. Revisa tu correo')
 
   const token = generateJWT(user)
 
@@ -77,6 +89,7 @@ export const loginUser = async (identifier, password) => {
 
   return { token, user: userWithoutPassword }
 }
+
 
 export const verifyAccount = async (token) => {
   try {
@@ -93,8 +106,17 @@ export const verifyAccount = async (token) => {
     await user.save()
 
     return { message: 'Cuenta verificada correctamente' }
-
   } catch (error) {
     throw new Error('Token inválido o expirado')
   }
+}
+
+
+export const getUsers = async () => {
+  const users = await User.findAll({
+    include: Role,
+    attributes: { exclude: ['password'] }
+  })
+
+  return users
 }
