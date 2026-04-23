@@ -4,7 +4,6 @@ export const AdminGeneralLayout = () => {
   return (
     <div className="flex h-screen bg-gray-100">
 
-      {/* SIDEBAR */}
       <aside className="w-64 bg-white border-r p-6">
         
         <h1 className="text-lg font-semibold text-orange-600 mb-8">
@@ -29,7 +28,6 @@ export const AdminGeneralLayout = () => {
 
       </aside>
 
-      {/* CONTENT */}
       <main className="flex-1 p-8 bg-gray-50">
         <Outlet />
       </main>

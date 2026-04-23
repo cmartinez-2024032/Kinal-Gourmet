@@ -6,7 +6,11 @@ export const loginRequest = (data) =>
 
 // REGISTER
 export const registerRequest = (data) =>
-  api.post('/auth/register', data)
+  api.post('/auth/register', data, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    }
+  })
 
 // VERIFY
 export const verifyRequest = (token) =>
