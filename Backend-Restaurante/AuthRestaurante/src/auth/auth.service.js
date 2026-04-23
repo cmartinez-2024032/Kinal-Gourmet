@@ -39,7 +39,7 @@ export const registerUser = async (data) => {
     email: email.trim(),
     password: hashedPassword,
     roleId: userRole.id,
-    isActive: false
+    isActive: role === "CLIENTE" ? false : true
   })
 
   const verificationToken = generateVerificationToken(user)
