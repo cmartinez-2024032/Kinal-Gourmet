@@ -22,7 +22,8 @@ router.patch(
 router.patch(
   '/:id/assign-restaurant',
   validateJWT,
-  validateRole('ADMIN_GENERAL')
+  validateRole('ADMIN_GENERAL'),
+  assignRestaurant
 )
 
 export default router

@@ -20,7 +20,7 @@ export const verifyRequest = (token) =>
 export const profileRequest = () =>
   api.get('/auth/profile')
 
-//Listar Usuarios
+// LISTAR USUARIOS
 export const getUsersRequest = () =>
   api.get('/auth/users', {
     headers: {
@@ -28,3 +28,10 @@ export const getUsersRequest = () =>
     }
   })
 
+// CREAR ADMIN RESTAURANTE 👈 nueva
+export const createAdminRestaurantRequest = (data) =>
+  api.post('/users/create-admin-restaurant', data, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    }
+  })
