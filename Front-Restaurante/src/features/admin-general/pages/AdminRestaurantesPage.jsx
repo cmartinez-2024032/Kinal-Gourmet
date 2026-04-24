@@ -39,7 +39,6 @@ export const RestaurantesPage = () => {
 
   useEffect(() => { getRestaurants(); }, []);
 
-  // ── Form handlers ──────────────────────────────────────────
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
@@ -70,7 +69,6 @@ export const RestaurantesPage = () => {
     }));
   };
 
-  // ── Submit crear ───────────────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(""); setSuccess("");
@@ -97,7 +95,6 @@ export const RestaurantesPage = () => {
     }
   };
 
-  // ── Edit / Delete ──────────────────────────────────────────
   const openEditModal = (restaurant) => {
     setSelectedRestaurant(restaurant);
     setEditForm({

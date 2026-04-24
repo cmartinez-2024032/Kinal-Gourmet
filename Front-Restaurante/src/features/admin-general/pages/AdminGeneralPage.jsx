@@ -68,7 +68,7 @@ export const AdminGeneralPage = () => {
 
       setSuccess(`Administrador "${form.name}" creado y vinculado correctamente`)
       setForm({ name: "", email: "", password: "", restaurantId: "" })
-      await getData()       // refresca usuarios Y restaurantes
+      await getData()     
       setShowForm(false)
 
     } catch (err) {
@@ -138,7 +138,6 @@ export const AdminGeneralPage = () => {
     }
   }
 
-  // Mapa restaurantId → nombre para mostrarlo en la lista de usuarios
   const restaurantMap = restaurants.reduce((acc, r) => {
     acc[r._id] = r.name
     return acc
