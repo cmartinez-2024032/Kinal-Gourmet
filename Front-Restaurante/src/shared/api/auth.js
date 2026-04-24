@@ -27,3 +27,4 @@ export const getUsersRequest = () =>
       Authorization: `Bearer ${localStorage.getItem('token')}`
     }
   })
+

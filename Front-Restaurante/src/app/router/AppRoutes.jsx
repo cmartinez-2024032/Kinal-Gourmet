@@ -9,6 +9,7 @@ import { RegisterForm } from '../../features/auth/components/RegisterForm'
 import { LandingPage } from '../../features/auth/pages/LandingPage'
 import{AdminGeneralPage} from '../../features/admin-general/pages/AdminGeneralPage.jsx'
 import { AdminGeneralLayout } from '../../features/admin-general/layout/AdminGeneralLayout'
+import { RestaurantesPage } from '../../features/admin-general/pages/AdminRestaurantesPage.jsx'
 
 export const AppRoutes = () => {
     return (
@@ -39,6 +40,7 @@ export const AppRoutes = () => {
                 }
             >
                 <Route index element={<AdminGeneralPage />} />
+                <Route path="restaurantes" element={<RestaurantesPage />} />
             </Route>
 
         </Routes>

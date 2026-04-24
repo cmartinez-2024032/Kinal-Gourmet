@@ -10,7 +10,7 @@ export const AdminGeneralLayout = () => {
           Admin General
         </h1>
 
-        <nav>
+        <nav className="space-y-2">
           <NavLink
             to="/adminGeneral"
             end
@@ -23,6 +23,19 @@ export const AdminGeneralLayout = () => {
             }
           >
             Administradores Restaurante
+          </NavLink>
+
+          <NavLink
+            to="/adminGeneral/restaurantes"
+            className={({ isActive }) =>
+              `block px-4 py-2.5 rounded-lg text-sm transition ${
+                isActive
+                  ? "bg-orange-100 text-orange-600 font-medium"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`
+            }
+          >
+            Restaurantes
           </NavLink>
         </nav>
 
