@@ -6,36 +6,32 @@ import { cloudinary } from '../../middlewares/files-uploaders.js';
 
 export const createRestaurant = async (req, res) => {
     try {
+        console.log(req.body);
+
         const restaurantData = req.body;
 
-        restaurantData.ownerUserId = req.user.id;
-        restaurantData.ownerInfo = { name: req.user.name, email: req.user.email };
+        const restaurant = new Restaurant({
+            ...restaurantData,
+            createdBy: req.user.id,
+            ownerUserId: null
+        });
 
-        if (req.file) {
-            restaurantData.images = req.file.path;
-            restaurantData.images_public_id = req.file.filename;
-        }
-
-        const restaurant = new Restaurant(restaurantData);
         await restaurant.save();
 
         res.status(201).json({
             success: true,
-            message: 'Restaurante creado exitosamente',
+            message: 'Restaurante creado',
             data: restaurant
         });
+
     } catch (error) {
+        console.error(error);
 
-        if (req.file && req.file.filename) {
-            await cloudinary.uploader.destroy(req.file.filename).catch(err => 
-                console.error('Error al eliminar imagen:', err)
-            );
-        }
-
-        res.status(400).json({
+        res.status(500).json({
             success: false,
-            message: 'Error al crear el restaurante',
-            error: error.message
+            message: 'Error al crear restaurante',
+            error: error.message,
+            details: error.errors
         });
     }
 };
@@ -218,6 +214,40 @@ export const deleteRestaurant = async (req, res) => {
             success: false,
             message: "Error al eliminar restaurante",
             error: error.message,
+        });
+    }
+};
+
+
+export const assignAdminToRestaurant = async (req, res) => {
+    try {
+        const { id } = req.params;      // restaurantId
+        const { userId } = req.body;    // ID del admin
+
+        const restaurant = await Restaurant.findById(id);
+
+        if (!restaurant) {
+            return res.status(404).json({
+                success: false,
+                message: 'Restaurante no encontrado'
+            });
+        }
+
+        restaurant.ownerUserId = userId;
+
+        await restaurant.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Admin asignado correctamente',
+            data: restaurant
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error al asignar admin',
+            error: error.message
         });
     }
 };

@@ -3,23 +3,23 @@ import { hashPassword } from '../../helpers/hash-password.js'
 import bcrypt from 'bcryptjs'
 
 export const createAdminRestaurant = async (data) => {
-  const { name, email, password } = data
+  const { name, email, password, restaurantId } = data
 
-  // Validar que los campos no estén vacíos o solo con espacios
-  if (!name || !name.trim()) throw new Error('El nombre es requerido')
-  if (!email || !email.trim()) throw new Error('El correo es requerido')
+  if (!name || !name.trim())     throw new Error('El nombre es requerido')
+  if (!email || !email.trim())   throw new Error('El correo es requerido')
   if (!password || !password.trim()) throw new Error('La contraseña es requerida')
+  if (!restaurantId)             throw new Error('El restaurantId es requerido')
 
-  // Validar longitud mínima de contraseña
   if (password.trim().length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres')
 
   const exists = await User.findOne({ where: { email: email.trim() } })
   if (exists) throw new Error('Correo ya registrado')
 
-  const role = await Role.findOne({
-    where: { name: 'ADMIN_RESTAURANTE' }
-  })
+  // Validar que ningún usuario ya tenga ese restaurantId
+  const restaurantTaken = await User.findOne({ where: { restaurantId } })
+  if (restaurantTaken) throw new Error('Este restaurante ya tiene un administrador asignado')
 
+  const role = await Role.findOne({ where: { name: 'ADMIN_RESTAURANTE' } })
   if (!role) throw new Error('Rol ADMIN_RESTAURANTE no encontrado')
 
   const hashedPassword = await hashPassword(password.trim())
@@ -29,13 +29,13 @@ export const createAdminRestaurant = async (data) => {
     email: email.trim(),
     password: hashedPassword,
     roleId: role.id,
+    restaurantId,
     isActive: true
   })
 
-  const userWithoutPassword = user.toJSON()
-  delete userWithoutPassword.password
-
-  return userWithoutPassword
+  const clean = user.toJSON()
+  delete clean.password
+  return clean
 }
 
 export const changePassword = async (userId, currentPassword, newPassword) => {

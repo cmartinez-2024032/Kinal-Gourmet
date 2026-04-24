@@ -98,6 +98,11 @@ const restaurantSchema = mongoose.Schema(
             tiktok: String
         },
 
+        createdBy: {
+            type: String,
+            default: null
+        },
+
         category: {
             type: String,
             required: true,
@@ -219,8 +224,9 @@ const restaurantSchema = mongoose.Schema(
 
         ownerUserId: {
             type: String,
-            required: true
+            default: null
         },
+        
         ownerInfo: {
             name: { type: String },
             email: { type: String }
