@@ -55,13 +55,15 @@ export const AdminGeneralPage = () => {
   }
 
   const filteredUsers = users
-  .filter(user =>
-    (user.Role?.name || user.role?.name) === "ADMIN_RESTAURANTE"
-  )
-  .filter(user =>
-    user.name.toLowerCase().includes(search.toLowerCase()) ||
-    user.email.toLowerCase().includes(search.toLowerCase())
-  )
+    .filter(user =>
+        ["ADMIN_RESTAURANTE", "ADMIN_GENERAL"].includes(
+        user.Role?.name || user.role?.name
+        )
+    )
+    .filter(user =>
+        user.name.toLowerCase().includes(search.toLowerCase()) ||
+        user.email.toLowerCase().includes(search.toLowerCase())
+    )
 
   return (
     <div className="w-full h-full">

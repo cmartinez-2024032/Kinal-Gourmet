@@ -21,6 +21,8 @@ export const LoginForm = () => {
 
             if (role === "ADMIN_GENERAL") {
                 navigate("/adminGeneral")
+            } else if (role === "ADMIN_RESTAURANTE") {
+            navigate("/adminRestaurante")
             } else {
                 navigate("/dashboard")
             }
