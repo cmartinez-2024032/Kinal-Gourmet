@@ -32,10 +32,7 @@ export const createAdminRestaurant = async (data) => {
     isActive: true
   })
 
-  const userWithoutPassword = user.toJSON()
-  delete userWithoutPassword.password
-
-  return userWithoutPassword
+  return user
 }
 
 export const changePassword = async (userId, currentPassword, newPassword) => {

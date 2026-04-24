@@ -20,3 +20,9 @@ export const getRestaurantByIdRequest = (id) =>
 
 export const createRestaurantRequest = (data) =>
   restaurantsApi.post("/kinalGourmetHouse/v1/restaurants/create", data)
+
+export const updateRestaurantRequest = (id, data) =>
+  restaurantsApi.put(`/kinalGourmetHouse/v1/restaurants/${id}`, data)
+
+export const deleteRestaurantRequest = (id) =>
+  restaurantsApi.delete(`/kinalGourmetHouse/v1/restaurants/${id}`)

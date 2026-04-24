@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { createAdminRest, updateMyPassword, assignRestaurant } from './user.controller.js'
+import { createAdminRest, updateMyPassword, assignRestaurant, updateAdminUser, deleteAdminUser } from './user.controller.js'
 import { validateJWT } from '../../middlewares/validate-jwt.js'
 import { validateRole } from '../../middlewares/validate-role.js'
 
@@ -24,6 +24,22 @@ router.patch(
   validateJWT,
   validateRole('ADMIN_GENERAL'),
   assignRestaurant
+)
+
+// Actualizar datos de un admin (nombre, email, isActive) — solo ADMIN_GENERAL
+router.put(
+  '/:id',
+  validateJWT,
+  validateRole('ADMIN_GENERAL'),
+  updateAdminUser
+)
+
+// Eliminar un admin_restaurante — solo ADMIN_GENERAL
+router.delete(
+  '/:id',
+  validateJWT,
+  validateRole('ADMIN_GENERAL'),
+  deleteAdminUser
 )
 
 export default router

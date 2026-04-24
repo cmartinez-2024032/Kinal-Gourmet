@@ -28,9 +28,38 @@ export const getUsersRequest = () =>
     }
   })
 
-// CREAR ADMIN RESTAURANTE 👈 nueva
+// CREAR ADMIN RESTAURANTE
 export const createAdminRestaurantRequest = (data) =>
   api.post('/users/create-admin-restaurant', data, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    }
+  })
+
+export const removeRestaurantFromAdminRequest = (id) =>
+  api.patch(
+    `/users/${id}/assign-restaurant`,
+    {
+      restaurantId: null
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      }
+    }
+  )
+
+// ACTUALIZAR ADMIN RESTAURANTE
+export const updateAdminUserRequest = (id, data) =>
+  api.put(`/users/${id}`, data, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    }
+  })
+
+// ELIMINAR ADMIN RESTAURANTE
+export const deleteAdminUserRequest = (id) =>
+  api.delete(`/users/${id}`, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`
     }

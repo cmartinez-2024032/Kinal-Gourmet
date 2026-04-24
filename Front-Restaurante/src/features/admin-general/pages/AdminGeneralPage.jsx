@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react"
-import { createAdminRestaurantRequest, getUsersRequest } from "../../../shared/api/auth"
+import {
+  createAdminRestaurantRequest,
+  getUsersRequest,
+  updateAdminUserRequest,
+  deleteAdminUserRequest
+} from "../../../shared/api/auth"
 import { getRestaurantsRequest } from "../../../shared/api/restaurants"
 
 export const AdminGeneralPage = () => {
@@ -10,6 +15,16 @@ export const AdminGeneralPage = () => {
   const [loading, setLoading]         = useState(false)
   const [error, setError]             = useState("")
   const [success, setSuccess]         = useState("")
+
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
+
+  const [editForm, setEditForm] = useState({
+    name: "",
+    email: "",
+    isActive: true,
+    restaurantId: ""
+  })
 
   const [form, setForm] = useState({
     name: "",
@@ -27,6 +42,9 @@ export const AdminGeneralPage = () => {
         getUsersRequest(),
         getRestaurantsRequest()
       ])
+
+      console.log(restaurantsRes.data.data)
+
       setUsers(usersRes.data.users || usersRes.data)
       setRestaurants(restaurantsRes.data.data || [])
     } catch (err) {
@@ -57,6 +75,66 @@ export const AdminGeneralPage = () => {
       setError(err.response?.data?.error || "Error al crear el administrador")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const openEditModal = (user) => {
+    setSelectedUser(user)
+    setEditForm({
+      name: user.name || "",
+      email: user.email || "",
+      isActive: user.isActive ?? true,
+      restaurantId: user.restaurantId || ""
+    })
+    setShowEditModal(true)
+  }
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target
+
+    setEditForm({
+      ...editForm,
+      [name]: name === "isActive"
+        ? value === "true"
+        : value
+    })
+  }
+
+  const handleUpdateUser = async () => {
+    try {
+      await updateAdminUserRequest(selectedUser.id, editForm)
+
+      setSuccess("Administrador actualizado correctamente")
+      setShowEditModal(false)
+      await getData()
+
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+        "Error al actualizar administrador"
+      )
+    }
+  }
+
+  const handleDeleteUser = async () => {
+    const confirmDelete = window.confirm(
+      "¿Seguro que deseas eliminar este administrador?"
+    )
+
+    if (!confirmDelete) return
+
+    try {
+      await deleteAdminUserRequest(selectedUser.id)
+
+      setSuccess("Administrador eliminado correctamente")
+      setShowEditModal(false)
+      await getData()
+
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+        "Error al eliminar administrador"
+      )
     }
   }
 
@@ -229,7 +307,7 @@ export const AdminGeneralPage = () => {
 
             return (
               <div
-                key={user.id}
+                key={user._id}
                 className="border rounded-lg px-4 py-3 flex justify-between items-center"
               >
                 <div>
@@ -248,9 +326,20 @@ export const AdminGeneralPage = () => {
                   )}
                 </div>
 
-                <span className="bg-gray-100 px-2 py-1 rounded text-xs shrink-0">
-                  {roleName}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="bg-gray-100 px-2 py-1 rounded text-xs shrink-0">
+                    {roleName}
+                  </span>
+
+                  {roleName === "ADMIN_RESTAURANTE" && (
+                    <button
+                      onClick={() => openEditModal(user)}
+                      className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-xs"
+                    >
+                      Editar / Eliminar
+                    </button>
+                  )}
+                </div>
               </div>
             )
           })}
@@ -262,7 +351,113 @@ export const AdminGeneralPage = () => {
           )}
         </div>
       </div>
+      
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
 
+            <h2 className="text-lg font-semibold mb-4">
+              Editar Administrador
+            </h2>
+
+            <div className="space-y-4">
+
+              <div>
+                <label className="text-sm text-gray-600">
+                  Nombre
+                </label>
+                <input
+                  name="name"
+                  value={editForm.name}
+                  onChange={handleEditChange}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">
+                  Email
+                </label>
+                <input
+                  name="email"
+                  value={editForm.email}
+                  onChange={handleEditChange}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">
+                  Estado
+                </label>
+                <select
+                  name="isActive"
+                  value={String(editForm.isActive)}
+                  onChange={handleEditChange}
+                  className="w-full border rounded-lg px-3 py-2"
+                >
+                  <option value="true">Activo</option>
+                  <option value="false">Inactivo</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">
+                  Restaurante asignado
+                </label>
+
+                <select
+                  name="restaurantId"
+                  value={editForm.restaurantId}
+                  onChange={handleEditChange}
+                  className="w-full border rounded-lg px-3 py-2"
+                >
+                  <option value="">Sin restaurante</option>
+
+                  {restaurants.map((restaurant) => (
+                    <option
+                      key={restaurant._id}
+                      value={restaurant._id}
+                    >
+                      {restaurant.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+            </div>
+
+            <div className="flex justify-between mt-6">
+
+              <div className="flex gap-2">
+                <button
+                  onClick={handleDeleteUser}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
+                >
+                  Eliminar
+                </button>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="border px-4 py-2 rounded-lg"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  onClick={handleUpdateUser}
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg"
+                >
+                  Guardar cambios
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

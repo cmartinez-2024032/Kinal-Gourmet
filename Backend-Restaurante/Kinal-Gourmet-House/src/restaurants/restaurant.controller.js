@@ -10,10 +10,14 @@ export const createRestaurant = async (req, res) => {
 
         const restaurantData = req.body;
 
+        // Si el que crea es ADMIN_GENERAL, el restaurante se aprueba automáticamente
+        const initialStatus = req.user.role === 'ADMIN_GENERAL' ? 'ACTIVE' : 'PENDING_APPROVAL';
+
         const restaurant = new Restaurant({
             ...restaurantData,
             createdBy: req.user.id,
-            ownerUserId: null
+            ownerUserId: null,
+            status: initialStatus
         });
 
         await restaurant.save();

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { Mail, Lock } from 'lucide-react'
+import logo from "../../../assets/logo_1.png"
 
 export const LoginForm = () => {
     const { login, loading, error, user } = useAuthStore()
@@ -34,12 +35,11 @@ export const LoginForm = () => {
 
             {/* BRAND ICON */}
             <div className="flex justify-center mb-4">
-                <div className="w-13 h-13 bg-orange-400 rounded-[14px] flex items-center justify-center p-3">
-                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-                    <path strokeLinecap="round" d="M8 12h8M12 8v8"/>
-                </svg>
-                </div>
+                <img
+                    src={logo}
+                    alt="Logo Kinal Gourmet House"
+                    className="h-30 w-auto object-contain"
+                />
             </div>
 
             {/* BADGE */}

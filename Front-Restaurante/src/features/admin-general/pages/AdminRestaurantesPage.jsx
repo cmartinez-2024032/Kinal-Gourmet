@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react"
-import { getRestaurantsRequest, createRestaurantRequest } from "../../../shared/api/restaurants.js"
+import {
+  getRestaurantsRequest,
+  createRestaurantRequest,
+  updateRestaurantRequest,
+  deleteRestaurantRequest
+} from "../../../shared/api/restaurants"
 
 const CATEGORIES = ['GOURMET','CASUAL','CAFETERIA','FAST_FOOD','BAR','PIZZERIA','ITALIANA','MEXICANA','ASIATICA','MARISCOS','PARRILLADA','VEGETARIANA','POSTRES','OTRO']
 const PRICE_RANGES = ['$', '$$', '$$$', '$$$$']
@@ -36,6 +41,18 @@ export const RestaurantesPage = () => {
   const [loading, setLoading]           = useState(false)
   const [error, setError]               = useState("")
   const [success, setSuccess]           = useState("")
+
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null)
+
+  const [editForm, setEditForm] = useState({
+    name: "",
+    description: "",
+    address: "",
+    phone: "",
+    email: "",
+    averagePrice: ""
+  })
 
   const getRestaurants = async () => {
     try {
@@ -115,6 +132,69 @@ export const RestaurantesPage = () => {
       setError(err.response?.data?.message || err.response?.data?.error || "Error al crear el restaurante")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const openEditModal = (restaurant) => {
+  setSelectedRestaurant(restaurant)
+
+  setEditForm({
+    name: restaurant.name || "",
+    description: restaurant.description || "",
+    address: restaurant.address || "",
+    phone: restaurant.phone || "",
+    email: restaurant.email || "",
+    averagePrice: restaurant.averagePrice || ""
+  })
+
+  setShowEditModal(true)
+}
+
+const handleEditChange = (e) => {
+  setEditForm({
+    ...editForm,
+    [e.target.name]: e.target.value
+  })
+}
+
+const handleUpdateRestaurant = async () => {
+  try {
+    await updateRestaurantRequest(
+      selectedRestaurant._id,
+      editForm
+    )
+
+    setSuccess("Restaurante actualizado correctamente")
+    setShowEditModal(false)
+    await getRestaurants()
+
+  } catch (err) {
+    setError(
+      err.response?.data?.error ||
+      "Error al actualizar restaurante"
+    )
+  }
+}
+
+const handleDeleteRestaurant = async () => {
+    const confirmDelete = window.confirm(
+      "¿Seguro que deseas eliminar este restaurante?"
+    )
+
+    if (!confirmDelete) return
+
+    try {
+      await deleteRestaurantRequest(selectedRestaurant._id)
+
+      setSuccess("Restaurante eliminado correctamente")
+      setShowEditModal(false)
+      await getRestaurants()
+
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+        "Error al eliminar restaurante"
+      )
     }
   }
 
@@ -381,9 +461,22 @@ export const RestaurantesPage = () => {
                   )}
                 </div>
               </div>
-              <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusColors[r.status] || "bg-gray-100 text-gray-500"}`}>
+              <div className="flex items-center gap-3">
+              <span
+                className={`text-xs px-2 py-1 rounded-full font-medium ${
+                  statusColors[r.status] || "bg-gray-100 text-gray-500"
+                }`}
+              >
                 {r.status}
               </span>
+
+              <button
+                onClick={() => openEditModal(r)}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-xs"
+              >
+                Editar / Eliminar
+              </button>
+            </div>
             </div>
           ))}
 
@@ -392,7 +485,120 @@ export const RestaurantesPage = () => {
           )}
         </div>
       </div>
+      
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-lg">
 
+            <h2 className="text-lg font-semibold mb-4">
+              Editar Restaurante
+            </h2>
+
+            <div className="space-y-4">
+
+              <div>
+                <label className="text-sm text-gray-600 block mb-1">
+                  Nombre del restaurante
+                </label>
+                <input
+                  name="name"
+                  value={editForm.name}
+                  onChange={handleEditChange}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600 block mb-1">
+                  Descripción
+                </label>
+                <input
+                  name="description"
+                  value={editForm.description}
+                  onChange={handleEditChange}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600 block mb-1">
+                  Dirección
+                </label>
+                <input
+                  name="address"
+                  value={editForm.address}
+                  onChange={handleEditChange}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600 block mb-1">
+                  Teléfono
+                </label>
+                <input
+                  name="phone"
+                  value={editForm.phone}
+                  onChange={handleEditChange}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600 block mb-1">
+                  Correo electrónico
+                </label>
+                <input
+                  name="email"
+                  value={editForm.email}
+                  onChange={handleEditChange}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600 block mb-1">
+                  Precio promedio
+                </label>
+                <input
+                  name="averagePrice"
+                  value={editForm.averagePrice}
+                  onChange={handleEditChange}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+
+            </div>
+
+            <div className="flex justify-between mt-6">
+
+              <button
+                onClick={handleDeleteRestaurant}
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
+              >
+                Eliminar
+              </button>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="border px-4 py-2 rounded-lg"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  onClick={handleUpdateRestaurant}
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg"
+                >
+                  Guardar cambios
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
