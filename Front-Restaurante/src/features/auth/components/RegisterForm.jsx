@@ -17,9 +17,15 @@ export const RegisterForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+
         if (form.password !== form.confirmPassword) return
+
         const res = await register(form)
-        if (res?.success) navigate('/dashboard')
+
+        if (res?.success) {
+            alert("Revisa tu correo para activar tu cuenta")
+            navigate("/login")
+        }
     }
 
     return (

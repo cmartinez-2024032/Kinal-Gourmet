@@ -15,16 +15,19 @@ export const LoginForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+
         const res = await login(form)
 
         if (res?.success) {
-            const role = res.user.role.name
+            const role = res.user?.role?.name || res.user?.Role?.name
 
             if (role === "ADMIN_GENERAL") {
                 navigate("/adminGeneral")
-            } else if (role === "ADMIN_RESTAURANTE") {
-            navigate("/adminRestaurante")
-            } else {
+            } 
+            else if (role === "ADMIN_RESTAURANTE") {
+                navigate("/adminRestaurante")
+            } 
+            else {
                 navigate("/dashboard")
             }
         }

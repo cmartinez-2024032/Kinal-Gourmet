@@ -98,14 +98,21 @@ export const verifyAccount = async (token) => {
     const user = await User.findByPk(uid)
     if (!user) throw new Error('Usuario no encontrado')
 
-    if (user.isActive) {
-      return { message: 'Cuenta ya verificada' }
+    if (!user.isActive) {
+      user.isActive = true
+      await user.save()
     }
 
-    user.isActive = true
-    await user.save()
+    const authToken = generateJWT(user)
 
-    return { message: 'Cuenta verificada correctamente' }
+    const userWithoutPassword = user.toJSON()
+    delete userWithoutPassword.password
+
+    return {
+      message: 'Cuenta verificada correctamente',
+      token: authToken,
+      user: userWithoutPassword
+    }
   } catch (error) {
     throw new Error('Token inválido o expirado')
   }

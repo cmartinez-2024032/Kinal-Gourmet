@@ -36,19 +36,24 @@ export const useAuthStore = create((set) => ({
 
     register: async (data) => {
         try {
-        set({ loading: true, error: null })
+            set({ loading: true, error: null })
 
-        await registerRequest(data)
+            const res = await registerRequest(data)
 
-        set({ loading: false })
+            set({ loading: false })
 
-        return { success: true }
+            return {
+                success: true,
+                data: res.data
+            }
 
         } catch (err) {
-        set({
-            error: err.response?.data?.message || 'Error en registro',
-            loading: false
-        })
+            set({
+                error: err.response?.data?.message || 'Error en registro',
+                loading: false
+            })
+
+            return { success: false }
         }
     },
 
