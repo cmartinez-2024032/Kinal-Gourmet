@@ -24,32 +24,132 @@ export const useRestaurantStore = create((set, get) => ({
     }
   },
 
-  createRestaurant: async (payload) => {
+  createRestaurant: async (payload, photoFile) => {
     try {
       set({ loading: true, error: null });
-      await createRestaurantRequest(payload);
+
+      const formData = new FormData();
+
+      // Campos simples
+      const simpleFields = [
+        'name',
+        'description',
+        'address',
+        'phone',
+        'email',
+        'category',
+        'averagePrice',
+        'priceRange',
+        'openingHours',
+        'closingHours'
+      ];
+
+      simpleFields.forEach(field => {
+        if (payload[field] !== undefined) {
+          formData.append(field, payload[field]);
+        }
+      });
+
+      // Campos JSON
+      const jsonFields = [
+        'location',
+        'addressDetails',
+        'features',
+        'paymentMethods',
+        'subcategories'
+      ];
+
+      jsonFields.forEach(field => {
+        if (payload[field] !== undefined) {
+          formData.append(field, JSON.stringify(payload[field]));
+        }
+      });
+
+      // imagen
+      if (photoFile) {
+        formData.append('photo', photoFile);
+      }
+
+      await createRestaurantRequest(formData);
+
       await get().getRestaurants();
+
       set({ loading: false });
+
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Error al crear el restaurante.",
+        error:
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error al crear restaurante.",
         loading: false
       });
-      throw error; // para que el componente pueda capturarlo
+
+      throw error;
     }
   },
 
-  updateRestaurant: async (id, data) => {
+  updateRestaurant: async (id, payload, photoFile) => {
     try {
       set({ loading: true, error: null });
-      await updateRestaurantRequest(id, data);
+
+      const formData = new FormData();
+
+      // campos simples
+      const simpleFields = [
+        'name',
+        'description',
+        'address',
+        'phone',
+        'email',
+        'category',
+        'averagePrice',
+        'priceRange',
+        'openingHours',
+        'closingHours'
+      ];
+
+      simpleFields.forEach(field => {
+        if (payload[field] !== undefined) {
+          formData.append(field, payload[field]);
+        }
+      });
+
+      // campos JSON
+      const jsonFields = [
+        'location',
+        'addressDetails',
+        'features',
+        'paymentMethods',
+        'subcategories'
+      ];
+
+      jsonFields.forEach(field => {
+        if (payload[field] !== undefined) {
+          formData.append(field, JSON.stringify(payload[field]));
+        }
+      });
+
+      // imagen nueva
+      if (photoFile) {
+        formData.append('photo', photoFile);
+      }
+
+      await updateRestaurantRequest(id, formData);
+
       await get().getRestaurants();
+
       set({ loading: false });
+
     } catch (error) {
       set({
-        error: error.response?.data?.error || "Error al actualizar restaurante.",
+        error:
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Error al actualizar restaurante.",
         loading: false
       });
+
       throw error;
     }
   },
