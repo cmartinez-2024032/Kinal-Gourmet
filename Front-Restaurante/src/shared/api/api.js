@@ -1,10 +1,14 @@
 import axios from 'axios'
 
-const api = axios.create({
+const axiosAuth = axios.create({
   baseURL: 'http://localhost:3005/api'
 })
 
-api.interceptors.request.use((config) => {
+const axiosRestaurantAdmin = axios.create({
+  baseURL: "http://localhost:3006"
+})
+
+axiosAuth.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
 
   if (token) {
@@ -14,4 +18,12 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-export default api
+axiosRestaurantAdmin.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token")
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
+export { axiosAuth, axiosRestaurantAdmin }

@@ -1,12 +1,12 @@
-import api from './api'
+import{ axiosAuth } from './api'
 
 // LOGIN
 export const loginRequest = (data) =>
-  api.post('/auth/login', data)
+  axiosAuth.post('/auth/login', data)
 
 // REGISTER
 export const registerRequest = (data) =>
-  api.post('/auth/register', data, {
+  axiosAuth.post('/auth/register', data, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`
     }
@@ -14,15 +14,15 @@ export const registerRequest = (data) =>
 
 // VERIFY
 export const verifyRequest = (token) =>
-  api.get(`/auth/verify/${token}`)
+  axiosAuth.get(`/auth/verify/${token}`)
 
 // PROFILE
 export const profileRequest = () =>
-  api.get('/auth/profile')
+  axiosAuth.get('/auth/profile')
 
 // LISTAR USUARIOS
 export const getUsersRequest = () =>
-  api.get('/auth/users', {
+  axiosAuth.get('/auth/users', {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`
     }
@@ -30,14 +30,14 @@ export const getUsersRequest = () =>
 
 // CREAR ADMIN RESTAURANTE
 export const createAdminRestaurantRequest = (data) =>
-  api.post('/users/create-admin-restaurant', data, {
+  axiosAuth.post('/users/create-admin-restaurant', data, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`
     }
   })
 
 export const removeRestaurantFromAdminRequest = (id) =>
-  api.patch(
+  axiosAuth.patch(
     `/users/${id}/assign-restaurant`,
     {
       restaurantId: null
@@ -51,7 +51,7 @@ export const removeRestaurantFromAdminRequest = (id) =>
 
 // ACTUALIZAR ADMIN RESTAURANTE
 export const updateAdminUserRequest = (id, data) =>
-  api.put(`/users/${id}`, data, {
+  axiosAuth.put(`/users/${id}`, data, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`
     }
@@ -59,7 +59,7 @@ export const updateAdminUserRequest = (id, data) =>
 
 // ELIMINAR ADMIN RESTAURANTE
 export const deleteAdminUserRequest = (id) =>
-  api.delete(`/users/${id}`, {
+  axiosAuth.delete(`/users/${id}`, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`
     }
