@@ -191,12 +191,12 @@ const restaurantSchema = mongoose.Schema(
             }
         }],
 
-        images: {
+        photo: {
             type: String,
             default: null
         },
 
-        images_public_id: {
+        photo_public_id: {
             type: String,
             default: null
         },
