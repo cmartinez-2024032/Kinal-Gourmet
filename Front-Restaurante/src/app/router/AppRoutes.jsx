@@ -11,6 +11,8 @@ import{AdminGeneralPage} from '../../features/admin-general/pages/AdminGeneralPa
 import { AdminGeneralLayout } from '../../features/admin-general/layout/AdminGeneralLayout'
 import { RestaurantesPage } from '../../features/admin-general/pages/AdminRestaurantesPage.jsx'
 
+import { AdminRestLayout } from '../../features/admin-restaurante/layout/AdminRestLayout.jsx'
+
 export const AppRoutes = () => {
     return (
         <Routes>
@@ -41,6 +43,16 @@ export const AppRoutes = () => {
             >
                 <Route index element={<AdminGeneralPage />} />
                 <Route path="restaurantes" element={<RestaurantesPage />} />
+            </Route>
+
+            <Route
+                path="/adminRestaurante"
+                element={
+                    <PrivateRoute>
+                        <AdminRestLayout />
+                    </PrivateRoute>
+                }
+            >
             </Route>
 
         </Routes>
