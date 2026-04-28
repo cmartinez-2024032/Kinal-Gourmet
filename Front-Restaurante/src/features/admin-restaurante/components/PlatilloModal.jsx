@@ -25,6 +25,8 @@ export const PlatilloModal = () => {
   const [imagePreview, setImagePreview] = useState("");
   const [errors, setErrors] = useState({});
 
+ 
+
   useEffect(() => {
     if (isModalOpen) {
         if (selectedDish) {
@@ -51,7 +53,8 @@ export const PlatilloModal = () => {
     }
     }, [isModalOpen, selectedDish]);
 
-  if (!isModalOpen) return null;
+     if (!isModalOpen) return null;
+
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

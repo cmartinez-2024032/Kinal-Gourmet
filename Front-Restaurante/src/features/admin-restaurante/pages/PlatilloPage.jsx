@@ -177,16 +177,16 @@ function DishCard({ dish, onEdit, onDelete }) {
         <h3 className="font-semibold text-sm text-gray-900 mb-1">{dish.name}</h3>
 
         {dish.description && (
-          <p className="text-xs text-gray-400 leading-relaxed line-clamp-2 mb-2">
-            {dish.description}
-          </p>
+            <p className="text-xs text-gray-500 leading-relaxed line-clamp-3 mb-2">
+                {dish.description}
+            </p>
         )}
 
         {/* Ingredientes */}
         {dish.ingredients?.length > 0 && (
-          <p className="text-xs text-gray-300 mb-3 line-clamp-1">
-            🧂 {dish.ingredients.join(", ")}
-          </p>
+            <p className="text-xs text-gray-600 font-medium mb-3 line-clamp-2">
+                🧂 {dish.ingredients.join(", ")}
+            </p>
         )}
 
         <p className="text-lg font-bold text-orange-500 mb-4">
