@@ -12,7 +12,7 @@ import { AdminGeneralLayout } from '../../features/admin-general/layout/AdminGen
 import { RestaurantesPage } from '../../features/admin-general/pages/AdminRestaurantesPage.jsx'
 
 import { AdminRestLayout } from '../../features/admin-restaurante/layout/AdminRestLayout.jsx'
-
+import {PlatilloPage} from '../../features/admin-restaurante/pages/PlatilloPage.jsx'
 export const AppRoutes = () => {
     return (
         <Routes>
@@ -53,6 +53,8 @@ export const AppRoutes = () => {
                     </PrivateRoute>
                 }
             >
+                <Route index element={<div>Resumen</div>} />
+                <Route path="platillos" element={<PlatilloPage />} />
             </Route>
 
         </Routes>

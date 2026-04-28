@@ -24,7 +24,7 @@ export const AdminRestLayout = () => {
 
               {/* Overview */}
               <NavLink
-                to="/adminRest"
+                to="/adminRestaurante"
                 end
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
@@ -44,7 +44,7 @@ export const AdminRestLayout = () => {
               </p>
 
               <NavLink
-                to="/adminRest/platillos"
+                to="/adminRestaurante/platillos"
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
                     isActive
@@ -58,7 +58,7 @@ export const AdminRestLayout = () => {
               </NavLink>
 
               <NavLink
-                to="/adminRest/cupones"
+                to="/adminRestaurante/cupones"
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
                     isActive
@@ -72,7 +72,7 @@ export const AdminRestLayout = () => {
               </NavLink>
 
               <NavLink
-                to="/adminRest/eventos"
+                to="/adminRestaurante/eventos"
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
                     isActive
@@ -91,7 +91,7 @@ export const AdminRestLayout = () => {
               </p>
 
               <NavLink
-                to="/adminRest/mesas"
+                to="/adminRestaurante/mesas"
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
                     isActive
@@ -105,7 +105,7 @@ export const AdminRestLayout = () => {
               </NavLink>
 
               <NavLink
-                to="/adminRest/reservaciones"
+                to="/adminRestaurante/reservaciones"
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
                     isActive
@@ -119,7 +119,7 @@ export const AdminRestLayout = () => {
               </NavLink>
 
               <NavLink
-                to="/adminRest/pedidos"
+                to="/adminRestaurante/pedidos"
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
                     isActive
@@ -138,7 +138,7 @@ export const AdminRestLayout = () => {
               </p>
 
               <NavLink
-                to="/adminRest/restaurante"
+                to="/adminRestaurante/restaurante"
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
                     isActive
