@@ -196,11 +196,11 @@ function DishCard({ dish, onEdit, onDelete }) {
         <div className="flex gap-2">
           <button
             onClick={onEdit}
-            className="flex-1 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-600
-                hover:bg-gray-50 transition-colors"
-          >
+            className="flex-1 py-1.5 rounded-lg border border-orange-200 bg-orange-50 text-xs text-orange-600
+                hover:bg-orange-100 hover:border-orange-300 transition-colors font-medium"
+            >
             Editar
-          </button>
+         </button>
           <button
             onClick={onDelete}
             className="flex-1 py-1.5 rounded-lg border border-red-400 bg-red-500 text-xs
