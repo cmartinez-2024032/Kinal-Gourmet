@@ -7,11 +7,15 @@ export const createDish = async (req, res) => {
         const dishData = req.body;
 
         if (typeof dishData.ingredients === 'string') {
-            dishData.ingredients = dishData.ingredients.split(',').map(item => item.trim());
+            try {
+                dishData.ingredients = JSON.parse(dishData.ingredients);
+            } catch {
+                dishData.ingredients = dishData.ingredients.split(',').map(item => item.trim());
+            }
         }
 
         if (req.file) {
-            dishData.image = req.file.path;
+            dishData.image = req.file.path || req.file.secure_url;
             dishData.image_public_id = req.file.filename;
         }
 
@@ -23,12 +27,10 @@ export const createDish = async (req, res) => {
             message: 'Platillo creado exitosamente',
             data: dish
         });
-    } catch (error) {
 
+    } catch (error) {
         if (req.file && req.file.filename) {
-            await cloudinary.uploader.destroy(req.file.filename).catch(err => 
-                console.error('Error al eliminar imagen:', err)
-            );
+            await cloudinary.uploader.destroy(req.file.filename).catch(() => {});
         }
 
         res.status(400).json({
@@ -44,13 +46,14 @@ export const getDishes = async (req, res) => {
         const { page = 1, limit = 10, isAvailable, type, restaurant } = req.query;
 
         const filter = {};
+
         if (isAvailable !== undefined) filter.isAvailable = isAvailable === 'true';
         if (type) filter.type = type;
-        if (restaurant) filter.restaurant = restaurant;
 
-        // ADMIN_RESTAURANTE solo ve los de su propio restaurante
-        if (req.user && req.user.role === 'ADMIN_RESTAURANTE') {
+        if (req.user?.role === 'ADMIN_RESTAURANTE') {
             filter.restaurant = req.user.restaurantId;
+        } else if (restaurant) {
+            filter.restaurant = restaurant;
         }
 
         const dishes = await Dish.find(filter)
@@ -71,6 +74,7 @@ export const getDishes = async (req, res) => {
                 limit: parseInt(limit)
             }
         });
+
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -83,34 +87,34 @@ export const getDishes = async (req, res) => {
 export const getDishById = async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
                 success: false,
-                message: "ID inválido",
+                message: "ID inválido"
             });
         }
 
         const dish = await Dish.findById(id)
-            .populate('menu', 'name description')
             .populate('restaurant', 'name address phone');
-        
+
         if (!dish) {
             return res.status(404).json({
                 success: false,
-                message: "Platillo no encontrado",
+                message: "Platillo no encontrado"
             });
         }
 
         res.status(200).json({
             success: true,
-            data: dish,
+            data: dish
         });
+
     } catch (error) {
         res.status(500).json({
             success: false,
             message: "Error al obtener el platillo",
-            error: error.message,
+            error: error.message
         });
     }
 };
@@ -118,67 +122,62 @@ export const getDishById = async (req, res) => {
 export const updateDish = async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
                 success: false,
-                message: "ID inválido",
+                message: "ID inválido"
             });
         }
 
         const currentDish = await Dish.findById(id);
-        
+
         if (!currentDish) {
             return res.status(404).json({
                 success: false,
-                message: "Platillo no encontrado",
+                message: "Platillo no encontrado"
             });
         }
 
         const updateData = { ...req.body };
 
         if (typeof updateData.ingredients === 'string') {
-            updateData.ingredients = updateData.ingredients.split(',').map(item => item.trim());
+            try {
+                updateData.ingredients = JSON.parse(updateData.ingredients);
+            } catch {
+                updateData.ingredients = updateData.ingredients.split(',').map(i => i.trim());
+            }
         }
 
         if (req.file) {
             if (currentDish.image_public_id) {
-                await cloudinary.uploader.destroy(
-                    currentDish.image_public_id
-                ).catch(err => console.error('Error al eliminar imagen anterior:', err));
+                await cloudinary.uploader.destroy(currentDish.image_public_id).catch(() => {});
             }
-            
-            updateData.image = req.file.path;
+
+            updateData.image = req.file.path || req.file.secure_url;
             updateData.image_public_id = req.file.filename;
         }
 
-        const updatedDish = await Dish.findByIdAndUpdate(
-            id,
-            updateData,
-            {
-                new: true,
-                runValidators: true,
-            }
-        )
-        .populate('menu', 'name')
-        .populate('restaurant', 'name');
+        const updatedDish = await Dish.findByIdAndUpdate(id, updateData, {
+            new: true,
+            runValidators: true
+        }).populate('restaurant', 'name');
 
         res.status(200).json({
             success: true,
             message: "Platillo actualizado exitosamente",
-            data: updatedDish,
+            data: updatedDish
         });
+
     } catch (error) {
         if (req.file && req.file.filename) {
-            await cloudinary.uploader.destroy(req.file.filename).catch(err =>
-                console.error('Error al eliminar imagen:', err)
-            );
+            await cloudinary.uploader.destroy(req.file.filename).catch(() => {});
         }
 
         res.status(500).json({
             success: false,
             message: "Error al actualizar platillo",
-            error: error.message,
+            error: error.message
         });
     }
 };
@@ -186,39 +185,39 @@ export const updateDish = async (req, res) => {
 export const deleteDish = async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
                 success: false,
-                message: "ID inválido",
+                message: "ID inválido"
             });
         }
 
         const dish = await Dish.findById(id);
-        
+
         if (!dish) {
             return res.status(404).json({
                 success: false,
-                message: "Platillo no encontrado",
+                message: "Platillo no encontrado"
             });
         }
-        
+
         if (dish.image_public_id) {
-            await cloudinary.uploader.destroy(dish.image_public_id)
-                .catch(err => console.error('Error al eliminar imagen:', err));
+            await cloudinary.uploader.destroy(dish.image_public_id).catch(() => {});
         }
 
-        await Dish.findByIdAndDelete(id);
+        await dish.deleteOne();
 
         res.status(200).json({
             success: true,
-            message: "Platillo eliminado exitosamente",
+            message: "Platillo eliminado exitosamente"
         });
+
     } catch (error) {
         res.status(500).json({
             success: false,
             message: "Error al eliminar platillo",
-            error: error.message,
+            error: error.message
         });
     }
 };

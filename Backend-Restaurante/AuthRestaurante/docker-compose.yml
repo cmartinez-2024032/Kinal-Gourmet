@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   restaurant_db:
@@ -12,4 +12,7 @@ services:
     ports:
       - "5436:5432"
     volumes:
-      - ./postgres:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

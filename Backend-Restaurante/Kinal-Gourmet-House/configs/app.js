@@ -25,7 +25,6 @@ import reportRoutes from '../src/reports/report.routes.js';
 const BASE_PATH = '/kinalGourmetHouse/v1';
 
 const middlewares = (app) => {
-    // ✅ Solo procesar si NO es multipart/form-data (eso lo maneja multer)
     app.use((req, res, next) => {
         const contentType = req.headers['content-type'] || '';
         if (contentType.includes('multipart/form-data')) {
