@@ -8,6 +8,10 @@ const axiosRestaurantAdmin = axios.create({
   baseURL: "http://localhost:3006"
 })
 
+const axiosPlatillos = axios.create({
+  baseURL: "http://localhost:3006"
+})
+
 axiosAuth.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
 
@@ -26,4 +30,12 @@ axiosRestaurantAdmin.interceptors.request.use((config) => {
   return config
 })
 
-export { axiosAuth, axiosRestaurantAdmin }
+axiosPlatillos.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token")
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
+export { axiosAuth, axiosRestaurantAdmin, axiosPlatillos }
