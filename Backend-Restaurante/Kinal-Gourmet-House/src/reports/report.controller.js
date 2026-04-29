@@ -6,6 +6,7 @@ import Restaurant from '../restaurants/restaurant.model.js';
 import Review from '../reviews/review.model.js';
 import Dish from '../dishes/dish.model.js';
 import mongoose from 'mongoose';
+import { buildSalesExcel } from './excel/salesReport.js';
 
 export const getSalesReport = async (req, res) => {
     try {
@@ -176,6 +177,93 @@ export const getTopDishes = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error al obtener platillos más vendidos',
+            error: error.message
+        });
+    }
+};
+
+export const getSalesReportExcel = async (req, res) => {
+    try {
+        let { restaurantId, startDate, endDate, groupBy = 'day' } = req.query;
+
+        
+        if (req.user && req.user.role === 'ADMIN_RESTAURANTE') {
+            restaurantId = req.user.restaurantId;
+        }
+
+        if (!startDate || !endDate) {
+            return res.status(400).json({
+                success: false,
+                message: 'Fechas de inicio y fin son requeridas'
+            });
+        }
+
+        const filter = {
+            createdAt: {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate)
+            },
+            status: 'ENTREGADO'
+        };
+
+        if (restaurantId) {
+            if (!mongoose.Types.ObjectId.isValid(restaurantId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'ID de restaurante inválido'
+                });
+            }
+            filter.restaurant = new mongoose.Types.ObjectId(restaurantId);
+        }
+
+        let dateFormat;
+        switch (groupBy) {
+            case 'hour':
+                dateFormat = { $dateToString: { format: "%Y-%m-%d %H:00", date: "$createdAt" } };
+                break;
+            case 'day':
+                dateFormat = { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } };
+                break;
+            case 'month':
+                dateFormat = { $dateToString: { format: "%Y-%m", date: "$createdAt" } };
+                break;
+            default:
+                dateFormat = { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } };
+        }
+
+        const salesData = await Order.aggregate([
+            { $match: filter },
+            {
+                $group: {
+                    _id: dateFormat,
+                    totalOrders: { $sum: 1 },
+                    totalRevenue: { $sum: '$totalPrice' },
+                    averageOrderValue: { $avg: '$totalPrice' }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        const workbook = await buildSalesExcel(salesData);
+
+        // Descargar
+        res.setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+
+        res.setHeader(
+            'Content-Disposition',
+            'attachment; filename=reporte_ventas.xlsx'
+        );
+
+        await workbook.xlsx.write(res);
+        res.end();
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error al generar Excel',
             error: error.message
         });
     }

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { getSalesReport,getTopDishes,getPeakHours,getReservationStats,getCustomerSatisfactionReport,getRestaurantDashboard } from "./report.controller.js";
 import { verifyToken } from "../../middlewares/auth-integration.middleware.js";
 import { isRestaurantAdmin } from "../../middlewares/role.middleware.js";
+import { getSalesReportExcel } from "./report.controller.js";
 
 const belongsToReportRestaurant = (req, res, next) => {
     if (!req.user || req.user.role === 'ADMIN_GENERAL') return next();
@@ -23,6 +24,7 @@ const router = Router();
 
 router.use(verifyToken);
 router.use(isRestaurantAdmin);
+router.get('/sales/excel', belongsToReportRestaurant, getSalesReportExcel);
 
 router.get('/sales', belongsToReportRestaurant, getSalesReport);
 
