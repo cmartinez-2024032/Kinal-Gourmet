@@ -42,6 +42,11 @@ export const initUserModel = (sequelize) => {
         allowNull: true,
         defaultValue: null
     },
+    image:{
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+    },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
