@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { createAdminRest, updateMyPassword, assignRestaurant, updateAdminUser, deleteAdminUser } from './user.controller.js'
 import { validateJWT } from '../../middlewares/validate-jwt.js'
 import { validateRole } from '../../middlewares/validate-role.js'
+import { uploadUserImages } from '../../middlewares/files-uploaders.js'
 
 const router = Router()
 
@@ -9,6 +10,7 @@ router.post(
   '/create-admin-restaurant',
   validateJWT,
   validateRole('ADMIN_GENERAL'),
+  uploadUserImages.single('image'),
   createAdminRest
 )
 
@@ -26,15 +28,14 @@ router.patch(
   assignRestaurant
 )
 
-// Actualizar datos de un admin (nombre, email, isActive) — solo ADMIN_GENERAL
 router.put(
   '/:id',
   validateJWT,
   validateRole('ADMIN_GENERAL'),
+  uploadUserImages.single('image'),
   updateAdminUser
 )
 
-// Eliminar un admin_restaurante — solo ADMIN_GENERAL
 router.delete(
   '/:id',
   validateJWT,

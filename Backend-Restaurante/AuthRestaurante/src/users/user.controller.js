@@ -6,7 +6,6 @@ export const createAdminRest = async (req, res) => {
   const { restaurantId } = req.body
 
   try {
-    // 1. Verificar que el restaurante existe y está libre
     const checkRes = await fetch(
       `${RESTAURANT_SERVICE_URL}/kinalGourmetHouse/v1/restaurants/${restaurantId}`,
       {
@@ -30,10 +29,8 @@ export const createAdminRest = async (req, res) => {
       })
     }
 
-    // 2. Crear usuario en Auth Service
     const createdUser = await createAdminRestaurant(req.body)
 
-    // Buscar instancia real de Sequelize para poder hacer update()
     const user = await User.findByPk(createdUser.id)
 
     if (!user) {
@@ -42,12 +39,12 @@ export const createAdminRest = async (req, res) => {
       })
     }
 
-    // Guardar restaurantId en Auth Service
+    // ✅ FIX: imagen viene de req.file, no de req.body
     await user.update({
-      restaurantId
+      restaurantId,
+      image: req.file?.path || req.file?.secure_url || null
     })
 
-    // 3. Vincular ownerUserId en Restaurant Service
     const assignRes = await fetch(
       `${RESTAURANT_SERVICE_URL}/kinalGourmetHouse/v1/restaurants/${restaurantId}/assign-admin`,
       {
@@ -67,7 +64,6 @@ export const createAdminRest = async (req, res) => {
     )
 
     if (!assignRes.ok) {
-      // rollback si falla
       await User.destroy({
         where: { id: user.id }
       })
@@ -79,9 +75,14 @@ export const createAdminRest = async (req, res) => {
 
     const assignData = await assignRes.json()
 
+    // ✅ Recargar usuario para que la respuesta incluya la imagen actualizada
+    const updatedUser = await User.findByPk(user.id)
+    const userJSON = updatedUser.toJSON()
+    delete userJSON.password
+
     res.status(201).json({
       message: 'Administrador creado y vinculado correctamente',
-      user,
+      user: userJSON,
       restaurant: assignData.data
     })
 
@@ -114,7 +115,10 @@ export const updateMyPassword = async (req, res) => {
 export const updateAdminUser = async (req, res) => {
   try {
     const { id } = req.params
+
+    // ✅ FIX: imagen viene de req.file, no de req.body
     const { name, email, isActive, restaurantId } = req.body
+    const image = req.file?.path || req.file?.secure_url || undefined
 
     const user = await User.findByPk(id)
 
@@ -125,45 +129,18 @@ export const updateAdminUser = async (req, res) => {
     }
 
     const RESTAURANT_SERVICE_URL = process.env.RESTAURANT_SERVICE_URL
-
-    // Guardamos restaurante anterior
     const oldRestaurantId = user.restaurantId
-
     const updateData = {}
 
-    if (name !== undefined) {
-      updateData.name = name.trim()
-    }
-
-    if (email !== undefined) {
-      updateData.email = email.trim()
-    }
-
-    if (isActive !== undefined) {
-      updateData.isActive = isActive
-    }
-
-    if (restaurantId !== undefined) {
-      updateData.restaurantId = restaurantId || null
-    }
+    if (name !== undefined) updateData.name = name.trim()
+    if (email !== undefined) updateData.email = email.trim()
+    if (isActive !== undefined) updateData.isActive = isActive
+    if (restaurantId !== undefined) updateData.restaurantId = restaurantId || null
+    if (image !== undefined) updateData.image = image || null
 
     await user.update(updateData)
 
-    /*
-      SINCRONIZACIÓN CON RESTAURANT SERVICE
-
-      Caso 1:
-      quitó restaurante → remover ownerUserId
-
-      Caso 2:
-      cambió restaurante → quitar del viejo y asignar al nuevo
-    */
-
-    // quitar del restaurante anterior si cambió o eliminó
-    if (
-      oldRestaurantId &&
-      oldRestaurantId !== restaurantId
-    ) {
+    if (oldRestaurantId && oldRestaurantId !== restaurantId) {
       await fetch(
         `${RESTAURANT_SERVICE_URL}/kinalGourmetHouse/v1/restaurants/${oldRestaurantId}/assign-admin`,
         {
@@ -180,11 +157,7 @@ export const updateAdminUser = async (req, res) => {
       ).catch(() => {})
     }
 
-    // asignar nuevo restaurante si existe
-    if (
-      restaurantId &&
-      oldRestaurantId !== restaurantId
-    ) {
+    if (restaurantId && oldRestaurantId !== restaurantId) {
       await fetch(
         `${RESTAURANT_SERVICE_URL}/kinalGourmetHouse/v1/restaurants/${restaurantId}/assign-admin`,
         {
@@ -231,7 +204,6 @@ export const deleteAdminUser = async (req, res) => {
       })
     }
 
-    // Si tiene restaurante → desvincular
     if (user.restaurantId) {
       const RESTAURANT_SERVICE_URL = process.env.RESTAURANT_SERVICE_URL
 
