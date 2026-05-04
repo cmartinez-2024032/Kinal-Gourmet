@@ -1,99 +1,100 @@
-import { create } from "zustand";
-import {
-    getPromotionsRequest,
-    createPromotionRequest,
-    updatePromotionRequest,
-    deletePromotionRequest,
-} from "../../../shared/api/promotions";
+import { useState } from "react";
 
-export const usePromotionStore = create((set, get) => ({
-    promotions:     [],
-    selectedPromo:  null,
-    isModalOpen:    false,
-    searchTerm:     "",
-    loading:        false,
-    error:          null,
+const API_URL = "http://localhost:3006/kinalGourmetHouse/v1/promotions";
 
-    getFilteredPromotions: () => {
-        const { promotions, searchTerm } = get();
+export const UsePromotionStore = () => {
+  const [promotions, setPromotions] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-        if (!Array.isArray(promotions)) return [];
+  const token = localStorage.getItem("token");
 
-        return promotions.filter((p) =>
-            p.name?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    },
+  const getPromotions = async () => {
+    try {
+      setLoading(true);
 
-    openCreateModal: () => set({ isModalOpen: true, selectedPromo: null }),
-    openEditModal:   (promo) => set({ isModalOpen: true, selectedPromo: promo }),
-    closeModal:      () => set({ isModalOpen: false, selectedPromo: null }),
+      const res = await fetch(`${API_URL}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    getPromotions: async () => {
-        try {
-            set({ loading: true, error: null });
+      const data = await res.json();
+      console.log("PROMOTIONS:", data); 
 
-            const response = await getPromotionsRequest();
+      setPromotions(data.data || []);
+    } catch (error) {
+      console.log("ERROR GET:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            const raw = response.data?.data ?? response.data ?? [];
+ const createPromotion = async (promotion) => {
+  try {
+    const res = await fetch(`${API_URL}/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(promotion),
+    });
 
-            const promotions = Array.isArray(raw)
-                ? raw
-                : raw.promotions || [];
+    const data = await res.json();
 
-            set({ promotions, loading: false });
+    console.log("CREATE:", data); 
 
-        } catch (error) {
-            set({
-                error: error.response?.data?.message || "Error al obtener promociones",
-                loading: false,
-            });
-        }
-    },
+    if (!res.ok) {
+      throw new Error(data.message || "Error al crear promoción");
+    }
 
-    createPromotion: async (payload) => {
-        try {
-            set({ loading: true, error: null });
-            await createPromotionRequest(payload);
-            await get().getPromotions();
-            set({ loading: false });
-        } catch (error) {
-            set({
-                error: error.response?.data?.message || "Error al crear promoción",
-                loading: false,
-            });
-            throw error;
-        }
-    },
+    return data;
+  } catch (error) {
+    console.log("ERROR CREATE:", error.message);
+  }
+};
 
-    updatePromotion: async (id, payload) => {
-        try {
-            set({ loading: true, error: null });
-            await updatePromotionRequest(id, payload);
-            await get().getPromotions();
-            set({ loading: false });
-        } catch (error) {
-            set({
-                error: error.response?.data?.message || "Error al actualizar promoción",
-                loading: false,
-            });
-            throw error;
-        }
-    },
+  const updatePromotion = async (id, promotion) => {
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(promotion),
+      });
 
-    deletePromotion: async (id) => {
-        try {
-            set({ loading: true, error: null });
-            await deletePromotionRequest(id);
-            await get().getPromotions();
-            set({ loading: false });
-        } catch (error) {
-            set({
-                error: error.response?.data?.message || "Error al eliminar promoción",
-                loading: false,
-            });
-        }
-    },
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      console.log("ERROR UPDATE:", error);
+    }
+  };
 
-    setSearchTerm: (term) => set({ searchTerm: term }),
-    clearError:    ()     => set({ error: null }),
-}));
+  const deletePromotion = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      console.log("ERROR DELETE:", error);
+    }
+  };
+
+  return {
+    promotions,
+    loading,
+    getPromotions,
+    createPromotion,
+    updatePromotion,
+    deletePromotion,
+  };
+};

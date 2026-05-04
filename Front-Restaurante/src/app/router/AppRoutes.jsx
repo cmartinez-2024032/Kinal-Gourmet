@@ -20,7 +20,7 @@ import { AdminRestLayout } from '../../features/admin-restaurante/layout/AdminRe
 import { PlatilloPage }    from '../../features/admin-restaurante/pages/PlatilloPage.jsx'
 import { MesaPage }        from '../../features/admin-restaurante/pages/MesaPage.jsx'
 import { CuponPage } from '../../features/admin-restaurante/pages/CuponPage.jsx'
-import { PromotionPage } from '../../features/admin-restaurante/pages/PromotionPage.jsx'
+import PromotionPage from '../../features/admin-restaurante/pages/PromotionPage.jsx'
 import { PrivateRoute } from './PrivateRoute'
 
 export const AppRoutes = () => {

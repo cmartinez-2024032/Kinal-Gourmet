@@ -3,54 +3,50 @@
 import mongoose from 'mongoose';
 
 const promotionSchema = mongoose.Schema(
-    {
-        title: {
-            type: String,
-            required: [true, 'El título es requerido'],
-            trim: true,
-            maxLength: [100, 'El título no puede exceder 100 caracteres']
-        },
+  {
+    title: {
+      type: String,
+      required: [true, 'El título es requerido'],
+      trim: true,
+      maxLength: [100, 'El título no puede exceder 100 caracteres']
+    },
 
-        description: {
-            type: String,
-            required: [true, 'La descripción es requerida'],
-            trim: true,
-            maxLength: [500, 'La descripción no puede exceder 500 caracteres']
-        },
+    description: {
+      type: String,
+      required: [true, 'La descripción es requerida'],
+      trim: true,
+      maxLength: [500, 'La descripción no puede exceder 500 caracteres']
+    },
 
-        type: {
-            type: String,
-            enum: {
-                values: [
-                    'DESCUENTO_PORCENTAJE',
-                    'DESCUENTO_FIJO',
-                    '2X1',
-                    'COMBO',
-                    'ENVIO_GRATIS',
-                    'REGALO',
-                    'HAPPY_HOUR'
-                ],
-                message: 'Tipo de promoción no válido'
-            },
-            required: true
-        },
+    type: {
+      type: String,
+      enum: {
+        values: [
+          'DESCUENTO_PORCENTAJE',
+          'DESCUENTO_FIJO',
+          '2X1',
+          'COMBO',
+          'ENVIO_GRATIS',
+          'REGALO',
+          'HAPPY_HOUR'
+        ],
+        message: 'Tipo de promoción no válido'
+      },
+      required: true
+    },
 
         discountPercentage: {
-            type: Number,
-            min: [0, 'El descuento no puede ser negativo'],
-            max: [100, 'El descuento no puede exceder 100%'],
-            required: function() {
-                return this.type === 'DESCUENTO_PORCENTAJE';
-            }
-        },
+      type: Number,
+      min: [0, 'El descuento no puede ser negativo'],
+      max: [100, 'El descuento no puede exceder 100%'],
+      default: 0
+    },
 
-        discountAmount: {
-            type: Number,
-            min: [0, 'El descuento no puede ser negativo'],
-            required: function() {
-                return this.type === 'DESCUENTO_FIJO';
-            }
-        },
+    discountAmount: {
+      type: Number,
+      min: [0, 'El descuento no puede ser negativo'],
+      default: 0
+    },
 
         startDate: {
             type: Date,

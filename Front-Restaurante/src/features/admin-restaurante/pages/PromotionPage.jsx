@@ -1,126 +1,205 @@
 import { useEffect, useState } from "react";
-import { usePromotionStore } from "../store/UsePromotionStore";
-import { PromotionModal } from "../components/PromotionModal";
+import { UsePromotionStore } from "../store/UsePromotionStore";
+import PromotionModal from "../components/PromotionModal";
 
-export const PromotionPage = () => {
-  const {
-    promotions,
-    loading,
-    error,
-    getPromotions,
-    getFilteredPromotions,
-    openCreateModal,
-    openEditModal,
-    deletePromotion,
-    setSearchTerm,
-    clearError,
-  } = usePromotionStore();
+const PromotionPage = () => {
+  const { promotions, getPromotions, deletePromotion } =
+    UsePromotionStore();
 
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState(null);
 
   useEffect(() => {
     getPromotions();
   }, []);
 
-  const filtered = getFilteredPromotions();
+  const handleDelete = async (id) => {
+    await deletePromotion(id);
+    getPromotions();
+  };
+
+  const handleEdit = (promo) => {
+    setSelected(promo);
+    setOpen(true);
+  };
+
+  const handleCreate = () => {
+    setSelected(null);
+    setOpen(true);
+  };
 
   return (
-    <div className="p-7 w-full min-h-screen font-sans">
+    <div style={{ padding: "30px", background: "#f7f7f7", minHeight: "100vh" }}>
 
-      {/* Error */}
-      {error && (
-        <div className="flex justify-between bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-6 text-sm text-red-700">
-          <span>{error}</span>
-          <button onClick={clearError}>✕</button>
-        </div>
-      )}
-
-      {/* Header */}
-      <div className="flex justify-between mb-7">
+      {/* HEADER */}
+      <div style={header}>
         <div>
-          <h1 className="text-2xl font-bold">Promociones</h1>
-          <p className="text-sm text-gray-400">
-            {promotions.length} promociones
-          </p>
+          <h2 style={{ margin: 0 }}>Promociones</h2>
+          <span style={{ color: "gray" }}>
+            {promotions.length} en total
+          </span>
         </div>
 
-        <button
-          onClick={openCreateModal}
-          className="px-5 py-2.5 bg-orange-500 text-white rounded-xl"
-        >
-          + Crear promoción
+        <button onClick={handleCreate} style={addBtn}>
+          + Agregar promoción
         </button>
       </div>
 
-      {/* Buscador */}
-      <input
-        onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Buscar promoción…"
-        className="mb-6 px-4 py-2 border rounded-xl"
-      />
+      {/* CARDS */}
+      <div style={grid}>
+        {promotions.length === 0 ? (
+          <p style={{ color: "gray", marginTop: "20px" }}>
+            No hay promociones
+          </p>
+        ) : (
+          promotions.map((p) => (
+            <div key={p._id} style={card}>
 
-      {/* Contenido */}
-      {loading ? (
-        <p>Cargando…</p>
-      ) : filtered.length === 0 ? (
-        <p>No hay promociones</p>
-      ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-5">
-          {filtered.map((promo) => (
-            <PromoCard
-              key={promo._id}
-              promo={promo}
-              onEdit={() => openEditModal(promo)}
-              onDelete={() => setDeleteConfirm(promo._id)}
-            />
-          ))}
-        </div>
-      )}
+              <div style={top}>
+                <h3 style={title}>{p.title}</h3>
 
-      <PromotionModal />
+                <span style={badge}>{p.type}</span>
+              </div>
 
-      {/* Confirm delete */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-xl">
-            <p>¿Eliminar promoción?</p>
-            <div className="flex gap-3 mt-4">
-              <button onClick={() => setDeleteConfirm(null)}>Cancelar</button>
-              <button
-                onClick={() => {
-                  deletePromotion(deleteConfirm);
-                  setDeleteConfirm(null);
-                }}
-                className="bg-red-500 text-white px-3 py-1 rounded"
-              >
-                Eliminar
-              </button>
+              <p style={desc}>
+                {p.description || "Sin descripción"}
+              </p>
+
+              <span style={p.isActive ? active : inactive}>
+                {p.isActive ? "Activo" : "Inactivo"}
+              </span>
+
+              <div style={actions}>
+                <button style={editBtn} onClick={() => handleEdit(p)}>
+                  Editar
+                </button>
+
+                <button style={deleteBtn} onClick={() => handleDelete(p._id)}>
+                  Eliminar
+                </button>
+              </div>
+
             </div>
-          </div>
-        </div>
+          ))
+        )}
+      </div>
+
+      {/* MODAL */}
+      {open && (
+        <PromotionModal
+          onClose={() => {
+            setOpen(false);
+            getPromotions();
+          }}
+          promotion={selected}
+        />
       )}
     </div>
   );
 };
 
-function PromoCard({ promo, onEdit, onDelete }) {
-  return (
-    <div className="bg-white border rounded-xl p-4 shadow-sm">
-      <h3 className="font-bold">{promo.name}</h3>
-      <p className="text-sm text-gray-500">{promo.description}</p>
+export default PromotionPage;
 
-      <p className="text-orange-500 font-bold mt-2">
-        {promo.discount}%
-      </p>
+const header = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: "20px",
+};
 
-      <div className="flex gap-2 mt-4">
-        <button onClick={onEdit} className="text-orange-600 text-sm">
-          Editar
-        </button>
-        <button onClick={onDelete} className="text-red-500 text-sm">
-          Eliminar
-        </button>
-      </div>
-    </div>
-  );
-}
+const addBtn = {
+  background: "linear-gradient(135deg, #ff6b00, #ff8c00)",
+  color: "white",
+  border: "none",
+  padding: "10px 18px",
+  borderRadius: "12px",
+  fontWeight: "bold",
+  cursor: "pointer",
+  boxShadow: "0 10px 25px rgba(255,107,0,0.3)",
+};
+
+const grid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+  gap: "20px",
+  marginTop: "20px",
+};
+
+const card = {
+  background: "white",
+  borderRadius: "18px",
+  padding: "16px",
+  boxShadow: "0 8px 22px rgba(0,0,0,0.08)",
+  display: "flex",
+  flexDirection: "column",
+  gap: "10px",
+  transition: "0.2s",
+};
+
+const top = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+};
+
+const title = {
+  fontSize: "16px",
+  fontWeight: "bold",
+};
+
+const badge = {
+  background: "#ff6b00",
+  color: "white",
+  padding: "4px 10px",
+  borderRadius: "20px",
+  fontSize: "12px",
+};
+
+const desc = {
+  fontSize: "13px",
+  color: "#666",
+};
+
+const active = {
+  background: "#d1fae5",
+  color: "#065f46",
+  padding: "4px 10px",
+  borderRadius: "10px",
+  fontSize: "12px",
+  width: "fit-content",
+};
+
+const inactive = {
+  background: "#fee2e2",
+  color: "#991b1b",
+  padding: "4px 10px",
+  borderRadius: "10px",
+  fontSize: "12px",
+  width: "fit-content",
+};
+
+const actions = {
+  display: "flex",
+  gap: "8px",
+  marginTop: "10px",
+};
+
+const editBtn = {
+  flex: 1,
+  padding: "8px",
+  border: "none",
+  borderRadius: "8px",
+  background: "#3b82f6",
+  color: "white",
+  cursor: "pointer",
+};
+
+const deleteBtn = {
+  flex: 1,
+  padding: "8px",
+  border: "none",
+  borderRadius: "8px",
+  background: "#ef4444",
+  color: "white",
+  cursor: "pointer",
+};
