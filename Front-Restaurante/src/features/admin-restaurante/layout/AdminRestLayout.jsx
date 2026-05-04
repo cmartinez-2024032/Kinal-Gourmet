@@ -72,6 +72,20 @@ export const AdminRestLayout = () => {
               </NavLink>
 
               <NavLink
+                to="/adminRestaurante/promociones"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
+                    isActive
+                      ? "bg-orange-50 text-orange-600 font-medium"
+                      : "text-gray-600 hover:bg-gray-50"
+                  }`
+                }
+              >
+                <span className="text-base leading-none">🔥</span>
+                Promociones
+              </NavLink>
+
+              <NavLink
                 to="/adminRestaurante/eventos"
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
