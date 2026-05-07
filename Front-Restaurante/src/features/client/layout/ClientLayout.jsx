@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import { ClientNavbar } from "./ClientNavbar";
-import { CartDrawer } from "../components/CartDrawer";
+import { CartDrawer } from "../components/CartDrawer.jsx";
 
 export const ClientLayout = () => {
     return (
