@@ -109,34 +109,33 @@ export const AdminGeneralPage = () => {
           <h1 className="text-2xl font-bold text-stone-900 tracking-tight">Administradores</h1>
           <p className="text-stone-400 text-sm mt-0.5">Gestiona accesos y asignaciones por restaurante</p>
         </div>
-        <button
-          onClick={openCreate}
-          className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm"
-        >
-          + Agregar Administrador
-        </button>
       </div>
 
       {/* Estadísticas */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-white border border-stone-100 rounded-2xl p-4 border-t-4 border-t-orange-500">
+        <div className="bg-white rounded-2xl p-5 border-t-4 border-t-orange-500 shadow-sm">
           <p className="text-3xl font-bold text-stone-900">{filteredUsers.length}</p>
           <p className="text-xs text-stone-400 mt-1 font-medium uppercase tracking-wide">Total usuarios</p>
         </div>
-        <div className="bg-white border border-stone-100 rounded-2xl p-4 border-t-4 border-t-violet-500">
-          <p className="text-3xl font-bold text-stone-900">{totalAdminGeneral}</p>
-          <p className="text-xs text-stone-400 mt-1 font-medium uppercase tracking-wide">Admin general</p>
-        </div>
-        <div className="bg-white border border-stone-100 rounded-2xl p-4 border-t-4 border-t-orange-400">
+        <div className="bg-white rounded-2xl p-5 border-t-4 border-t-stone-500 shadow-sm">
+        <p className="text-3xl font-bold text-stone-900">
+          {totalAdminGeneral}
+        </p>
+
+        <p className="text-xs text-stone-500 mt-1 font-medium uppercase tracking-wide">
+          Admin General
+        </p>
+      </div>
+        <div className="bg-white rounded-2xl p-5 border-t-4 border-t-orange-400 shadow-sm">
           <p className="text-3xl font-bold text-stone-900">{totalAdminRestaurante}</p>
-          <p className="text-xs text-stone-400 mt-1 font-medium uppercase tracking-wide">Admin restaurante</p>
+          <p className="text-xs text-stone-400 mt-1 font-medium uppercase tracking-wide">Admin Restaurante</p>
         </div>
       </div>
 
       {/* Buscador */}
-      <div className="w-full bg-white border border-stone-100 rounded-2xl p-6 shadow-sm mb-4">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-1 h-6 bg-orange-500 rounded-full" />
+      <div className="w-full bg-white rounded-2xl p-6 shadow-sm mb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-1 h-5 bg-orange-500 rounded-full" />
           <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wider">Administradores registrados</h2>
         </div>
         <div className="relative">
@@ -152,81 +151,393 @@ export const AdminGeneralPage = () => {
       </div>
 
       {/* Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
         {filteredUsers.map((user) => {
-          const roleName       = user.Role?.name || user.role?.name
-          const restaurantName = user.restaurantId ? restaurantMap[user.restaurantId] : null
-          const isGeneral      = roleName === "ADMIN_GENERAL"
+          const roleName = user.Role?.name || user.role?.name
+
+          const restaurantName = user.restaurantId
+            ? restaurantMap[user.restaurantId]
+            : null
+
+          const isGeneral = roleName === "ADMIN_GENERAL"
+
+          const initials = user.name
+            ?.split(" ")
+            .map((n) => n[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase()
 
           return (
-            <div key={user._id || user.id}
-              className="bg-white border border-stone-100 rounded-2xl overflow-hidden flex flex-col hover:shadow-md transition-shadow duration-150">
+            <div
+              key={user._id || user.id}
+              className="
+                group
+                relative
+                bg-white
+                border
+                border-stone-200
+                rounded-3xl
+                overflow-hidden
+                transition-all
+                duration-300
+                hover:-translate-y-1
+                hover:shadow-2xl
+                hover:border-orange-200
+              "
+            >
 
-              {/* Imagen grande cuadrada */}
-              <img
-                src={
-                  user.image
-                    ? user.image
-                    : `https://api.dicebear.com/7.x/initials/svg?seed=${user.name}&backgroundColor=${isGeneral ? "6d28d9" : "f97316"}&textColor=ffffff&fontSize=38`
-                }
-                alt={user.name}
-                className="w-full aspect-square object-cover"
-              />
+            {/* Gradient top */}
+          <div
+            className={`h-2 w-full ${
+              isGeneral
+                ? "bg-gradient-to-r from-stone-300 via-stone-400 to-neutral-500"
+                : "bg-gradient-to-r from-orange-500 via-amber-400 to-orange-300"
+            }`}
+          />
 
-              {/* Info */}
-              <div className="p-3 flex flex-col gap-1 flex-1">
-                <p className="text-sm font-semibold text-stone-800 truncate">{user.name}</p>
-                <p className="text-xs text-stone-400 truncate">{user.email}</p>
+          {/* Action button */}
+          {!isGeneral && (
+            <button
+              onClick={() => openEdit(user)}
+              className="
+                absolute
+                top-4
+                right-4
+                z-10
+                w-9
+                h-9
+                rounded-xl
+                bg-white/90
+                backdrop-blur
+                border
+                border-stone-200
+                flex
+                items-center
+                justify-center
+                shadow-sm
+                hover:bg-orange-50
+                hover:border-orange-200
+                transition-all
+              "
+            >
+              <svg
+                className="w-4 h-4 text-stone-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 6h.01M12 12h.01M12 18h.01"
+                />
+              </svg>
+            </button>
+          )}
 
-                <span className={`w-fit mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                  isGeneral
-                    ? "bg-violet-50 text-violet-700 border-violet-200"
-                    : "bg-stone-100 text-stone-500 border-stone-200"
-                }`}>
+          {/* Content */}
+          <div className="p-5">
+
+            {/* Top section */}
+            <div className="flex items-center gap-4">
+
+              {/* Avatar */}
+              <div className="relative shrink-0">
+
+                {user.image ? (
+                  <img
+                    src={user.image}
+                    alt={user.name}
+                    className="
+                      w-20
+                      h-20
+                      rounded-2xl
+                      object-cover
+                      border-4
+                      border-white
+                      shadow-lg
+                    "
+                  />
+                ) : (
+                  <div
+                    className={`
+                      w-20
+                      h-20
+                      rounded-2xl
+                      flex
+                      items-center
+                      justify-center
+                      text-2xl
+                      font-bold
+                      text-white
+                      shadow-lg
+                      ${
+                        isGeneral
+                          ? "bg-gradient-to-br from-stone-300 via-stone-500 to-neutral-700"
+                          : "bg-gradient-to-br from-orange-500 to-amber-400"
+                      }
+                    `}
+                  >
+                    {initials}
+                  </div>
+                )}
+
+                {/* Status */}
+                <span
+                  className={`
+                    absolute
+                    -top-1
+                    -right-1
+                    w-5
+                    h-5
+                    rounded-full
+                    border-[3px]
+                    border-white
+                    ${
+                      user.isActive !== false
+                        ? "bg-green-400"
+                        : "bg-stone-300"
+                    }
+                  `}
+                />
+              </div>
+
+              {/* User info */}
+              <div className="flex-1 min-w-0">
+
+                {/* Badge */}
+                <span
+                  className={`
+                    inline-flex
+                    items-center
+                    px-3
+                    py-1
+                    rounded-full
+                    text-[10px]
+                    font-bold
+                    uppercase
+                    tracking-wide
+                    mb-2
+                    ${
+                      isGeneral
+                        ? "bg-stone-100 text-stone-700"
+                        : "bg-orange-100 text-orange-600"
+                    }
+                  `}
+                >
                   {isGeneral ? "Admin General" : "Admin Restaurante"}
                 </span>
 
-                {restaurantName && (
-                  <p className="text-[11px] text-orange-500 font-semibold truncate">{restaurantName}</p>
-                )}
-                {roleName === "ADMIN_RESTAURANTE" && !restaurantName && (
-                  <p className="text-[11px] text-amber-400 font-semibold">Sin restaurante</p>
-                )}
+                {/* Name */}
+                <h3 className="text-2xl font-bold text-stone-800 leading-tight">
+                  {user.name}
+                </h3>
 
-                <div className="flex items-center gap-1.5 mt-1">
-                  <span className={`w-1.5 h-1.5 rounded-full ${user.isActive !== false ? "bg-green-400" : "bg-stone-300"}`} />
-                  <span className="text-[11px] text-stone-400">{user.isActive !== false ? "Activo" : "Inactivo"}</span>
+                {/* Email */}
+                <div className="flex items-center gap-2 mt-3 text-sm text-stone-500">
+                  <span className="text-sm shrink-0">📧</span>
+
+                  <span className="truncate">
+                    {user.email}
+                  </span>
+                </div>
+
+                {/* Restaurant */}
+                {restaurantName && (
+                  <div className="flex items-center gap-2 mt-2 text-sm">
+                    <span className="shrink-0">🍽️</span>
+
+                    <span className="text-orange-500 font-semibold truncate">
+                      {restaurantName}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+
+            {/* Divider */}
+            <div className="my-4 border-t border-stone-100" />
+
+            {/* Status */}
+            <div className="grid grid-cols-1 gap-3">
+
+              <div className="bg-stone-50 rounded-2xl p-3 border border-stone-100">
+                <p className="text-[10px] uppercase tracking-wider text-stone-400 font-bold">
+                  Estado
+                </p>
+
+                <div className="flex items-center gap-2 mt-1">
+                  <span
+                    className={`
+                      w-2.5
+                      h-2.5
+                      rounded-full
+                      ${
+                        user.isActive !== false
+                          ? "bg-green-400"
+                          : "bg-stone-300"
+                      }
+                    `}
+                  />
+
+                  <p
+                    className={`
+                      text-sm
+                      font-semibold
+                      ${
+                        user.isActive !== false
+                          ? "text-green-500"
+                          : "text-stone-400"
+                      }
+                    `}
+                  >
+                    {user.isActive !== false ? "Activo" : "Inactivo"}
+                  </p>
                 </div>
               </div>
-
-              {/* Botón editar */}
-              {!isGeneral && (
-                <div className="px-3 pb-3">
-                  <button
-                    onClick={() => openEdit(user)}
-                    className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-lg py-2 text-xs font-bold transition-colors"
-                  >
-                    Editar
-                  </button>
-                </div>
-              )}
             </div>
-          )
-        })}
 
-        {filteredUsers.length === 0 && (
-          <p className="col-span-full text-sm text-stone-300 text-center py-10 font-medium">
-            No se encontraron usuarios
-          </p>
-        )}
+            {/* Edit button */}
+            {!isGeneral && (
+              <button
+                onClick={() => openEdit(user)}
+                className="
+                  mt-4
+                  w-full
+                  py-2.5
+                  rounded-2xl
+                  bg-gradient-to-r
+                  from-orange-500
+                  to-amber-400
+                  hover:from-orange-600
+                  hover:to-orange-500
+                  text-white
+                  text-sm
+                  font-bold
+                  shadow-md
+                  hover:shadow-lg
+                  transition-all
+                  duration-200
+                "
+              >
+                ✏️ Editar administrador
+              </button>
+            )}
+          </div>
+          </div>
+        )
+      })}
+
+      {/* Add new admin card */}
+      <div
+        onClick={openCreate}
+        className="
+          group
+          border-2
+          border-dashed
+          border-stone-200
+          hover:border-orange-300
+          hover:bg-orange-50/50
+          rounded-3xl
+          min-h-[320px]
+          flex
+          flex-col
+          items-center
+          justify-center
+          cursor-pointer
+          transition-all
+          duration-300
+          hover:shadow-xl
+          hover:-translate-y-1
+        "
+      >
+        <div
+          className="
+            w-16
+            h-16
+            rounded-2xl
+            bg-stone-100
+            group-hover:bg-orange-100
+            flex
+            items-center
+            justify-center
+            transition-colors
+            shadow-sm
+          "
+        >
+          <svg
+            className="
+              w-8
+              h-8
+              text-stone-300
+              group-hover:text-orange-500
+              transition-colors
+            "
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+        </div>
+
+        <p className="mt-4 text-lg font-bold text-stone-400 group-hover:text-orange-500 transition-colors">
+          Agregar admin
+        </p>
+
+        <p className="text-sm text-stone-300 mt-1">
+          Crear nuevo administrador
+        </p>
       </div>
 
-      {/* MODAL UNIFICADO */}
+      {/* Empty state */}
+      {filteredUsers.length === 0 && (
+        <div className="col-span-full">
+          <div className="bg-white rounded-3xl border border-dashed border-stone-200 py-16 flex flex-col items-center justify-center">
+
+            <div className="w-16 h-16 rounded-2xl bg-stone-100 flex items-center justify-center mb-4">
+              <svg
+                className="w-8 h-8 text-stone-300"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M17 20h5V4H2v16h5m10 0v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6m10 0H7"
+                />
+              </svg>
+            </div>
+
+            <p className="text-lg font-bold text-stone-500">
+              No se encontraron usuarios
+            </p>
+
+            <p className="text-sm text-stone-300 mt-1">
+              Intenta cambiar tu búsqueda
+            </p>
+          </div>
+        </div>
+      )}
+
+    </div>
+
+      {/* MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl border border-stone-100 overflow-hidden">
 
-            {/* Header */}
             <div className="px-6 pt-6 pb-4 border-b border-stone-100 flex items-start justify-between">
               <div>
                 <h2 className="text-base font-bold text-stone-900">
@@ -246,14 +557,12 @@ export const AdminGeneralPage = () => {
               </button>
             </div>
 
-            {/* Paso */}
             <div className="px-6 pt-4">
               <span className="text-[11px] font-bold text-orange-500 border-b-2 border-orange-500 pb-1">
                 1 · Información
               </span>
             </div>
 
-            {/* Error */}
             {error && (
               <div className="mx-6 mt-4 px-4 py-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-xs flex items-center gap-2">
                 <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -263,10 +572,9 @@ export const AdminGeneralPage = () => {
               </div>
             )}
 
-            {/* Body */}
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
 
-              {/* Drag & drop imagen */}
+              {/* Drag & drop */}
               <div
                 onClick={() => fileInputRef.current?.click()}
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
@@ -280,10 +588,7 @@ export const AdminGeneralPage = () => {
               >
                 {previewImage ? (
                   <div className="flex flex-col items-center gap-2">
-                    <img
-                      src={previewImage}
-                      className="w-16 h-16 rounded-full object-cover border-4 border-orange-100"
-                    />
+                    <img src={previewImage} className="w-16 h-16 rounded-full object-cover border-4 border-orange-100" />
                     <span className="text-[10px] text-orange-400 font-semibold">
                       {form.image ? form.image.name : "Imagen actual · clic para cambiar"}
                     </span>
@@ -366,7 +671,6 @@ export const AdminGeneralPage = () => {
                 )}
               </div>
 
-              {/* Footer */}
               <div className="flex items-center justify-between pt-2 border-t border-stone-100 mt-2">
                 {isEditing ? (
                   <button
