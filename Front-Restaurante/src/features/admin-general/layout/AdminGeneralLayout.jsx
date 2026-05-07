@@ -7,6 +7,15 @@ export const AdminGeneralLayout = () => {
   const navigate = useNavigate()
   const logout = useAuthStore((state) => state.logout)
 
+  const user = useAuthStore((state) => state.user)
+
+  const initials = user?.name
+    ?.split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase()
+
   const handleLogout = () => {
     logout()
     navigate("/login", { replace: true })
@@ -21,14 +30,14 @@ export const AdminGeneralLayout = () => {
         {/* Logo */}
         <div style={{ padding: "20px 20px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <img src={logo} alt="Kinal" className="h-10 w-auto object-contain" />
-          <p style={{ fontSize: "9px", fontWeight: "700", color: "rgba(255,255,255,0.25)", letterSpacing: "2px", marginTop: "6px" }}>
+          <p style={{ fontSize: "9px", fontWeight: "700", color: "rgb(197, 197, 197)", letterSpacing: "2px", marginTop: "6px" }}>
             PANEL DE ADMINISTRACIÓN
           </p>
         </div>
 
         {/* Nav */}
         <nav className="flex-1" style={{ padding: "16px 12px", display: "flex", flexDirection: "column", gap: "2px" }}>
-          <p style={{ fontSize: "9px", fontWeight: "700", color: "rgba(255,255,255,0.2)", letterSpacing: "1.5px", padding: "0 8px", marginBottom: "6px" }}>
+          <p style={{ fontSize: "9px", fontWeight: "700", color: "rgb(197, 197, 197)", letterSpacing: "1.5px", padding: "0 8px", marginBottom: "6px" }}>
             GENERAL
           </p>
 
@@ -40,7 +49,7 @@ export const AdminGeneralLayout = () => {
               padding: "10px 12px", borderRadius: "12px", fontSize: "14px",
               transition: "all 0.15s",
               backgroundColor: isActive ? "rgba(249,115,22,0.18)" : "transparent",
-              color: isActive ? "#fb923c" : "rgba(255,255,255,0.45)",
+              color: isActive ? "#fb923c" : "rgba(224, 224, 224, 0.85)",
               fontWeight: isActive ? "600" : "400",
               textDecoration: "none"
             })}
@@ -58,7 +67,7 @@ export const AdminGeneralLayout = () => {
               padding: "10px 12px", borderRadius: "12px", fontSize: "14px",
               transition: "all 0.15s",
               backgroundColor: isActive ? "rgba(249,115,22,0.18)" : "transparent",
-              color: isActive ? "#fb923c" : "rgba(255,255,255,0.45)",
+              color: isActive ? "#fb923c" : "rgba(224, 224, 224, 0.85)",
               fontWeight: isActive ? "600" : "400",
               textDecoration: "none"
             })}
@@ -78,7 +87,7 @@ export const AdminGeneralLayout = () => {
             style={{
               display: "flex", alignItems: "center", gap: "12px",
               padding: "10px 12px", borderRadius: "12px", fontSize: "14px",
-              color: "rgba(255,255,255,0.3)", background: "none",
+              color: "rgba(224, 224, 224, 0.85)", background: "none",
               border: "none", cursor: "pointer", width: "100%",
               transition: "all 0.15s"
             }}
@@ -96,27 +105,112 @@ export const AdminGeneralLayout = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* Topbar */}
-        <header style={{
-          backgroundColor: "white",
-          borderBottom: "1px solid #f0ede8",
-          padding: "12px 32px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center"
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "#a8a29e" }}>
-            <span>Admin General</span>
-            <span>/</span>
-            <span style={{ color: "#1c1917", fontWeight: "500" }}>Administradores</span>
+        <header
+          style={{
+            backgroundColor: "rgba(255,255,255,0.85)",
+            backdropFilter: "blur(10px)",
+            borderBottom: "1px solid #e7e5e4",
+            padding: "14px 32px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            position: "sticky",
+            top: 0,
+            zIndex: 20
+          }}
+        >
+          {/* LEFT */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "2px"
+            }}
+          >
+            <span
+              style={{
+                fontSize: "11px",
+                fontWeight: "700",
+                color: "#a8a29e",
+                letterSpacing: "1.5px",
+                textTransform: "uppercase"
+              }}
+            >
+              Panel administrativo
+            </span>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                fontSize: "14px"
+              }}
+            >
+              <span
+                style={{
+                  backgroundColor: "#fafaf9",
+                  color: "#44403c",
+                  border: "1px solid #d6d3d1",
+                  padding: "5px 12px",
+                  borderRadius: "999px",
+                  fontWeight: "600"
+                }}
+              >
+                Admin General
+              </span>
+
+              <span style={{ color: "#d6d3d1" }}>/</span>
+
+              <span
+                style={{
+                  color: "#1c1917",
+                  fontWeight: "700"
+                }}
+              >
+                Administradores
+              </span>
+            </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+
+          {/* RIGHT */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "14px"
+            }}
+          >
+            {/* Badge */}
+            <div
+              style={{
+                padding: "6px 12px",
+                borderRadius: "999px",
+                backgroundColor: "#fafaf9",
+                border: "1px solid #e7e5e4",
+                fontSize: "12px",
+                fontWeight: "600",
+                color: "#57534e"
+              }}
+            >
+              ADMIN GENERAL
+            </div>
+
+            {/* Avatar */}
             <div style={{
-              width: "34px", height: "34px", borderRadius: "50%",
-              backgroundColor: "#1c1917",
-              display: "flex", alignItems: "center",
-              justifyContent: "center", fontSize: "12px", fontWeight: "700", color: "white"
+              width: "38px",
+              height: "38px",
+              borderRadius: "14px",
+              background: "linear-gradient(135deg, #d6d3d1 0%, #b8b2aa 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "13px",
+              fontWeight: "700",
+              color: "#44403c",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.06)"
             }}>
-              SA
+              {initials || "AG"}
             </div>
           </div>
         </header>

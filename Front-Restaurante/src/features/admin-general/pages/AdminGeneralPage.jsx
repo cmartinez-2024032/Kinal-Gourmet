@@ -171,266 +171,258 @@ export const AdminGeneralPage = () => {
 
           return (
             <div
-              key={user._id || user.id}
-              className="
-                group
-                relative
-                bg-white
-                border
-                border-stone-200
-                rounded-3xl
-                overflow-hidden
-                transition-all
-                duration-300
-                hover:-translate-y-1
-                hover:shadow-2xl
-                hover:border-orange-200
-              "
-            >
-
-            {/* Gradient top */}
-          <div
-            className={`h-2 w-full ${
-              isGeneral
-                ? "bg-gradient-to-r from-stone-300 via-stone-400 to-neutral-500"
-                : "bg-gradient-to-r from-orange-500 via-amber-400 to-orange-300"
-            }`}
-          />
-
-          {/* Action button */}
-          {!isGeneral && (
-            <button
-              onClick={() => openEdit(user)}
-              className="
-                absolute
-                top-4
-                right-4
-                z-10
-                w-9
-                h-9
-                rounded-xl
-                bg-white/90
-                backdrop-blur
-                border
-                border-stone-200
-                flex
-                items-center
-                justify-center
-                shadow-sm
-                hover:bg-orange-50
-                hover:border-orange-200
-                transition-all
-              "
-            >
-              <svg
-                className="w-4 h-4 text-stone-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 6h.01M12 12h.01M12 18h.01"
-                />
-              </svg>
-            </button>
-          )}
-
-          {/* Content */}
-          <div className="p-5">
-
-            {/* Top section */}
-            <div className="flex items-center gap-4">
-
-              {/* Avatar */}
-              <div className="relative shrink-0">
-
-                {user.image ? (
-                  <img
-                    src={user.image}
-                    alt={user.name}
-                    className="
-                      w-20
-                      h-20
-                      rounded-2xl
-                      object-cover
-                      border-4
-                      border-white
-                      shadow-lg
-                    "
-                  />
-                ) : (
-                  <div
-                    className={`
-                      w-20
-                      h-20
-                      rounded-2xl
-                      flex
-                      items-center
-                      justify-center
-                      text-2xl
-                      font-bold
-                      text-white
-                      shadow-lg
-                      ${
-                        isGeneral
-                          ? "bg-gradient-to-br from-stone-300 via-stone-500 to-neutral-700"
-                          : "bg-gradient-to-br from-orange-500 to-amber-400"
-                      }
-                    `}
-                  >
-                    {initials}
-                  </div>
-                )}
-
-                {/* Status */}
-                <span
-                  className={`
-                    absolute
-                    -top-1
-                    -right-1
-                    w-5
-                    h-5
-                    rounded-full
-                    border-[3px]
-                    border-white
-                    ${
-                      user.isActive !== false
-                        ? "bg-green-400"
-                        : "bg-stone-300"
-                    }
-                  `}
-                />
-              </div>
-
-              {/* User info */}
-              <div className="flex-1 min-w-0">
-
-                {/* Badge */}
-                <span
-                  className={`
-                    inline-flex
-                    items-center
-                    px-3
-                    py-1
-                    rounded-full
-                    text-[10px]
-                    font-bold
-                    uppercase
-                    tracking-wide
-                    mb-2
-                    ${
-                      isGeneral
-                        ? "bg-stone-100 text-stone-700"
-                        : "bg-orange-100 text-orange-600"
-                    }
-                  `}
-                >
-                  {isGeneral ? "Admin General" : "Admin Restaurante"}
-                </span>
-
-                {/* Name */}
-                <h3 className="text-2xl font-bold text-stone-800 leading-tight">
-                  {user.name}
-                </h3>
-
-                {/* Email */}
-                <div className="flex items-center gap-2 mt-3 text-sm text-stone-500">
-                  <span className="text-sm shrink-0">📧</span>
-
-                  <span className="truncate">
-                    {user.email}
-                  </span>
-                </div>
-
-                {/* Restaurant */}
-                {restaurantName && (
-                  <div className="flex items-center gap-2 mt-2 text-sm">
-                    <span className="shrink-0">🍽️</span>
-
-                    <span className="text-orange-500 font-semibold truncate">
-                      {restaurantName}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-
-            {/* Divider */}
-            <div className="my-4 border-t border-stone-100" />
-
-            {/* Status */}
-            <div className="grid grid-cols-1 gap-3">
-
-              <div className="bg-stone-50 rounded-2xl p-3 border border-stone-100">
-                <p className="text-[10px] uppercase tracking-wider text-stone-400 font-bold">
-                  Estado
-                </p>
-
-                <div className="flex items-center gap-2 mt-1">
-                  <span
-                    className={`
-                      w-2.5
-                      h-2.5
-                      rounded-full
-                      ${
-                        user.isActive !== false
-                          ? "bg-green-400"
-                          : "bg-stone-300"
-                      }
-                    `}
-                  />
-
-                  <p
-                    className={`
-                      text-sm
-                      font-semibold
-                      ${
-                        user.isActive !== false
-                          ? "text-green-500"
-                          : "text-stone-400"
-                      }
-                    `}
-                  >
-                    {user.isActive !== false ? "Activo" : "Inactivo"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Edit button */}
-            {!isGeneral && (
-              <button
-                onClick={() => openEdit(user)}
-                className="
-                  mt-4
-                  w-full
-                  py-2.5
-                  rounded-2xl
-                  bg-gradient-to-r
-                  from-orange-500
-                  to-amber-400
-                  hover:from-orange-600
-                  hover:to-orange-500
-                  text-white
-                  text-sm
-                  font-bold
-                  shadow-md
-                  hover:shadow-lg
+                key={user._id || user.id}
+                className={`
+                  group
+                  relative
+                  rounded-3xl
+                  overflow-hidden
                   transition-all
-                  duration-200
-                "
+                  duration-300
+                  hover:-translate-y-1
+                  hover:shadow-2xl
+                  ${
+                    isGeneral
+                      ? "bg-stone-50/70 border-2 border-stone-300 hover:border-stone-400"
+                      : "bg-orange-50/40 border-2 border-orange-300 hover:border-orange-400"
+                  }
+                `}
               >
-                ✏️ Editar administrador
-              </button>
-            )}
-          </div>
-          </div>
-        )
-      })}
+              {/* Top bar */}
+              <div
+                className={`h-2 w-full ${
+                  isGeneral
+                    ? "bg-stone-500"
+                    : "bg-orange-400"
+                }`}
+              />
+
+              {/* MENU BUTTON */}
+              {!isGeneral && (
+                <button
+                  onClick={() => openEdit(user)}
+                  className="
+                    absolute
+                    top-4
+                    right-4
+                    z-10
+                    w-9
+                    h-9
+                    rounded-xl
+                    bg-white
+                    border
+                    border-stone-200
+                    flex
+                    items-center
+                    justify-center
+                    shadow-sm
+                    hover:bg-stone-50
+                    transition
+                  "
+                >
+                  <svg
+                    className="w-4 h-4 text-stone-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 6h.01M12 12h.01M12 18h.01"
+                    />
+                  </svg>
+                </button>
+              )}
+
+              <div className="p-5">
+
+                {/* HEADER */}
+                <div className="flex items-center gap-4">
+
+                  {/* AVATAR */}
+                  <div className="relative shrink-0">
+
+                    {user.image ? (
+                      <img
+                        src={user.image}
+                        alt={user.name}
+                        className="
+                          w-20
+                          h-20
+                          rounded-2xl
+                          object-cover
+                          border-4
+                          border-white
+                          shadow-lg
+                        "
+                      />
+                    ) : (
+                      <div
+                        className={`
+                          w-20
+                          h-20
+                          rounded-2xl
+                          flex
+                          items-center
+                          justify-center
+                          text-2xl
+                          font-bold
+                          text-white
+                          shadow-lg
+                          ${
+                            isGeneral
+                              ? "bg-stone-500"
+                              : "bg-orange-400"
+                          }
+                        `}
+                      >
+                        {initials}
+                      </div>
+                    )}
+
+                    {/* STATUS */}
+                    <span
+                      className={`
+                        absolute
+                        -top-1
+                        -right-1
+                        w-5
+                        h-5
+                        rounded-full
+                        border-[3px]
+                        border-white
+                        ${
+                          user.isActive !== false
+                            ? "bg-green-400"
+                            : "bg-stone-300"
+                        }
+                      `}
+                    />
+                  </div>
+
+                  {/* INFO */}
+                  <div className="flex-1 min-w-0">
+
+                    {/* BADGE */}
+                    <span
+                      className={`
+                        inline-flex
+                        items-center
+                        px-3
+                        py-1
+                        rounded-full
+                        text-[10px]
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        mb-2
+                        ${
+                          isGeneral
+                            ? "bg-stone-100 text-stone-700"
+                            : "bg-orange-100 text-orange-700"
+                        }
+                      `}
+                    >
+                      {isGeneral ? "Admin General" : "Admin Restaurante"}
+                    </span>
+
+                    {/* NAME */}
+                    <h3 className="text-2xl font-bold text-stone-800 leading-tight">
+                      {user.name}
+                    </h3>
+
+                    {/* EMAIL */}
+                    <div className="flex items-center gap-2 mt-3 text-sm text-stone-500">
+                      <span className="shrink-0">📧</span>
+
+                      <span className="truncate">
+                        {user.email}
+                      </span>
+                    </div>
+
+                    {/* Restaurant */}
+                    {restaurantName && (
+                      <div className="flex items-center gap-2 mt-2 text-sm">
+                        <span className="shrink-0">🍽️</span>
+
+                        <span className="text-orange-600 font-semibold truncate">
+                          {restaurantName}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* DIVIDER */}
+                <div className="my-5 border-t border-stone-100" />
+
+                {/* STATUS BOX */}
+                <div className="bg-stone-50 rounded-2xl p-3 border border-stone-100">
+                  <p className="text-[10px] uppercase tracking-wider text-stone-400 font-bold">
+                    Estado
+                  </p>
+
+                  <div className="flex items-center gap-2 mt-1">
+                    <span
+                      className={`
+                        w-2.5
+                        h-2.5
+                        rounded-full
+                        ${
+                          user.isActive !== false
+                            ? "bg-green-400"
+                            : "bg-stone-300"
+                        }
+                      `}
+                    />
+
+                    <p
+                      className={`
+                        text-sm
+                        font-semibold
+                        ${
+                          user.isActive !== false
+                            ? "text-green-500"
+                            : "text-stone-400"
+                        }
+                      `}
+                    >
+                      {user.isActive !== false ? "Activo" : "Inactivo"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* BUTTON */}
+                {!isGeneral && (
+                  <button
+                    onClick={() => openEdit(user)}
+                    className="
+                      mt-4
+                      w-full
+                      py-3
+                      rounded-2xl
+                      bg-orange-400
+                      hover:bg-orange-500
+                      text-white
+                      text-sm
+                      font-bold
+                      shadow-md
+                      hover:shadow-xl
+                      transition-all
+                      duration-300
+                    "
+                  >
+                    ✏️ Editar administrador
+                  </button>
+                )}
+
+              </div>
+            </div>
+          )
+        })}
+
 
       {/* Add new admin card */}
       <div
