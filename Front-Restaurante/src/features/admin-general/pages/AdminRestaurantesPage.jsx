@@ -59,11 +59,7 @@ export const RestaurantesPage = () => {
   const [photoPreview, setPhotoPreview] = useState(null);
 
   // ── Estado modal editar ──
-  const [showEditModal, setShowEditModal]           = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
-  const [editForm, setEditForm] = useState({ name:"", description:"", address:"", phone:"", email:"", averagePrice:"" });
-  const [editPhoto, setEditPhoto] = useState(null);
-  const [editPreview, setEditPreview] = useState(null);
 
   useEffect(() => { getRestaurants(); }, []);
 
@@ -108,7 +104,6 @@ export const RestaurantesPage = () => {
   const handleSubmit = async () => {
     setError("");
 
-    // validar coordenadas
     if (
       !form.location.coordinates[0] ||
       !form.location.coordinates[1]
@@ -119,9 +114,7 @@ export const RestaurantesPage = () => {
 
     const payload = {
       ...form,
-
       averagePrice: Number(form.averagePrice),
-
       location: {
         type: "Point",
         coordinates: [
@@ -132,13 +125,18 @@ export const RestaurantesPage = () => {
     };
 
     try {
-      await createRestaurant(payload, photoFile);
-
-      setSuccess(`Restaurante "${form.name}" creado correctamente`);
+      if (selectedRestaurant) {
+        await updateRestaurant(selectedRestaurant._id, payload, photoFile);
+        setSuccess("Restaurante actualizado correctamente");
+      } else {
+        await createRestaurant(payload, photoFile);
+        setSuccess(`Restaurante "${form.name}" creado correctamente`);
+      }
 
       setForm(EMPTY_FORM);
       setPhotoFile(null);
       setPhotoPreview(null);
+      setSelectedRestaurant(null);
       setShowModal(false);
       setStep(1);
 
@@ -146,7 +144,7 @@ export const RestaurantesPage = () => {
       setError(
         err.response?.data?.message ||
         err.response?.data?.error ||
-        "Error al crear restaurante"
+        "Error al guardar restaurante"
       );
     }
   };
@@ -154,23 +152,29 @@ export const RestaurantesPage = () => {
   const openEdit = (r) => {
     setSelectedRestaurant(r);
 
-    setEditForm({
+    setForm({
       name: r.name || "",
       description: r.description || "",
       address: r.address || "",
+      location: r.location || { type: "Point", coordinates: ["", ""] },
+      addressDetails: r.addressDetails || EMPTY_FORM.addressDetails,
       phone: r.phone || "",
       email: r.email || "",
+      website: r.website || "",
       category: r.category || "",
       averagePrice: r.averagePrice || "",
       priceRange: r.priceRange || "$$",
       openingHours: r.openingHours || "08:00",
-      closingHours: r.closingHours || "22:00"
+      closingHours: r.closingHours || "22:00",
+      features: r.features || EMPTY_FORM.features,
+      paymentMethods: r.paymentMethods || ["EFECTIVO", "TARJETA"],
     });
 
-    setEditPreview(r.photo || null);
-    setEditPhoto(null);
+    setPhotoPreview(r.photo || null);
+    setPhotoFile(null);
 
-    setShowEditModal(true);
+    setShowModal(true);
+    setStep(1);
   };
 
   const handleEditPhoto = (e) => {
@@ -229,451 +233,797 @@ export const RestaurantesPage = () => {
     active: restaurants.filter(r => r.status === "ACTIVE").length,
   };
 
-  const inp = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:border-orange-400 bg-white";
+  const inp =
+    "w-full h-14 px-5 rounded-2xl border border-gray-200 bg-white text-sm text-gray-700 outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100";
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#f6f7fb] flex">
 
-      {/* ── SIDEBAR ── */}
-      <aside className="w-52 min-w-52 bg-white border-r border-gray-100 p-4 flex-shrink-0">
-        <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-2">Categoría</p>
-        <button
-          onClick={() => setCatFilter(null)}
-          className={`flex items-center gap-2 w-full text-left px-2 py-1.5 rounded-lg text-sm mb-0.5 transition
-            ${!catFilter ? "bg-orange-50 text-orange-600 font-medium" : "text-gray-500 hover:bg-gray-50"}`}>
-          <span className="w-2 h-2 rounded-full flex-shrink-0 bg-gray-400" />
-          Todas
-        </button>
-        {CAT_FILTERS.map(f => (
-          <button key={f.key}
-            onClick={() => setCatFilter(catFilter === f.key ? null : f.key)}
-            className={`flex items-center gap-2 w-full text-left px-2 py-1.5 rounded-lg text-sm mb-0.5 transition
-              ${catFilter === f.key ? "bg-orange-50 text-orange-600 font-medium" : "text-gray-500 hover:bg-gray-50"}`}>
-            <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: f.color }} />
-            {f.label}
-          </button>
-        ))}
+      {/* SIDEBAR */}
+      <aside className="w-[260px] bg-white border-r border-gray-100 px-6 py-8 flex flex-col">
+
+        <div>
+          <p className="text-[18px] uppercase tracking-[0.2em] text-gray-400 font-semibold mb-4">
+            Categorías
+          </p>
+
+          <div className="space-y-1">
+
+            <button
+              onClick={() => setCatFilter(null)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-sm font-medium
+              ${
+                !catFilter
+                  ? "bg-gradient-to-r from-orange-500 to-orange-400 text-white shadow-lg shadow-orange-100"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              <div className="w-2 h-2 rounded-full bg-current" />
+              Todas
+            </button>
+
+            {CAT_FILTERS.map((f) => (
+              <button
+                key={f.key}
+                onClick={() =>
+                  setCatFilter(catFilter === f.key ? null : f.key)
+                }
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-sm font-medium
+                ${
+                  catFilter === f.key
+                    ? "bg-gradient-to-r from-orange-500 to-orange-400 text-white shadow-lg shadow-orange-100"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                <div
+                  className="w-2 h-2 rounded-full"
+                  style={{ background: f.color }}
+                />
+
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </aside>
 
-      {/* ── MAIN ── */}
-      <main className="flex-1 p-6">
+      {/* MAIN */}
+      <main className="flex-1 p-8 overflow-y-auto">
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          {[
-            { n: counts.total,  l: "Total registrados" },
-            { n: counts.active, l: "Activos" },
-          ].map((s, i) => (
-            <div key={i} className="bg-white border border-gray-100 rounded-xl px-5 py-4">
-              <p className="text-2xl font-medium text-gray-800">{s.n}</p>
-              <p className="text-xs text-gray-400 mt-1">{s.l}</p>
-            </div>
-          ))}
-        </div>
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-8">
 
-        {/* Topbar */}
-        <div className="flex gap-3 mb-5">
-          <input
-            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange-400 bg-white"
-            placeholder="Buscar restaurante o dirección..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+          <div>
+            <h2 className="text-3xl font-black text-gray-800 tracking-tight">
+              Restaurantes
+            </h2>
+
+            <p className="text-gray-400 mt-1">
+              Administra restaurantes, categorías y estados
+            </p>
+          </div>
+
           <button
-            onClick={() => { setShowModal(true); setError(""); setStep(1); }}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap"
+            onClick={() => {
+              setShowModal(true);
+              setStep(1);
+              setError("");
+            }}
+            className="h-12 px-6 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-400 hover:scale-[1.02] transition-all text-white font-semibold shadow-lg shadow-orange-200"
           >
-            + Agregar restaurante
+            + Nuevo restaurante
           </button>
         </div>
 
+        {/* SUCCESS */}
         {success && (
-          <div className="mb-4 px-4 py-2.5 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
+          <div className="mb-6 px-5 py-4 rounded-2xl bg-green-50 border border-green-100 text-green-700 text-sm font-medium">
             {success}
           </div>
         )}
 
-        {/* Cards restaurantes */}
-        <div className="flex flex-col gap-3">
-          {filtered.map(r => (
-            <div key={r._id} className="bg-white border border-gray-100 rounded-xl flex overflow-hidden hover:border-gray-200 transition">
-              <div className="w-24 min-w-24 bg-gray-50 flex items-center justify-center text-3xl">
-                {r.photo
-                  ? <img src={r.photo} alt={r.name} className="w-full h-full object-cover" />
-                  : "🍽️"}
+        {/* ERROR */}
+        {error && (
+          <div className="mb-6 px-5 py-4 rounded-2xl bg-red-50 border border-red-100 text-red-600 text-sm font-medium">
+            {error}
+          </div>
+        )}
+
+        {/* STATS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 justify-center max-w-4xl mx-auto">
+
+          <div className="bg-gradient-to-br from-white to-orange-50/40 rounded-3xl p-6 border border-orange-100 shadow-md hover:shadow-xl transition">
+            <div className="flex items-start justify-between">
+
+              <div>
+                <p className="text-gray-400 text-sm">
+                  Registrados
+                </p>
+
+                <h3 className="text-4xl font-black text-gray-800 mt-3">
+                  {counts.total}
+                </h3>
               </div>
-              <div className="flex-1 px-4 py-3 flex items-center gap-4 min-w-0">
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm text-gray-800 truncate">{r.name}</p>
-                  <p className="text-xs text-gray-400 mt-0.5 truncate">{r.address}</p>
-                  <div className="flex gap-2 mt-2 flex-wrap">
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 font-medium">{r.category}</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700 font-medium">{r.priceRange} · Q{r.averagePrice}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusBadge[r.status] || "bg-gray-100 text-gray-500"}`}>
-                      {r.status}
+
+              <div className="w-14 h-14 rounded-2xl bg-orange-100/70 backdrop-blur flex items-center justify-center text-2xl">
+                🍽️
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-white to-green-50/40 rounded-3xl p-6 border border-green-100 shadow-md hover:shadow-xl transition">
+            <div className="flex items-start justify-between">
+
+              <div>
+                <p className="text-gray-400 text-sm">
+                  Activos
+                </p>
+
+                <h3 className="text-4xl font-black text-gray-800 mt-3">
+                  {counts.active}
+                </h3>
+              </div>
+
+              <div className="w-14 h-14 rounded-2xl bg-green-100/70 backdrop-blur flex items-center justify-center text-2xl">
+                ✅
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* SEARCH */}
+        <div className="bg-white border border-gray-100 rounded-3xl p-4 flex items-center gap-4 mb-8 shadow-sm">
+
+          <div className="flex-1 relative">
+
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar restaurante..."
+              className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-sm outline-none focus:border-orange-400 focus:bg-white transition"
+            />
+
+            <div className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400">
+              🔍
+            </div>
+          </div>
+        </div>
+
+        {/* LIST */}
+        <div className="space-y-5">
+
+          {filtered.map((r) => (
+            <div
+              key={r._id}
+              className="group bg-white rounded-3xl border border-gray-100 hover:border-orange-200 transition-all overflow-hidden shadow-sm hover:shadow-xl"
+            >
+              <div className="flex h-[230px]">
+
+                {/* IMAGE */}
+                <div className="w-[260px] h-full bg-gray-100 overflow-hidden relative flex-shrink-0">
+
+                  {r.photo ? (
+                    <img
+                      src={r.photo}
+                      alt={r.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-6xl">
+                      🍽️
+                    </div>
+                  )}
+
+                  <div className="absolute top-4 left-4">
+                    <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur text-xs font-semibold text-gray-700 shadow">
+                      {r.category}
                     </span>
-                    {r.ownerUserId && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium">Con admin</span>
-                    )}
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 items-end flex-shrink-0">
-                  <button onClick={() => openEdit(r)}
-                    className="px-3 py-1 text-xs border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition">
-                    Editar
-                  </button>
-                  <button onClick={() => handleDelete(r)}
-                    className="px-3 py-1 text-xs border border-red-200 rounded-lg text-red-500 hover:bg-red-50 transition">
-                    Eliminar
-                  </button>
+
+                {/* CONTENT */}
+                <div className="flex-1 p-6 flex flex-col justify-between">
+
+                  <div>
+
+                    <div className="flex items-start justify-between gap-4">
+
+                      <div>
+                        <h3 className="text-2xl font-black text-gray-800">
+                          {r.name}
+                        </h3>
+
+                        <p className="text-gray-400 mt-2 text-sm">
+                          {r.address}
+                        </p>
+                      </div>
+
+                      <span
+                        className={`px-4 py-2 rounded-2xl text-xs font-bold
+                        ${
+                          statusBadge[r.status] ||
+                          "bg-gray-100 text-gray-500"
+                        }`}
+                      >
+                        {r.status}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3 mt-5">
+
+                      <div className="px-4 py-2 rounded-2xl bg-orange-50 text-orange-600 text-sm font-semibold">
+                        {r.priceRange} · Q{r.averagePrice}
+                      </div>
+
+                      {r.ownerUserId && (
+                        <div className="px-4 py-2 rounded-2xl bg-blue-50 text-blue-600 text-sm font-semibold">
+                          Admin asignado
+                        </div>
+                      )}
+
+                      {r.features?.hasDelivery && (
+                        <div className="px-4 py-2 rounded-2xl bg-green-50 text-green-600 text-sm font-semibold">
+                          Delivery
+                        </div>
+                      )}
+
+                      {r.features?.hasWifi && (
+                        <div className="px-4 py-2 rounded-2xl bg-purple-50 text-purple-600 text-sm font-semibold">
+                          WiFi
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* ACTIONS */}
+                  <div className="flex items-center justify-between mt-6">
+
+                    <div className="text-sm text-gray-500 font-medium">
+                      📞 Tel: {r.phone || "Sin teléfono"}
+                    </div>
+
+                    <div className="flex gap-3">
+
+                      <button
+                        onClick={() => openEdit(r)}
+                        className="h-11 px-5 rounded-2xl border border-gray-200 hover:bg-gray-50 text-sm font-semibold text-gray-700 transition"
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(r)}
+                        className="h-11 px-5 rounded-2xl bg-red-50 hover:bg-red-100 text-red-500 text-sm font-semibold transition"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           ))}
 
           {filtered.length === 0 && (
-            <div className="text-center py-16 text-gray-400 text-sm">
+            <div className="bg-white rounded-3xl border border-gray-100 py-20 text-center text-gray-400 shadow-sm">
               No se encontraron restaurantes
             </div>
           )}
         </div>
       </main>
 
-      {/* ── MODAL CREAR ── */}
+      {/* MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-2xl w-full max-w-lg flex flex-col max-h-[90vh] overflow-hidden">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
 
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="w-full max-w-6xl bg-white rounded-[32px] overflow-hidden shadow-2xl flex max-h-[94vh]">
+
+            {/* SIDEBAR */}
+            <div className="w-[320px] bg-gradient-to-b from-[#1a1a2e] to-[#16213e] p-8 text-white flex flex-col">
               <div>
-                <p className="font-medium text-gray-800">Nuevo restaurante</p>
-                <p className="text-xs text-gray-400 mt-0.5">Completa los 3 pasos</p>
-              </div>
-              <button onClick={() => setShowModal(false)}
-                className="w-7 h-7 rounded-full border border-gray-200 text-gray-400 text-sm hover:bg-gray-50 flex items-center justify-center">
-                ✕
-              </button>
-            </div>
+                <h2 className="text-4xl font-black mt-4 leading-tight">
+                  {selectedRestaurant ? "Editar Restaurante" : "Agregar Restaurante"}
+                </h2>
 
-            <div className="flex border-b border-gray-100">
-              {["1 · Información", "2 · Ubicación", "3 · Detalles"].map((label, i) => (
-                <div key={i} className={`flex-1 text-center py-2.5 text-xs font-medium border-b-2 transition
-                  ${step === i+1 ? "border-orange-500 text-orange-500" : "border-transparent text-gray-400"}`}>
-                  {label}
+                <p className="mt-4 text-gray-300 text-sm leading-relaxed">
+                  Completa la información para registrar un nuevo restaurante.
+                </p>
+              </div>
+
+              <div className="mt-12 space-y-4">
+
+                {[1, 2, 3].map((s) => (
+                  <div
+                    key={s}
+                    className={`rounded-2xl p-4 transition-all ${
+                      step === s
+                        ? "bg-orange-500 text-white shadow-lg shadow-orange-900/30"
+                        : "bg-white/5 border border-white/10"
+                    }`}
+                  >
+                    Paso {s}
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-auto">
+
+                <div className="h-2 rounded-full bg-white/20 overflow-hidden">
+                  <div
+                    className="h-full bg-white transition-all"
+                    style={{ width: `${(step / 3) * 100}%` }}
+                  />
                 </div>
-              ))}
+
+                <p className="text-sm text-gray-300 mt-3">
+                  Paso {step} de 3
+                </p>
+              </div>
             </div>
 
-            {error && (
-              <div className="mx-6 mt-4 px-3 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg text-xs">
-                {error}
+            {/* CONTENT */}
+            <div className="flex-1 bg-[#fcfcfd] flex flex-col">
+
+              {/* HEADER */}
+              <div className="px-8 py-6 border-b border-gray-100 bg-white flex items-center justify-between">
+
+                <div>
+                  <h3 className="text-2xl font-black text-gray-800">
+                    {
+                      step === 1
+                        ? "Información general"
+                        : step === 2
+                        ? "Ubicación"
+                        : "Detalles"
+                    }
+                  </h3>
+                </div>
+
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="w-11 h-11 rounded-2xl border border-gray-200 hover:bg-gray-50"
+                >
+                  ✕
+                </button>
               </div>
-            )}
 
-            <div className="overflow-y-auto flex-1 px-6 py-4 space-y-4">
+              {/* BODY */}
+              <div className="flex-1 overflow-y-auto px-8 py-8">
 
-              {/* Paso 1 — Información */}
-              {step === 1 && (
-                <>
-                  <label className="block border-2 border-dashed border-gray-200 rounded-xl p-4 text-center cursor-pointer hover:border-orange-300 transition">
-                    {photoPreview
-                      ? <img src={photoPreview} className="w-full h-32 object-cover rounded-lg" alt="preview" />
-                      : <div className="py-4 text-gray-400 text-sm">Arrastra una foto o haz clic para subir</div>}
-                    <input type="file" accept="image/*" onChange={handlePhoto} className="hidden" />
-                  </label>
-                  <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Nombre</label>
-                    <input name="name" value={form.name} onChange={handleChange} className={inp} placeholder="La Fonda Chapina" />
+                {/* PASO 1 */}
+                {step === 1 && (
+                <div className="space-y-6">
+
+                  {/* FOTO */}
+                  <div className="flex justify-center">
+                    <label className="block w-[460px] border-2 border-dashed border-gray-200 rounded-[24px] p-4 bg-white hover:border-orange-300 transition cursor-pointer">
+
+                      {photoPreview ? (
+                        <img
+                          src={photoPreview}
+                          className="w-full h-[260px] object-cover rounded-2xl"
+                          alt="preview"
+                        />
+                      ) : (
+                        <div className="h-[260px] flex flex-col items-center justify-center">
+
+                          <div className="text-5xl">
+                            📸
+                          </div>
+
+                          <p className="mt-3 font-bold text-base text-gray-700">
+                            Subir fotografía
+                          </p>
+
+                          <p className="text-xs text-gray-400 mt-1">
+                            PNG, JPG o WEBP
+                          </p>
+                        </div>
+                      )}
+
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhoto}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
-                  <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Descripción</label>
-                    <textarea name="description" value={form.description} onChange={handleChange}
-                      className={inp + " resize-none h-16"} placeholder="Describe el restaurante..." />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
+
+                  {/* FORM */}
+                  <div className="grid grid-cols-2 gap-5">
+
+                    <div className="col-span-2">
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Nombre
+                      </label>
+
+                      <input
+                        name="name"
+                        value={form.name}
+                        onChange={handleChange}
+                        className={inp}
+                        placeholder="La Fonda Chapina"
+                      />
+                    </div>
+
+                    <div className="col-span-2">
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Descripción
+                      </label>
+
+                      <textarea
+                        name="description"
+                        value={form.description}
+                        onChange={handleChange}
+                        className={`${inp} h-32 resize-none py-4`}
+                        placeholder="Describe el restaurante..."
+                      />
+                    </div>
+
                     <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Categoría</label>
-                      <select name="category" value={form.category} onChange={handleChange} className={inp}>
-                        <option value="">— Selecciona —</option>
-                        {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Categoría
+                      </label>
+
+                      <select
+                        name="category"
+                        value={form.category}
+                        onChange={handleChange}
+                        className={inp}
+                      >
+                        <option value="">Selecciona</option>
+
+                        {CATEGORIES.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
                       </select>
                     </div>
+
                     <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Rango de precio</label>
-                      <select name="priceRange" value={form.priceRange} onChange={handleChange} className={inp}>
-                        {PRICE_RANGES.map(p => <option key={p} value={p}>{p}</option>)}
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Rango de precio
+                      </label>
+
+                      <select
+                        name="priceRange"
+                        value={form.priceRange}
+                        onChange={handleChange}
+                        className={inp}
+                      >
+                        {PRICE_RANGES.map((p) => (
+                          <option key={p} value={p}>
+                            {p}
+                          </option>
+                        ))}
                       </select>
                     </div>
+
                     <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Precio promedio (Q)</label>
-                      <input name="averagePrice" type="number" value={form.averagePrice} onChange={handleChange} className={inp} placeholder="75" />
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Precio promedio
+                      </label>
+
+                      <input
+                        type="number"
+                        name="averagePrice"
+                        value={form.averagePrice}
+                        onChange={handleChange}
+                        className={inp}
+                        placeholder="75"
+                      />
                     </div>
+
                     <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Horario</label>
-                      <div className="flex gap-2">
-                        <input name="openingHours" type="time" value={form.openingHours} onChange={handleChange} className={inp} />
-                        <input name="closingHours" type="time" value={form.closingHours} onChange={handleChange} className={inp} />
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Horario
+                      </label>
+
+                      <div className="flex gap-3">
+
+                        <input
+                          type="time"
+                          name="openingHours"
+                          value={form.openingHours}
+                          onChange={handleChange}
+                          className={inp}
+                        />
+
+                        <input
+                          type="time"
+                          name="closingHours"
+                          value={form.closingHours}
+                          onChange={handleChange}
+                          className={inp}
+                        />
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              )}
+
+                {/* PASO 2 */}
+                {step === 2 && (
+                  <div className="grid grid-cols-2 gap-5">
+
+                    <div className="col-span-2">
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Dirección completa
+                      </label>
+
+                      <input
+                        name="address"
+                        value={form.address}
+                        onChange={handleChange}
+                        className={inp}
+                        placeholder="5a Avenida 10-20 Zona 1"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Calle
+                      </label>
+
+                      <input
+                        name="street"
+                        value={form.addressDetails.street}
+                        onChange={handleAddress}
+                        className={inp}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Zona
+                      </label>
+
+                      <input
+                        name="zone"
+                        value={form.addressDetails.zone}
+                        onChange={handleAddress}
+                        className={inp}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Ciudad
+                      </label>
+
+                      <input
+                        name="city"
+                        value={form.addressDetails.city}
+                        onChange={handleAddress}
+                        className={inp}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Departamento
+                      </label>
+
+                      <input
+                        name="department"
+                        value={form.addressDetails.department}
+                        onChange={handleAddress}
+                        className={inp}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Longitud
+                      </label>
+
+                      <input
+                        type="number"
+                        step="any"
+                        value={form.location.coordinates[0]}
+                        onChange={(e) => handleCoord(0, e.target.value)}
+                        className={inp}
+                        placeholder="-90.5069"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Latitud
+                      </label>
+
+                      <input
+                        type="number"
+                        step="any"
+                        value={form.location.coordinates[1]}
+                        onChange={(e) => handleCoord(1, e.target.value)}
+                        className={inp}
+                        placeholder="14.6407"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Teléfono
+                      </label>
+
+                      <input
+                        name="phone"
+                        value={form.phone}
+                        onChange={handleChange}
+                        className={inp}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Email
+                      </label>
+
+                      <input
+                        type="email"
+                        name="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        className={inp}
+                      />
+                    </div>
+
+                    <div className="col-span-2">
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        Sitio web
+                      </label>
+
+                      <input
+                        name="website"
+                        value={form.website}
+                        onChange={handleChange}
+                        className={inp}
+                        placeholder="https://..."
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* PASO 3 */}
+                {step === 3 && (
+                  <div className="space-y-8">
+
+                    {/* FEATURES */}
+                    <div>
+                      <h4 className="text-xl font-black text-gray-800">
+                        Características
+                      </h4>
+
+                      <div className="grid grid-cols-2 gap-4 mt-5">
+
+                        {FEATURES.map(({ key, label }) => (
+                          <label
+                            key={key}
+                            className={`rounded-2xl border p-5 cursor-pointer transition-all
+                            ${
+                              form.features[key]
+                                ? "border-orange-300 bg-orange-50"
+                                : "border-gray-200 bg-white hover:border-orange-200"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+
+                              <span className="font-semibold text-gray-700">
+                                {label}
+                              </span>
+
+                              <input
+                                type="checkbox"
+                                name={key}
+                                checked={form.features[key]}
+                                onChange={handleFeature}
+                                className="w-5 h-5 accent-orange-500"
+                              />
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* PAYMENTS */}
+                    <div>
+                      <h4 className="text-xl font-black text-gray-800">
+                        Métodos de pago
+                      </h4>
+
+                      <div className="grid grid-cols-2 gap-4 mt-5">
+
+                        {PAYMENT_METHODS.map((m) => (
+                          <label
+                            key={m}
+                            className={`rounded-2xl border p-5 cursor-pointer transition-all
+                            ${
+                              form.paymentMethods.includes(m)
+                                ? "border-orange-300 bg-orange-50"
+                                : "border-gray-200 bg-white hover:border-orange-200"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+
+                              <span className="font-semibold text-gray-700">
+                                {m}
+                              </span>
+
+                              <input
+                                type="checkbox"
+                                checked={form.paymentMethods.includes(m)}
+                                onChange={() => handlePayment(m)}
+                                className="w-5 h-5 accent-orange-500"
+                              />
+                            </div>
+                          </label>
+                        ))}
                       </div>
                     </div>
                   </div>
-                </>
-              )}
-
-              {/* Paso 2 — Ubicación */}
-              {step === 2 && (
-                <>
-                  <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Dirección completa</label>
-                    <input name="address" value={form.address} onChange={handleChange} className={inp} placeholder="5a Avenida 10-20, Zona 1" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Calle / No.</label>
-                      <input name="street" value={form.addressDetails.street} onChange={handleAddress} className={inp} placeholder="5a Avenida 10-20" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Zona</label>
-                      <input name="zone" value={form.addressDetails.zone} onChange={handleAddress} className={inp} placeholder="Zona 1" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Ciudad</label>
-                      <input name="city" value={form.addressDetails.city} onChange={handleAddress} className={inp} />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Departamento</label>
-                      <input name="department" value={form.addressDetails.department} onChange={handleAddress} className={inp} />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Longitud</label>
-                      <input type="number" step="any" value={form.location.coordinates[0]} onChange={e => handleCoord(0, e.target.value)} className={inp} placeholder="-90.5069" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Latitud</label>
-                      <input type="number" step="any" value={form.location.coordinates[1]} onChange={e => handleCoord(1, e.target.value)} className={inp} placeholder="14.6407" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Teléfono</label>
-                      <input name="phone" value={form.phone} onChange={handleChange} className={inp} placeholder="22345678" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Email</label>
-                      <input name="email" type="email" value={form.email} onChange={handleChange} className={inp} placeholder="contacto@restaurante.com" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Sitio web (opcional)</label>
-                    <input name="website" value={form.website} onChange={handleChange} className={inp} placeholder="https://..." />
-                  </div>
-                </>
-              )}
-
-              {/* Paso 3 — Detalles */}
-              {step === 3 && (
-                <>
-                  <div>
-                    <label className="text-xs text-gray-500 mb-2 block">Características</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {FEATURES.map(({ key, label }) => (
-                        <label key={key} className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                          <input type="checkbox" name={key} checked={form.features[key]} onChange={handleFeature} className="accent-orange-500 w-4 h-4" />
-                          {label}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-500 mb-2 block">Métodos de pago</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {PAYMENT_METHODS.map(m => (
-                        <label key={m} className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                          <input type="checkbox" checked={form.paymentMethods.includes(m)} onChange={() => handlePayment(m)} className="accent-orange-500 w-4 h-4" />
-                          {m}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
-              <span className="text-xs text-gray-400">Paso {step} de 3</span>
-              <div className="flex gap-2">
-                {step > 1 && (
-                  <button onClick={() => setStep(s => s - 1)}
-                    className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-500 hover:bg-gray-50 transition">
-                    Atrás
-                  </button>
                 )}
-                {step < 3
-                  ? <button onClick={() => setStep(s => s + 1)}
-                      className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition">
-                      Siguiente →
-                    </button>
-                  : <button onClick={handleSubmit} disabled={loading}
-                      className="px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition">
-                      {loading ? "Creando..." : "Crear restaurante"}
-                    </button>
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* ── MODAL EDITAR ── */}
-      {showEditModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden">
-
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <p className="font-medium text-gray-800">Editar restaurante</p>
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="w-7 h-7 rounded-full border border-gray-200 text-gray-400 text-sm hover:bg-gray-50 flex items-center justify-center"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="px-6 py-4 space-y-3 max-h-[70vh] overflow-y-auto">
-
-              <label className="block border-2 border-dashed border-gray-200 rounded-xl p-4 text-center cursor-pointer hover:border-orange-300 transition">
-                {editPreview
-                  ? <img src={editPreview} className="w-full h-32 object-cover rounded-lg" />
-                  : <div className="py-4 text-gray-400 text-sm">Cambiar imagen</div>}
-                <input type="file" accept="image/*" onChange={handleEditPhoto} className="hidden" />
-              </label>
-
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Nombre</label>
-                <input
-                  name="name"
-                  value={editForm.name}
-                  onChange={e => setEditForm({ ...editForm, name: e.target.value })}
-                  className={inp}
-                />
               </div>
 
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Descripción</label>
-                <textarea
-                  name="description"
-                  value={editForm.description}
-                  onChange={e => setEditForm({ ...editForm, description: e.target.value })}
-                  className={inp + " resize-none h-16"}
-                />
-              </div>
+              {/* FOOTER */}
+              <div className="px-8 py-6 border-t border-gray-100 bg-white flex items-center justify-between">
 
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Dirección</label>
-                <input
-                  name="address"
-                  value={editForm.address}
-                  onChange={e => setEditForm({ ...editForm, address: e.target.value })}
-                  className={inp}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Teléfono</label>
-                  <input
-                    name="phone"
-                    value={editForm.phone}
-                    onChange={e => setEditForm({ ...editForm, phone: e.target.value })}
-                    className={inp}
-                  />
+                  {step > 1 && (
+                    <button
+                      onClick={() => setStep((s) => s - 1)}
+                      className="h-12 px-6 rounded-2xl border border-gray-200"
+                    >
+                      Atrás
+                    </button>
+                  )}
                 </div>
 
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Email</label>
-                  <input
-                    name="email"
-                    value={editForm.email}
-                    onChange={e => setEditForm({ ...editForm, email: e.target.value })}
-                    className={inp}
-                  />
-                </div>
+                <div className="flex gap-3">
 
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Categoría</label>
-                  <select
-                    value={editForm.category}
-                    onChange={e => setEditForm({ ...editForm, category: e.target.value })}
-                    className={inp}
+                  <button
+                    onClick={() => {
+                      setShowModal(false);
+                      setSelectedRestaurant(null);
+                      setForm(EMPTY_FORM);
+                    }}
+                    className="h-12 px-6 rounded-2xl border border-gray-200"
                   >
-                    {CATEGORIES.map(c => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                </div>
+                    Cancelar
+                  </button>
 
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Precio promedio</label>
-                  <input
-                    type="number"
-                    value={editForm.averagePrice}
-                    onChange={e => setEditForm({ ...editForm, averagePrice: e.target.value })}
-                    className={inp}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Apertura</label>
-                  <input
-                    type="time"
-                    value={editForm.openingHours}
-                    onChange={e => setEditForm({ ...editForm, openingHours: e.target.value })}
-                    className={inp}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Cierre</label>
-                  <input
-                    type="time"
-                    value={editForm.closingHours}
-                    onChange={e => setEditForm({ ...editForm, closingHours: e.target.value })}
-                    className={inp}
-                  />
+                  {step < 3 ? (
+                    <button
+                      onClick={() => setStep((s) => s + 1)}
+                      className="h-12 px-7 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-400 text-white font-bold"
+                    >
+                      Continuar →
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleSubmit}
+                      disabled={loading}
+                      className="h-12 px-7 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-400 text-white font-bold"
+                    >
+                      {loading
+                        ? "Guardando..."
+                        : selectedRestaurant
+                          ? "Actualizar restaurante"
+                          : "Crear restaurante"
+                      }
+                    </button>
+                  )}
                 </div>
               </div>
-
             </div>
-
-            <div className="px-6 py-4 border-t border-gray-100 flex justify-between">
-              <button
-                onClick={() => handleDelete(selectedRestaurant)}
-                className="px-4 py-2 border border-red-200 text-red-500 rounded-lg text-sm hover:bg-red-50 transition"
-              >
-                Eliminar
-              </button>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowEditModal(false)}
-                  className="px-4 py-2 border border-gray-200 text-gray-500 rounded-lg text-sm hover:bg-gray-50 transition"
-                >
-                  Cancelar
-                </button>
-
-                <button
-                  onClick={handleUpdate}
-                  disabled={loading}
-                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition"
-                >
-                  Guardar cambios
-                </button>
-              </div>
-            </div>
-
           </div>
         </div>
       )}
-
     </div>
   );
 };

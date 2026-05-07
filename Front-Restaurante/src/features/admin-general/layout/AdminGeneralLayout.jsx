@@ -63,7 +63,7 @@ export const AdminGeneralLayout = () => {
             >
               <div style={{ fontSize: "16px" }}>👨🏻‍💼</div>
 
-              <span>Restaurantes</span>
+              <span>Administradores</span>
             </div>
           </NavLink>
 
