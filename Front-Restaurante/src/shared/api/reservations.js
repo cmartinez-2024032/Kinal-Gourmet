@@ -14,3 +14,6 @@ export const getReservationByIdRequest = (id) =>
 
 export const deleteReservationRequest = (id) =>
     axiosRestaurantAdmin.delete(`/kinalGourmetHouse/v1/reservations/${id}`);
+
+export const updateReservationStatusRequest = (id, data) =>
+    axiosRestaurantAdmin.patch(`/reservations/${id}/status`, data);
