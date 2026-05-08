@@ -15,5 +15,5 @@ export const getReservationByIdRequest = (id) =>
 export const deleteReservationRequest = (id) =>
     axiosRestaurante.delete(`/kinalGourmetHouse/v1/reservations/${id}`);
 
-export const updateReservationStatusRequest = (id, data) =>
-    axiosRestaurante.patch(`/kinalGourmetHouse/v1/reservations/${id}/status`, data);
+export const updateReservationStatusRequest = (id, status) =>
+    axiosRestaurante.patch(`/kinalGourmetHouse/v1/reservations/${id}/status`,{ status });

@@ -27,22 +27,6 @@ export const useReservationStore = create((set, get) => ({
     }
   },
 
-  createReservation: async (data) => {
-    set({ loading: true, error: null });
-    try {
-      await createReservationRequest(data);
-      await get().getReservations();
-      return { success: true };
-    } catch (error) {
-      const msg = error?.response?.data?.message || "No se pudo crear la reservación.";
-      console.error("Error al crear reservación:", error);
-      set({ error: msg });
-      return { success: false, message: msg };
-    } finally {
-      set({ loading: false });
-    }
-  },
-
   updateReservation: async (id, data) => {
     set({ loading: true, error: null });
     try {
