@@ -28,7 +28,7 @@ export const LoginForm = () => {
                 navigate("/adminRestaurante")
             } 
             else {
-                navigate("/dashboard")
+                navigate("/client")
             }
         }
     }

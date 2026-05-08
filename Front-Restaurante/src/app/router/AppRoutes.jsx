@@ -21,6 +21,10 @@ import { PlatilloPage }    from '../../features/admin-restaurante/pages/Platillo
 import { MesaPage }        from '../../features/admin-restaurante/pages/MesaPage.jsx'
 import { CuponPage } from '../../features/admin-restaurante/pages/CuponPage.jsx'
 import PromotionPage from '../../features/admin-restaurante/pages/PromotionPage.jsx'
+
+//CLIENTE / USUARIO
+import { ClientLayout } from '../../features/client/layout/ClientLayout.jsx'
+
 import { PrivateRoute } from './PrivateRoute'
 
 export const AppRoutes = () => {
@@ -74,6 +78,23 @@ export const AppRoutes = () => {
                 <Route path="cupones"   element={<CuponPage />} />
                 <Route path= "promociones" element={<PromotionPage/>}/>
             </Route>
+
+            {/* Cliente */}
+            <Route
+                path="/client"
+                element={
+                    <PrivateRoute allowedRoles={["CLIENTE"]}>
+                        <ClientLayout />
+                    </PrivateRoute>
+                }
+            >
+                <Route index                      element={<HomePage />} />
+                <Route path="restaurante/:id"     element={<RestaurantDetailPage />} />
+                <Route path="pedidos"             element={<MyOrdersPage />} />
+                <Route path="pedidos/:id"         element={<OrderDetailPage />} />
+                <Route path="reservaciones"       element={<MyReservationsPage />} />
+            </Route>
+
 
         </Routes>
     )
