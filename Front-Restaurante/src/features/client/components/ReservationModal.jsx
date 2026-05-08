@@ -19,60 +19,114 @@ const formatTime = (time) => {
     return `${hour12}:${String(m).padStart(2, "0")} ${period}`;
 };
 
-export const  ReservationCard = ({ reservation: r, getStatusLabel, getStatusStyle, getStatusIcon, onCancel }) => {
+export const ReservationCard = ({ reservation: r, getStatusLabel, getStatusStyle, getStatusIcon, onCancel }) => {
     const canCancel = r.status === "PENDIENTE";
 
     const date = new Date(r.date).toLocaleDateString("es-GT", {
         weekday: "long", day: "numeric", month: "long"
     });
 
+    const statusConfig = {
+        PENDIENTE:  { bg: "bg-amber-400",   text: "text-amber-950",  bar: "from-amber-400/90",  icon: "⏳" },
+        CONFIRMADA: { bg: "bg-emerald-400", text: "text-emerald-950",bar: "from-emerald-400/90",icon: "✅" },
+        CANCELADA:  { bg: "bg-rose-500",    text: "text-white",      bar: "from-rose-500/90",   icon: "✕" },
+        COMPLETADA: { bg: "bg-sky-400",     text: "text-sky-950",    bar: "from-sky-400/90",    icon: "🎉" },
+    };
+
+    const sc = statusConfig[r.status] ?? { bg: "bg-gray-300", text: "text-gray-800", bar: "from-gray-400/90", icon: "📅" };
+
     return (
-        <div className="bg-white rounded-[32px] border border-gray-100 shadow-xl shadow-black/5 p-6 hover:translate-y-[-4px] transition-all group">
-            <div className="flex items-start justify-between mb-6">
-                <div className="min-w-0">
-                    <h4 className="font-black text-lg text-gray-900 truncate leading-tight group-hover:text-orange-500 transition-colors">
+        <div className="bg-white rounded-[28px] border border-gray-100 shadow-xl shadow-black/5 overflow-hidden hover:translate-y-[-6px] hover:shadow-2xl transition-all duration-300 group">
+
+            {/* Imagen con gradiente overlay */}
+            <div className="relative h-44 bg-gray-100 overflow-hidden">
+                {r.table?.image ? (
+                    <img
+                        src={r.table.image}
+                        alt={`Mesa ${r.table.number}`}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-zinc-700 flex items-center justify-center">
+                        <span className="text-6xl opacity-20">🍽️</span>
+                    </div>
+                )}
+
+                {/* Gradiente inferior */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                {/* Badge status */}
+                <div className="absolute top-3 left-3">
+                    <span className={`${sc.bg} ${sc.text} text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-lg`}>
+                        {sc.icon} {getStatusLabel(r.status)}
+                    </span>
+                </div>
+
+                {/* Badge mesa */}
+                <div className="absolute top-3 right-3">
+                    <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl">
+                        🪑 {r.table?.number ? `Mesa ${r.table.number}` : "Por asignar"}
+                    </span>
+                </div>
+
+                {/* Nombre restaurante sobre imagen */}
+                <div className="absolute bottom-0 left-0 right-0 px-4 py-3">
+                    <h4 className="font-black text-lg text-white leading-tight drop-shadow-lg truncate">
                         {r.restaurant?.name ?? "Restaurante"}
                     </h4>
-                    <p className="text-xs font-bold text-orange-500 uppercase tracking-widest mt-1">
-                        {formatTime(r.time)} • {date}
+                    <p className="text-[11px] font-bold text-white/80 uppercase tracking-widest drop-shadow">
+                        🕐 {formatTime(r.time)} · {date}
                     </p>
-                </div>
-                <span className={`shrink-0 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-sm ${getStatusStyle(r.status)}`}>
-                    {getStatusIcon(r.status)} {getStatusLabel(r.status)}
-                </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="bg-gray-50 rounded-2xl p-3 text-center">
-                    <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Comensales</p>
-                    <p className="text-sm font-bold text-gray-700">👥 {r.numberOfGuests}</p>
-                </div>
-                <div className="bg-gray-50 rounded-2xl p-3 text-center">
-                    <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Ubicación</p>
-                    <p className="text-sm font-bold text-gray-700 truncate">🪑 {r.table?.number ? `Mesa ${r.table.number}` : "Asignando..."}</p>
                 </div>
             </div>
 
-            {r.specialRequests && (
-                <div className="mb-6">
-                    <p className="text-[10px] font-black text-gray-400 uppercase mb-2">Notas Especiales</p>
-                    <p className="text-xs text-gray-600 bg-orange-50/50 border border-orange-100 rounded-2xl px-4 py-3 italic">
-                        "{r.specialRequests}"
-                    </p>
-                </div>
-            )}
+            {/* Contenido */}
+            <div className="p-4">
 
-            {canCancel && (
-                <button
-                    onClick={onCancel}
-                    className="w-full py-3 rounded-2xl border-2 border-red-50 text-red-500 text-xs font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all"
-                >
-                    Cancelar Reserva
-                </button>
-            )}
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                    <div className="bg-orange-50 border border-orange-100 rounded-2xl p-3 flex items-center gap-2">
+                        <span className="text-xl">👥</span>
+                        <div>
+                            <p className="text-[9px] font-black text-orange-400 uppercase tracking-wide">Comensales</p>
+                            <p className="text-sm font-black text-gray-800">{r.numberOfGuests}</p>
+                        </div>
+                    </div>
+                    <div className="bg-orange-50 border border-orange-100 rounded-2xl p-3 flex items-center gap-2">
+                        <span className="text-xl">📍</span>
+                        <div>
+                            <p className="text-[9px] font-black text-orange-400 uppercase tracking-wide">Ubicación</p>
+                            <p className="text-sm font-black text-gray-800 truncate">{r.table?.location ?? "—"}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Notas especiales */}
+                {r.specialRequests && (
+                    <div className="bg-gradient-to-r from-orange-500 to-amber-400 rounded-2xl px-4 py-3 mb-3 flex gap-2 items-center shadow-md shadow-orange-200">
+                        <span className="text-xl">✨</span>
+                        <div>
+                            <p className="text-[9px] font-black text-orange-100 uppercase tracking-widest mb-0.5">Nota especial</p>
+                            <p className="text-xs text-white font-bold leading-relaxed">"{r.specialRequests}"</p>
+                        </div>
+                    </div>
+                )}
+                {/* Botón cancelar */}
+                {canCancel && (
+                    <button
+                        onClick={onCancel}
+                        className="w-full py-2.5 rounded-2xl bg-red-500 text-white border-2 border-red-600
+                                text-xs font-black uppercase tracking-widest shadow-lg shadow-red-500/30
+                                hover:bg-red-600 hover:shadow-red-600/40
+                                transition-all duration-200 flex items-center justify-center gap-2"
+                    >
+                        <span>✕</span> Cancelar Reserva
+                    </button>
+                )}
+            </div>
         </div>
     );
-}
+};
 
 /* ── Selector de mesas ── */
 export const  TableSelector = ({ tables, selected, onSelect }) => {
