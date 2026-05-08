@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import api from "../../../shared/api/orders.js";
+import { getOrdersRequest, getOrderByIdRequest, cancelOrderRequest } from "../../../shared/api/orders.js";
 
 export const useOrderStore = create((set, get) => ({
     orders: [],
@@ -60,7 +60,7 @@ export const useOrderStore = create((set, get) => ({
     fetchOrders: async () => {
         try {
             set({ loading: true, error: null });
-            const res = await api.get("/orders", { params: { limit: 50 } });
+            const res = await getOrdersRequest({ limit: 50 });
             const data = res.data?.data ?? res.data ?? [];
             set({ orders: data, loading: false });
         } catch (err) {
@@ -75,7 +75,7 @@ export const useOrderStore = create((set, get) => ({
     fetchOrderById: async (id) => {
         try {
             set({ loading: true, error: null, selectedOrder: null });
-            const res = await api.get(`/orders/${id}`);
+            const res = await getOrdersRequest({ limit: 50 });
             const data = res.data?.data ?? res.data;
             set({ selectedOrder: data, loading: false });
         } catch (err) {
@@ -90,7 +90,7 @@ export const useOrderStore = create((set, get) => ({
     cancelOrder: async (id) => {
         try {
             set({ loading: true, error: null });
-            await api.patch(`/orders/${id}/cancel`);
+            await cancelOrderRequest(id);
             // Actualizar en la lista local
             set((s) => ({
                 orders: s.orders.map((o) =>

@@ -29,16 +29,24 @@ export const useRestaurantClientStore = create((set, get) => ({
         });
     },
 
+    getCategories: () => {
+        const { restaurants } = get();
+        const items = Array.isArray(restaurants) ? restaurants : [];
+        const cats = [...new Set(items.map((r) => r.category).filter(Boolean))];
+        return ["Todas", ...cats];
+    },
+
+    getCategoryLabel: (cat) => {
+        if (cat === "Todas") return "🍽 Todas";
+        return cat?.replace("_", " ") ?? cat;
+    },
+
     fetchRestaurants: async () => {
         try {
             set({ loading: true, error: null });
-            
-            // Llamamos a la función que se definio en tu restaurant.js
             const res = await getRestaurantsRequest();
-            
             const data = res.data?.restaurants ?? res.data ?? [];
-            
-            set({ restaurants: data, loading: false });
+            set({ restaurants: Array.isArray(data) ? data : [], loading: false });
         } catch (err) {
             set({
                 error: err.response?.data?.message || "Error al cargar restaurantes",
@@ -47,7 +55,6 @@ export const useRestaurantClientStore = create((set, get) => ({
         }
     },
 
-    // Setters de filtros
     setSearchTerm:     (term)    => set({ searchTerm: term }),
     setFilterCategory: (cat)     => set({ filterCategory: cat }),
     setFilterFeature:  (feature) => set({ filterFeature: feature }),

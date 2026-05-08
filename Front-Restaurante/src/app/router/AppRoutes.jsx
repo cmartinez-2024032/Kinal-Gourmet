@@ -19,11 +19,16 @@ import { RestaurantesPage }   from '../../features/admin-general/pages/AdminRest
 import { AdminRestLayout } from '../../features/admin-restaurante/layout/AdminRestLayout.jsx'
 import { PlatilloPage }    from '../../features/admin-restaurante/pages/PlatilloPage.jsx'
 import { MesaPage }        from '../../features/admin-restaurante/pages/MesaPage.jsx'
-import { CuponPage } from '../../features/admin-restaurante/pages/CuponPage.jsx'
-import PromotionPage from '../../features/admin-restaurante/pages/PromotionPage.jsx'
+import { CuponPage }       from '../../features/admin-restaurante/pages/CuponPage.jsx'
+import PromotionPage       from '../../features/admin-restaurante/pages/PromotionPage.jsx'
 
-//CLIENTE / USUARIO
-import { ClientLayout } from '../../features/client/layout/ClientLayout.jsx'
+// Cliente
+import { ClientLayout }           from '../../features/client/layout/ClientLayout.jsx'
+import { HomePage }               from '../../features/client/pages/HomePage.jsx'
+import { RestaurantDetailPage }   from '../../features/client/pages/RestaurantDetailPage.jsx'
+import { MyOrdersPage }           from '../../features/client/pages/MyOrdersPage.jsx'
+import { OrderDetailPage }        from '../../features/client/pages/OrderDetailPage.jsx'
+import { MyReservationsPage }     from '../../features/client/pages/MyReservationsPage.jsx'
 
 import { PrivateRoute } from './PrivateRoute'
 
@@ -32,11 +37,11 @@ export const AppRoutes = () => {
         <Routes>
 
             {/* Públicas */}
-            <Route path="/"               element={<LandingPage />} />
-            <Route path="*"               element={<LandingPage />} />
-            <Route path="/login"          element={<AuthPage />} />
-            <Route path="/register"       element={<AuthPage><RegisterForm /></AuthPage>} />
-            <Route path="/verify/:token"  element={<VerifyPage />} />
+            <Route path="/"              element={<LandingPage />} />
+            <Route path="*"              element={<LandingPage />} />
+            <Route path="/login"         element={<AuthPage />} />
+            <Route path="/register"      element={<AuthPage><RegisterForm /></AuthPage>} />
+            <Route path="/verify/:token" element={<VerifyPage />} />
 
             {/* Dashboard */}
             <Route
@@ -54,12 +59,12 @@ export const AppRoutes = () => {
             <Route
                 path="/adminGeneral"
                 element={
-                    <PrivateRoute>
+                    <PrivateRoute allowedRoles={["ADMIN_GENERAL"]}>
                         <AdminGeneralLayout />
                     </PrivateRoute>
                 }
             >
-                <Route index              element={<AdminGeneralPage />} />
+                <Route index               element={<AdminGeneralPage />} />
                 <Route path="restaurantes" element={<RestaurantesPage />} />
             </Route>
 
@@ -67,16 +72,16 @@ export const AppRoutes = () => {
             <Route
                 path="/adminRestaurante"
                 element={
-                    <PrivateRoute>
+                    <PrivateRoute allowedRoles={["ADMIN_RESTAURANTE"]}>
                         <AdminRestLayout />
                     </PrivateRoute>
                 }
             >
-                <Route index           element={<div>Resumen</div>} />
-                <Route path="platillos" element={<PlatilloPage />} />
-                <Route path="mesas"     element={<MesaPage />} />
-                <Route path="cupones"   element={<CuponPage />} />
-                <Route path= "promociones" element={<PromotionPage/>}/>
+                <Route index               element={<div>Resumen</div>} />
+                <Route path="platillos"    element={<PlatilloPage />} />
+                <Route path="mesas"        element={<MesaPage />} />
+                <Route path="cupones"      element={<CuponPage />} />
+                <Route path="promociones"  element={<PromotionPage />} />
             </Route>
 
             {/* Cliente */}
@@ -94,7 +99,6 @@ export const AppRoutes = () => {
                 <Route path="pedidos/:id"         element={<OrderDetailPage />} />
                 <Route path="reservaciones"       element={<MyReservationsPage />} />
             </Route>
-
 
         </Routes>
     )

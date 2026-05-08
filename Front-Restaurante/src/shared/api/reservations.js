@@ -1,21 +1,16 @@
-import api from "./api";
+import { axiosRestaurantAdmin } from "./api";
 
-// Obtener reservaciones
 export const getReservationsRequest = (params) =>
-    api.get("/reservations", { params });
+    axiosRestaurantAdmin.get("/kinalGourmetHouse/v1/reservations/", { params });
 
-// Crear reservación
 export const createReservationRequest = (data) =>
-    api.post("/reservations/create", data);
+    axiosRestaurantAdmin.post("/kinalGourmetHouse/v1/reservations/create", data);
 
-// Actualizar reservación
 export const updateReservationRequest = (id, data) =>
-    api.put(`/reservations/${id}`, data);
+    axiosRestaurantAdmin.put(`/kinalGourmetHouse/v1/reservations/${id}`, data);
 
-// Obtener reservación por ID
 export const getReservationByIdRequest = (id) =>
-    api.get(`/reservations/${id}`);
+    axiosRestaurantAdmin.get(`/kinalGourmetHouse/v1/reservations/${id}`);
 
-// Eliminar reservación
 export const deleteReservationRequest = (id) =>
-    api.delete(`/reservations/${id}`);
+    axiosRestaurantAdmin.delete(`/kinalGourmetHouse/v1/reservations/${id}`);
