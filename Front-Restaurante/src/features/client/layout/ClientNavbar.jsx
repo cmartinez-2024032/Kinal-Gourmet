@@ -48,7 +48,7 @@ export const ClientNavbar = () => {
                     />
                     
                     <span className="font-bold text-orange-500 text-base tracking-tight hidden sm:block">
-                        RestauranteApp
+                        Kinal Gourmet
                     </span>
                 </NavLink>
 

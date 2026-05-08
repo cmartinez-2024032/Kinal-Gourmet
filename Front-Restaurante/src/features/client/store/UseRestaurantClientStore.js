@@ -45,7 +45,7 @@ export const useRestaurantClientStore = create((set, get) => ({
         try {
             set({ loading: true, error: null });
             const res = await getRestaurantsRequest();
-            const data = res.data?.restaurants ?? res.data ?? [];
+            const data = res.data?.data ?? [];  // ✅ único cambio
             set({ restaurants: Array.isArray(data) ? data : [], loading: false });
         } catch (err) {
             set({
