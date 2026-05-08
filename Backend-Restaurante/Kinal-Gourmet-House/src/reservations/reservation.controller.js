@@ -182,3 +182,42 @@ export const deleteReservation = async (req, res) => {
         res.status(500).json({ success: false, message: "Error al eliminar reservación", error: error.message });
     }
 };
+
+export const updateReservationStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ success: false, message: "ID inválido" });
+        }
+
+        const allowedStatus = ["PENDIENTE", "CONFIRMADA", "CANCELADA", "COMPLETADA"];
+
+        if (!allowedStatus.includes(status)) {
+            return res.status(400).json({ success: false, message: "Estado inválido" });
+        }
+
+        const reservation = await Reservation.findById(id);
+
+        if (!reservation) {
+            return res.status(404).json({ success: false, message: "No encontrada" });
+        }
+
+        reservation.status = status;
+        await reservation.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Estado actualizado",
+            data: reservation
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Error al actualizar estado",
+            error: error.message
+        });
+    }
+};
