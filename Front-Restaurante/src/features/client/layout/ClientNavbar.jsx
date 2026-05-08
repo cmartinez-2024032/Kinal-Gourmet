@@ -1,136 +1,146 @@
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/UseCartStore";
+import { LogOut, ShoppingCart, User, Settings, ChevronDown } from "lucide-react";
 import logoRest from "../../../assets/logo_2.png";
+import userIcon from "../../../assets/icon.png";
 
-// Lee el usuario del JWT en localStorage
 const getUser = () => {
     try {
         const token = localStorage.getItem("token");
         if (!token) return null;
         return JSON.parse(atob(token.split(".")[1]));
-    } catch {
-        return null;
-    }
+    } catch { return null; }
 };
 
 const NAV_LINKS = [
-    { to: "/client",               label: "Explorar",        end: true },
+    { to: "/client",             label: "Explorar",         end: true },
     { to: "/client/pedidos",       label: "Mis Pedidos" },
     { to: "/client/reservaciones", label: "Mis Reservaciones" },
 ];
 
 export const ClientNavbar = () => {
-    const navigate   = useNavigate();
+    const navigate = useNavigate();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const toggleCart = useCartStore((s) => s.toggleCart);
     const totalItems = useCartStore((s) => s.getTotalItems());
-    const user       = getUser();
-
-    const initials = user?.name
-        ? user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
-        : "?";
+    const user = getUser();
 
     const handleLogout = () => {
         localStorage.removeItem("token");
-        navigate("/login");
+
+        setIsMenuOpen(false);
+
+        navigate("/login", { replace: true });
+
+        window.location.reload(); 
     };
 
     return (
-        <header className="sticky top-0 z-40 w-full bg-white border-b border-gray-100 shadow-sm">
-            <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+        <header className="sticky top-0 z-50 w-full bg-black/95 backdrop-blur-md border-b border-white/10 shadow-2xl">
+            <div className="max-w-[1600px] mx-auto px-8 h-20 flex items-center">
+                
+                {/* 1. LOGO (Solo imagen) */}
+                <div className="flex-1 flex justify-start">
+                    <NavLink to="/client" className="shrink-0 transition-transform hover:scale-105">
+                        <img 
+                            src={logoRest} 
+                            alt="Logo" 
+                            className="w-25 h-25 object-contain"
+                        />
+                    </NavLink>
+                </div>
 
-                {/* Logo */}
-                <NavLink to="/client" className="flex items-center gap-2 shrink-0">
-    
-                    <img 
-                        src={logoRest} 
-                        alt="Logo RestauranteApp" 
-                        className="w-8 h-8 object-contain"
-                    />
-                    
-                    <span className="font-bold text-orange-500 text-base tracking-tight hidden sm:block">
-                        Kinal Gourmet
-                    </span>
-                </NavLink>
-
-                {/* Nav links*/}
-                <nav className="hidden md:flex items-center gap-1">
+                {/* 2. NAVEGACIÓN CENTRAL (Centrada absolutamente) */}
+                <nav className="hidden lg:flex items-center gap-10">
                     {NAV_LINKS.map(({ to, label, end }) => (
                         <NavLink
                             key={to}
                             to={to}
                             end={end}
                             className={({ isActive }) =>
-                                `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                    isActive
-                                        ? "bg-orange-50 text-orange-600"
-                                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                `relative py-2 text-xs font-black tracking-[0.2em] uppercase transition-all duration-300 ${
+                                    isActive ? "text-orange-500" : "text-gray-400 hover:text-white"
                                 }`
                             }
                         >
-                            {label}
+                            {({ isActive }) => (
+                                <>
+                                    {label}
+                                    {isActive && (
+                                        <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-orange-500 shadow-[0_0_15px_#f97316]" />
+                                    )}
+                                </>
+                            )}
                         </NavLink>
                     ))}
                 </nav>
 
-                {/* Acciones derecha */}
-                <div className="flex items-center gap-2">
-
-                    {/* Botón carrito con badge */}
+                {/* 3. ACCIONES DERECHA */}
+                <div className="flex-1 flex justify-end items-center gap-6">
+                    
+                    {/* Botón Carrito */}
                     <button
                         onClick={toggleCart}
-                        className="relative p-2 rounded-xl text-gray-600 hover:bg-orange-50
-                            hover:text-orange-500 transition-colors"
-                        aria-label="Abrir carrito"
+                        className="relative p-3 rounded-full text-gray-300 hover:bg-white/10 transition-all"
                     >
-                        <span className="text-xl leading-none">🛒</span>
+                        <ShoppingCart size={22} strokeWidth={2} />
                         {totalItems > 0 && (
-                            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1
-                                bg-orange-500 text-white text-[10px] font-bold rounded-full
-                                flex items-center justify-center leading-none">
-                                {totalItems > 99 ? "99+" : totalItems}
+                            <span className="absolute top-1 right-1 w-5 h-5 bg-orange-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-black">
+                                {totalItems}
                             </span>
                         )}
                     </button>
 
-                    {/* Avatar con nombre */}
-                    <div className="flex items-center gap-2 pl-2 border-l border-gray-100">
-                        <div className="w-8 h-8 rounded-full bg-orange-100 text-orange-600 text-xs
-                            font-bold flex items-center justify-center select-none shrink-0">
-                            {initials}
-                        </div>
-                        <span className="text-sm text-gray-700 font-medium hidden sm:block max-w-[120px] truncate">
-                            {user?.name || "Usuario"}
-                        </span>
-                        <button
-                            onClick={handleLogout}
-                            className="text-xs text-gray-400 hover:text-red-500 transition-colors ml-1 hidden sm:block"
-                            title="Cerrar sesión"
+                    {/* Perfil con Dropdown */}
+                    <div className="relative">
+                        <button 
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className="flex items-center gap-3 p-1 pr-3 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/5 group"
                         >
-                            Salir
+                            {/* Espacio para Imagen de Usuario */}
+                            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-orange-500 shadow-lg shrink-0">
+                                <img 
+                                    src={userIcon}
+                                    alt="User Profile" 
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        // Esto es por si la imagen falla, muestra un color sólido
+                                        e.target.src = "https://ui-avatars.com/api/?name=User&background=f97316&color=fff";
+                                    }}
+                                />
+                            </div>
+                            <ChevronDown size={16} className={`text-gray-400 transition-transform ${isMenuOpen ? "rotate-180" : ""}`} />
                         </button>
+
+                        {/* MINI MENÚ DESPLEGABLE */}
+                        {isMenuOpen && (
+                            <>
+                                <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)}></div>
+                                <div className="absolute right-0 mt-3 w-56 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl z-20 overflow-hidden py-2 animate-in fade-in zoom-in duration-200">
+                                    <div className="px-4 py-3 border-b border-white/5 mb-2">
+                                        <p className="text-[10px] font-black text-orange-500 uppercase tracking-tighter">Sesión iniciada como</p>
+                                        <p className="text-sm text-white font-bold truncate">{user?.name || "Usuario"}</p>
+                                    </div>
+
+                                    <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white transition-colors text-sm font-medium">
+                                        <Settings size={18} />
+                                        Opciones de cuenta
+                                    </button>
+
+                                    <button 
+                                        onClick={handleLogout}
+                                        className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 transition-colors text-sm font-bold"
+                                    >
+                                        <LogOut size={18} />
+                                        Cerrar sesión
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
-
-            {/* Nav móvil — barra inferior */}
-            <nav className="md:hidden flex border-t border-gray-100">
-                {NAV_LINKS.map(({ to, label, end }) => (
-                    <NavLink
-                        key={to}
-                        to={to}
-                        end={end}
-                        className={({ isActive }) =>
-                            `flex-1 text-center py-2.5 text-[11px] font-medium transition-colors ${
-                                isActive
-                                    ? "text-orange-500 border-t-2 border-orange-500 -mt-px bg-orange-50/50"
-                                    : "text-gray-500 hover:text-gray-700"
-                            }`
-                        }
-                    >
-                        {label}
-                    </NavLink>
-                ))}
-            </nav>
         </header>
     );
 };

@@ -8,9 +8,8 @@ export const ClientLayout = () => {
 
             {/* Navbar fijo arriba */}
             <ClientNavbar />
-
-            {/* Contenido de cada página */}
-            <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-6">
+            
+            <main className="flex-1 w-full">
                 <Outlet />
             </main>
 

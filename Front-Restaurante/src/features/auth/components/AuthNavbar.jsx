@@ -12,14 +12,15 @@ export const Navbar = () => {
     }
 
     return (
-        <header className="bg-black border-b px-8 py-4 flex justify-center items-center shadow-sm">
+
+        <header className="absolute top-0 left-0 w-full z-50 bg-black border-b border-white/10 px-8 py-3 flex justify-center items-center shadow-2xl">
 
             {/* Logo con redirección a landing */}
-            <Link to="/">
+            <Link to="/" className="hover:opacity-80 transition-opacity">
                 <img
                     src={logo}
                     alt="Kinal Gourmet House"
-                    className="h-14 w-auto object-contain"
+                    className="h-16 w-auto object-contain"
                 />
             </Link>
 

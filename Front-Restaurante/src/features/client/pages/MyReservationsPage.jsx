@@ -3,7 +3,6 @@ import { useReservationClientStore } from "../store/UseReservationClientStore";
 import { getRestaurantsRequest } from "../../../shared/api/restaurants.js";
 import { getTablesRequest } from "../../../shared/api/mesas.js";
 
-
 const emptyForm = {
     restaurant: "",
     table:      "",
@@ -22,8 +21,8 @@ export const MyReservationsPage = () => {
         clearError,
     } = useReservationClientStore();
 
-    const [filterStatus,   setFilterStatus]   = useState("TODAS");
-    const [cancelConfirm,  setCancelConfirm]  = useState(null);
+    const [filterStatus, setFilterStatus] = useState("TODAS");
+    const [cancelConfirm, setCancelConfirm] = useState(null);
 
     useEffect(() => { fetchReservations(); }, []);
 
@@ -38,96 +37,117 @@ export const MyReservationsPage = () => {
     };
 
     return (
-        <div className="space-y-5">
-
-            {/* Header */}
-            <div className="flex items-start justify-between flex-wrap gap-3">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Mis Reservaciones</h1>
-                    <p className="text-sm text-gray-400 mt-1">
-                        {reservations.length} reservación{reservations.length !== 1 ? "es" : ""} en total
-                    </p>
+        <div className="min-h-screen bg-gray-50/50">
+            {/* HERO SECTION - Estilo HomePage */}
+            <div className="relative bg-zinc-950 text-white pt-24 pb-32 px-8 overflow-hidden">
+                <div className="absolute inset-0 z-0">
+                    <img 
+                        src="https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1600" 
+                        className="w-full h-full object-cover"
+                        alt="Hero Background"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
                 </div>
-                <button
-                    onClick={openModal}
-                    className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600
-                        text-white text-sm font-semibold rounded-xl transition-colors"
-                >
-                    + Nueva reservación
-                </button>
-            </div>
 
-            {/* Error */}
-            {error && (
-                <div className="flex items-center justify-between bg-red-50 border border-red-200
-                    rounded-xl px-4 py-3 text-sm text-red-700">
-                    <span>{error}</span>
-                    <button onClick={clearError} className="text-red-400 hover:text-red-600 ml-4">✕</button>
-                </div>
-            )}
-
-            {/* Filtros */}
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                {[
-                    { value: "TODAS",     label: "Todas" },
-                    { value: "PENDIENTE", label: "Pendientes" },
-                    { value: "CONFIRMADA",label: "Confirmadas" },
-                    { value: "COMPLETADA",label: "Completadas" },
-                    { value: "CANCELADA", label: "Canceladas" },
-                ].map(({ value, label }) => (
-                    <button
-                        key={value}
-                        onClick={() => setFilterStatus(value)}
-                        className={`px-4 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap
-                            transition-colors shrink-0
-                            ${filterStatus === value
-                                ? "bg-orange-500 text-white border-orange-500"
-                                : "bg-white text-gray-600 border-gray-200 hover:border-orange-300"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
-            </div>
-
-            {/* Contenido */}
-            {loading ? (
-                <div className="flex flex-col items-center py-20 gap-3">
-                    <div className="w-9 h-9 rounded-full border-[3px] border-gray-100
-                        border-t-orange-500 animate-spin" />
-                    <p className="text-sm text-gray-400">Cargando reservaciones…</p>
-                </div>
-            ) : filtered.length === 0 ? (
-                <div className="text-center py-20">
-                    <p className="text-5xl mb-3">📅</p>
-                    <p className="text-gray-500 font-medium text-sm">
-                        {filterStatus === "TODAS" ? "Aún no tienes reservaciones" : "No hay reservaciones en este estado"}
-                    </p>
-                    {filterStatus === "TODAS" && (
+                <div className="max-w-[1400px] mx-auto relative z-10">
+                    <div className="flex justify-between items-end flex-wrap gap-6">
+                        <div>
+                            <h1 className="text-6xl md:text-7xl font-[900] mb-6 tracking-tighter leading-none">
+                                Mis <span className="text-orange-500 font-serif italic">Reservaciones</span>
+                            </h1>
+                            <p className="text-gray-300 text-xl max-w-xl font-medium leading-relaxed opacity-90">
+                                Asegura tu lugar en los mejores puntos gastronómicos de la ciudad.
+                            </p>
+                        </div>
                         <button
                             onClick={openModal}
-                            className="mt-4 px-5 py-2 bg-orange-500 hover:bg-orange-600
-                                text-white text-sm font-semibold rounded-xl transition-colors"
+                            className="px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-[900] 
+                                    rounded-2xl transition-all shadow-lg shadow-orange-500/20 hover:scale-105 uppercase text-xs tracking-widest"
                         >
-                            Hacer una reservación
+                            + Nueva reservación
                         </button>
-                    )}
+                    </div>
                 </div>
-            ) : (
-                <div className="space-y-3">
-                    {filtered.map((res) => (
-                        <ReservationCard
-                            key={res._id}
-                            reservation={res}
-                            getStatusLabel={getStatusLabel}
-                            getStatusStyle={getStatusStyle}
-                            getStatusIcon={getStatusIcon}
-                            onCancel={() => setCancelConfirm(res._id)}
-                        />
+            </div>
+
+            <div className="max-w-[1400px] mx-auto px-8 -mt-10 pb-20 relative z-20">
+                {/* Error Banner */}
+                {error && (
+                    <div className="flex items-center justify-between bg-red-500 text-white rounded-2xl px-6 py-4 text-sm font-bold mb-6 shadow-xl animate-bounce">
+                        <span>{error}</span>
+                        <button onClick={clearError} className="hover:scale-125 transition-transform">✕</button>
+                    </div>
+                )}
+
+                {/* Filtros Estabilizados (Sin temblor) */}
+                <div className="bg-white rounded-3xl shadow-xl shadow-black/5 p-4 border border-gray-100 flex gap-2 overflow-x-auto no-scrollbar mb-10">
+                    {[
+                        { value: "TODAS", label: "Todas" },
+                        { value: "PENDIENTE", label: "Pendientes" },
+                        { value: "CONFIRMADA", label: "Confirmadas" },
+                        { value: "COMPLETADA", label: "Completadas" },
+                        { value: "CANCELADA", label: "Canceladas" },
+                    ].map(({ value, label }) => (
+                        <button
+                            key={value}
+                            onClick={() => setFilterStatus(value)}
+                            className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-[11px] font-[900] uppercase tracking-widest transition-all shrink-0 border-2
+                                ${filterStatus === value
+                                    ? "bg-black text-white shadow-lg shadow-black/20 border-black"
+                                    : "bg-gray-50 text-gray-400 hover:bg-gray-100 border-transparent"}`}
+                            style={{ minWidth: "max-content" }}
+                        >
+                            <span className="relative inline-flex flex-col items-center">
+                                {label}
+                                <span className="block font-[900] h-0 overflow-hidden invisible" aria-hidden="true">
+                                    {label}
+                                </span>
+                            </span>
+                        </button>
                     ))}
                 </div>
-            )}
 
-            {/* Modal crear reservación */}
+                {/* Contenido */}
+                {loading ? (
+                    <div className="flex flex-col items-center py-32 gap-4">
+                        <div className="w-12 h-12 rounded-full border-[4px] border-gray-100 border-t-orange-500 animate-spin" />
+                        <p className="font-black text-gray-400 uppercase tracking-tighter">Preparando tu agenda...</p>
+                    </div>
+                ) : filtered.length === 0 ? (
+                    <div className="bg-white rounded-[40px] border-2 border-dashed border-gray-200 py-32 text-center shadow-sm">
+                        <div className="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <span className="text-4xl">📅</span>
+                        </div>
+                        <h3 className="text-2xl font-black text-gray-900 mb-2">No encontramos nada por aquí</h3>
+                        <p className="text-gray-400 font-medium mb-8">
+                            {filterStatus === "TODAS" ? "Parece que aún no has realizado ninguna reserva." : "No hay reservas con este estado."}
+                        </p>
+                        {filterStatus === "TODAS" && (
+                            <button
+                                onClick={openModal}
+                                className="px-8 py-4 bg-black text-white font-[900] rounded-2xl hover:bg-orange-500 transition-all uppercase text-xs tracking-widest"
+                            >
+                                Hacer una reservación
+                            </button>
+                        )}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filtered.map((res) => (
+                            <ReservationCard
+                                key={res._id}
+                                reservation={res}
+                                getStatusLabel={getStatusLabel}
+                                getStatusStyle={getStatusStyle}
+                                getStatusIcon={getStatusIcon}
+                                onCancel={() => setCancelConfirm(res._id)}
+                            />
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Modales mantenidos con la misma lógica funcional */}
             {isModalOpen && (
                 <ReservationModal
                     onClose={closeModal}
@@ -138,23 +158,22 @@ export const MyReservationsPage = () => {
 
             {/* Confirm cancelar */}
             {cancelConfirm && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl px-7 py-6 w-full max-w-sm shadow-2xl">
-                        <p className="font-semibold text-gray-900 mb-1">¿Cancelar esta reservación?</p>
-                        <p className="text-sm text-gray-400 mb-5">Esta acción no se puede deshacer.</p>
-                        <div className="flex gap-3 justify-end">
+                <div className="fixed inset-0 bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-[32px] px-8 py-8 w-full max-w-sm shadow-2xl border border-gray-100">
+                        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6 mx-auto text-2xl">⚠️</div>
+                        <p className="text-xl font-black text-gray-900 mb-2 text-center">¿Cancelar reserva?</p>
+                        <p className="text-sm text-gray-500 mb-8 text-center leading-relaxed">Esta acción liberará tu mesa y otros podrán tomarla.</p>
+                        <div className="grid grid-cols-2 gap-3">
                             <button
                                 onClick={() => setCancelConfirm(null)}
-                                className="px-4 py-2 rounded-lg border border-gray-200 text-sm
-                                    text-gray-700 hover:bg-gray-50 transition-colors"
+                                className="px-4 py-3 rounded-xl border-2 border-gray-100 font-bold text-gray-400 hover:bg-gray-50 transition-all text-sm"
                             >
-                                No, mantener
+                                Mantener
                             </button>
                             <button
                                 onClick={handleCancel}
                                 disabled={loading}
-                                className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600
-                                    text-white text-sm font-semibold transition-colors disabled:opacity-60"
+                                className="px-4 py-3 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 text-sm disabled:opacity-50"
                             >
                                 Sí, cancelar
                             </button>
@@ -166,49 +185,56 @@ export const MyReservationsPage = () => {
     );
 };
 
-/* ── Card de reservación ── */
+/* ── Card de reservación Mejorada ── */
 function ReservationCard({ reservation: r, getStatusLabel, getStatusStyle, getStatusIcon, onCancel }) {
     const canCancel = r.status === "PENDIENTE";
     const date = new Date(r.date).toLocaleDateString("es-GT", {
-        weekday: "short", day: "numeric", month: "short", year: "numeric"
+        weekday: "long", day: "numeric", month: "long"
     });
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3">
-            <div className="flex items-start justify-between gap-2">
+        <div className="bg-white rounded-[32px] border border-gray-100 shadow-xl shadow-black/5 p-6 hover:translate-y-[-4px] transition-all group">
+            <div className="flex items-start justify-between mb-6">
                 <div className="min-w-0">
-                    <p className="font-semibold text-sm text-gray-900 truncate">
+                    <h4 className="font-black text-lg text-gray-900 truncate leading-tight group-hover:text-orange-500 transition-colors">
                         {r.restaurant?.name ?? "Restaurante"}
+                    </h4>
+                    <p className="text-xs font-bold text-orange-500 uppercase tracking-widest mt-1">
+                        {r.time} • {date}
                     </p>
-                    <p className="text-xs text-gray-400 mt-0.5 capitalize">{date} · {r.time}</p>
                 </div>
-                <span className={`shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold
-                    flex items-center gap-1 ${getStatusStyle(r.status)}`}>
+                <span className={`shrink-0 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-sm ${getStatusStyle(r.status)}`}>
                     {getStatusIcon(r.status)} {getStatusLabel(r.status)}
                 </span>
             </div>
 
-            <div className="flex gap-4 text-xs text-gray-500">
-                <span>👥 {r.numberOfGuests} {r.numberOfGuests === 1 ? "persona" : "personas"}</span>
-                {r.table && <span>🪑 Mesa {r.table?.number ?? "—"}</span>}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="bg-gray-50 rounded-2xl p-3 text-center">
+                    <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Comensales</p>
+                    <p className="text-sm font-bold text-gray-700">👥 {r.numberOfGuests}</p>
+                </div>
+                <div className="bg-gray-50 rounded-2xl p-3 text-center">
+                    <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Ubicación</p>
+                    <p className="text-sm font-bold text-gray-700 truncate">🪑 {r.table?.number ? `Mesa ${r.table.number}` : "Asignando..."}</p>
+                </div>
             </div>
 
             {r.specialRequests && (
-                <p className="text-xs text-gray-400 bg-gray-50 rounded-lg px-3 py-2">
-                    📝 {r.specialRequests}
-                </p>
+                <div className="mb-6">
+                    <p className="text-[10px] font-black text-gray-400 uppercase mb-2">Notas Especiales</p>
+                    <p className="text-xs text-gray-600 bg-orange-50/50 border border-orange-100 rounded-2xl px-4 py-3 italic">
+                        "{r.specialRequests}"
+                    </p>
+                </div>
             )}
 
             {canCancel && (
-                <div className="flex justify-end pt-1 border-t border-gray-100">
-                    <button
-                        onClick={onCancel}
-                        className="px-3 py-1.5 rounded-lg border border-red-200 text-xs
-                            text-red-500 hover:bg-red-50 transition-colors font-medium"
-                    >
-                        Cancelar reservación
-                    </button>
-                </div>
+                <button
+                    onClick={onCancel}
+                    className="w-full py-3 rounded-2xl border-2 border-red-50 text-red-500 text-xs font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all"
+                >
+                    Cancelar Reserva
+                </button>
             )}
         </div>
     );

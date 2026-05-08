@@ -1,226 +1,188 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRestaurantClientStore } from "../store/UseRestaurantClientStore";
-
-const PRICE_RANGE_LABEL = { "$": "Económico", "$$": "Moderado", "$$$": "Elevado", "$$$$": "Premium" };
+import { Search, SlidersHorizontal, MapPin, Star, X, UtensilsCrossed } from "lucide-react";
 
 const FEATURE_FILTERS = [
-    { key: "hasDelivery",         label: "🛵 Delivery" },
-    { key: "acceptsReservations", label: "📅 Reservaciones" },
-    { key: "hasWifi",             label: "📶 WiFi" },
-    { key: "hasParking",          label: "🅿️ Parqueo" },
-    { key: "hasOutdoorSeating",   label: "🌿 Exterior" },
+    { key: "hasDelivery", label: "🛵 Delivery" },
+    { key: "acceptsReservations", label: "📅 Reservas" },
+    { key: "hasWifi", label: "📶 WiFi" },
+    { key: "hasParking", label: "🅿️ Parqueo" },
+    { key: "hasOutdoorSeating", label: "🌿 Exterior" },
 ];
 
 export const HomePage = () => {
     const navigate = useNavigate();
     const {
-        loading, error,
-        searchTerm, filterCategory, filterFeature,
+        loading, searchTerm, filterCategory, filterFeature,
         fetchRestaurants, getFiltered, getCategories, getCategoryLabel,
         setSearchTerm, setFilterCategory, setFilterFeature,
-        clearFilters, clearError,
+        clearFilters,
     } = useRestaurantClientStore();
 
     useEffect(() => { fetchRestaurants(); }, []);
 
-    const filtered   = getFiltered();
+    const filtered = getFiltered();
     const categories = getCategories();
 
     return (
-        <div className="space-y-6">
-
-            {/* Error banner */}
-            {error && (
-                <div className="flex items-center justify-between bg-red-50 border border-red-200
-                    rounded-xl px-4 py-3 text-sm text-red-700">
-                    <span>{error}</span>
-                    <button onClick={clearError} className="text-red-400 hover:text-red-600 ml-4">✕</button>
-                </div>
-            )}
-
-            {/* Hero / buscador */}
-            <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl px-6 py-8 text-white">
-                <h1 className="text-2xl font-bold mb-1">¿Qué quieres comer hoy?</h1>
-                <p className="text-orange-100 text-sm mb-5">
-                    Explora restaurantes, realiza tu pedido o reserva una mesa
-                </p>
-                <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base">🔍</span>
-                    <input
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Buscar por nombre o dirección…"
-                        className="w-full pl-9 pr-4 py-3 rounded-xl text-sm text-gray-900
-                            outline-none focus:ring-2 focus:ring-white/50 bg-white shadow-sm"
+        <div className="w-full min-h-screen bg-white pb-20">
+            
+            {/* 1. SECCIÓN HERO: Imagen de fondo y altura reducida */}
+            <header className="relative w-full h-[400px] flex items-center overflow-hidden">
+                {/* Imagen de fondo con Overlay para legibilidad */}
+                <div className="absolute inset-0 z-0">
+                    <img 
+                        src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=2070" 
+                        className="w-full h-full object-cover"
+                        alt="Hero Background"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
                 </div>
-            </div>
+                
+                <div className="relative z-10 w-full max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16">
+                    <div className="max-w-4xl">
+                        {/* Texto en una sola línea */}
+                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tighter whitespace-nowrap mb-4">
+                            ¿Qué se te antoja <span className="text-orange-500 font-serif italic">hoy</span>?
+                        </h1>
+                        <p className="text-gray-300 text-lg md:text-xl mb-8 max-w-xl font-light">
+                            Explora la excelencia gastronómica de Guatemala.
+                        </p>
 
-            {/* Filtro por característica */}
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                <button
-                    onClick={() => setFilterFeature(null)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap transition-colors shrink-0
-                        ${!filterFeature
-                            ? "bg-orange-500 text-white border-orange-500"
-                            : "bg-white text-gray-600 border-gray-200 hover:border-orange-300"}`}
-                >
-                    Todos
-                </button>
-                {FEATURE_FILTERS.map(({ key, label }) => (
-                    <button
-                        key={key}
-                        onClick={() => setFilterFeature(filterFeature === key ? null : key)}
-                        className={`px-4 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap transition-colors shrink-0
-                            ${filterFeature === key
-                                ? "bg-orange-500 text-white border-orange-500"
-                                : "bg-white text-gray-600 border-gray-200 hover:border-orange-300"}`}
-                    >
-                        {label}
-                    </button>
-                ))}
-            </div>
-
-            {/* Filtro por categoría */}
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                {categories.map((cat) => (
-                    <button
-                        key={cat}
-                        onClick={() => setFilterCategory(cat)}
-                        className={`px-4 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap transition-colors shrink-0
-                            ${filterCategory === cat
-                                ? "bg-gray-900 text-white border-gray-900"
-                                : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"}`}
-                    >
-                        {getCategoryLabel(cat)}
-                    </button>
-                ))}
-            </div>
-
-            {/* Resultados */}
-            <div>
-                <div className="flex items-center justify-between mb-4">
-                    <p className="text-sm text-gray-500">
-                        {loading ? "Cargando…" : `${filtered.length} restaurante${filtered.length !== 1 ? "s" : ""}`}
-                    </p>
-                    {(searchTerm || filterCategory !== "Todas" || filterFeature) && (
-                        <button
-                            onClick={clearFilters}
-                            className="text-xs text-orange-500 hover:underline"
-                        >
-                            Limpiar filtros
-                        </button>
-                    )}
-                </div>
-
-                {loading ? (
-                    <div className="flex flex-col items-center py-20 gap-3">
-                        <div className="w-9 h-9 rounded-full border-[3px] border-gray-100
-                            border-t-orange-500 animate-spin" />
-                        <p className="text-sm text-gray-400">Buscando restaurantes…</p>
-                    </div>
-                ) : filtered.length === 0 ? (
-                    <div className="text-center py-20">
-                        <p className="text-5xl mb-3">🍽</p>
-                        <p className="text-gray-500 font-medium text-sm">No encontramos restaurantes</p>
-                        <p className="text-gray-400 text-xs mt-1">Intenta con otros filtros</p>
-                        <button
-                            onClick={clearFilters}
-                            className="mt-4 px-5 py-2 bg-orange-500 hover:bg-orange-600
-                                text-white text-sm font-semibold rounded-xl transition-colors"
-                        >
-                            Ver todos
-                        </button>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {filtered.map((r) => (
-                            <RestaurantCard
-                                key={r._id}
-                                restaurant={r}
-                                onClick={() => navigate(`/client/restaurante/${r._id}`)}
+                        {/* Buscador */}
+                        <div className="relative group max-w-xl">
+                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-orange-500 transition-colors" size={22} />
+                            <input
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Busca un restaurante o especialidad..."
+                                className="w-full pl-16 pr-6 py-5 rounded-2xl text-lg text-gray-900 bg-white border-none shadow-2xl outline-none"
                             />
-                        ))}
+                        </div>
                     </div>
-                )}
-            </div>
+                </div>
+            </header>
+
+            {/* 2. CONTENIDO PRINCIPAL */}
+            <main className="w-full max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 mt-12 space-y-10">
+                
+                {/* Sección de Filtros Unificados */}
+                <section className="space-y-6">
+                    <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+                        <div className="flex items-center gap-2">
+                            <SlidersHorizontal size={18} className="text-orange-500" strokeWidth={3} />
+                            <h2 className="text-xl font-black text-gray-900 uppercase tracking-widest">Explorar</h2>
+                        </div>
+                        {(searchTerm || filterCategory !== "Todas" || filterFeature) && (
+                            <button onClick={clearFilters} className="font-black text-orange-600 hover:bg-orange-50 rounded-lg px-3 py-1.5 transition-all flex items-center gap-1 uppercase tracking-widest">
+                                REINICIAR FILTROS
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Botones de Categorías y Características con el mismo estilo */}
+                    <div className="flex flex-col gap-4">
+                        {/* Categorías */}
+                        <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                            {categories.map((cat) => (
+                                <button
+                                    key={cat}
+                                    onClick={() => setFilterCategory(cat)}
+                                    className={`px-8 py-3 rounded-xl text-sm font-black whitespace-nowrap transition-all border-2
+                                        ${filterCategory === cat
+                                            ? "bg-black text-white border-black shadow-lg scale-105"
+                                            : "bg-gray-50 text-gray-500 border-transparent hover:border-gray-200"}`}
+                                >
+                                    {getCategoryLabel(cat).toUpperCase()}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Características (Mismo estilo que categorías) */}
+                        <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                            {FEATURE_FILTERS.map(({ key, label }) => (
+                                <button
+                                    key={key}
+                                    onClick={() => setFilterFeature(filterFeature === key ? null : key)}
+                                    className={`px-6 py-3 rounded-xl text-sm font-black whitespace-nowrap transition-all border-2
+                                        ${filterFeature === key
+                                            ? "bg-orange-500 text-white border-orange-500 shadow-lg shadow-orange-100"
+                                            : "bg-gray-50 text-gray-500 border-transparent hover:border-gray-200"}`}
+                                >
+                                    {label.toUpperCase()}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* 3. GRID DE RESULTADOS */}
+                <section>
+                    {loading ? (
+                        <div className="flex flex-col items-center py-20">
+                            <div className="w-12 h-12 border-4 border-gray-100 border-t-orange-500 rounded-full animate-spin mb-4" />
+                            <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">Cargando...</p>
+                        </div>
+                    ) : filtered.length === 0 ? (
+                        <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[3rem] py-24 text-center">
+                            <UtensilsCrossed size={50} className="mx-auto text-gray-200 mb-4" />
+                            <p className="text-xl font-bold text-gray-900">No hay coincidencias</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                            {filtered.map((r) => (
+                                <RestaurantCard
+                                    key={r._id}
+                                    restaurant={r}
+                                    onClick={() => navigate(`/client/restaurante/${r._id}`)}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </section>
+            </main>
         </div>
     );
 };
 
-/* ── Card de restaurante ── */
+/* Card de Restaurante */
 function RestaurantCard({ restaurant: r, onClick }) {
     return (
         <div
             onClick={onClick}
-            className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm
-                hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer group"
+            className="group bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer"
         >
-            {/* Foto */}
-            <div className="relative h-40 bg-gradient-to-br from-orange-100 to-orange-50 overflow-hidden">
+            <div className="relative h-56 overflow-hidden">
                 {r.photo ? (
-                    <img
-                        src={r.photo}
-                        alt={r.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={(e) => { e.target.style.display = "none"; }}
-                    />
+                    <img src={r.photo} alt={r.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center text-4xl">🍽</div>
+                    <div className="w-full h-full bg-orange-50 flex items-center justify-center text-5xl">🍽</div>
                 )}
-                {/* Badge categoría */}
-                <span className="absolute top-3 left-3 px-2.5 py-1 bg-white/90 backdrop-blur-sm
-                    rounded-full text-[10px] font-semibold text-gray-700 shadow-sm">
-                    {r.category?.replace("_", " ")}
-                </span>
-                {/* Badge precio */}
-                {r.priceRange && (
-                    <span className="absolute top-3 right-3 px-2 py-1 bg-orange-500
-                        rounded-full text-[10px] font-bold text-white shadow-sm">
-                        {r.priceRange}
+                <div className="absolute top-4 left-4">
+                    <span className="px-3 py-1 bg-white/90 backdrop-blur rounded-lg text-[10px] font-black uppercase text-gray-800">
+                        {r.category?.replace("_", " ")}
                     </span>
-                )}
+                </div>
             </div>
 
-            {/* Info */}
-            <div className="p-4">
-                <h3 className="font-semibold text-gray-900 text-sm truncate">{r.name}</h3>
-                <p className="text-xs text-gray-400 mt-0.5 truncate">{r.address}</p>
-
-                {/* Rating + precio promedio */}
-                <div className="flex items-center justify-between mt-2">
-                    <div className="flex items-center gap-1">
-                        <span className="text-xs text-yellow-500">★</span>
-                        <span className="text-xs font-medium text-gray-700">
-                            {r.averageRating > 0 ? r.averageRating.toFixed(1) : "Nuevo"}
-                        </span>
-                        {r.reviewCount > 0 && (
-                            <span className="text-xs text-gray-400">({r.reviewCount})</span>
-                        )}
+            <div className="p-6">
+                <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-orange-600 transition-colors leading-tight italic">
+                        {r.name}
+                    </h3>
+                    <div className="flex items-center gap-1 bg-yellow-400 px-2 py-0.5 rounded-lg">
+                        <Star size={12} fill="currentColor" />
+                        <span className="text-[10px] font-black">{r.averageRating > 0 ? r.averageRating.toFixed(1) : "NUEVO"}</span>
                     </div>
-                    {r.averagePrice > 0 && (
-                        <span className="text-xs text-gray-500">~Q{r.averagePrice.toFixed(0)}</span>
-                    )}
                 </div>
-
-                {/* Features rápidas */}
-                <div className="flex gap-1.5 mt-2.5 flex-wrap">
-                    {r.features?.hasDelivery && (
-                        <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">
-                            🛵 Delivery
-                        </span>
-                    )}
-                    {r.features?.acceptsReservations && (
-                        <span className="text-[10px] bg-green-50 text-green-600 px-2 py-0.5 rounded-full font-medium">
-                            📅 Reservas
-                        </span>
-                    )}
-                    {r.features?.hasWifi && (
-                        <span className="text-[10px] bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full font-medium">
-                            📶 WiFi
-                        </span>
-                    )}
+                <div className="flex items-center gap-1 text-gray-400 mb-4">
+                    <MapPin size={14} />
+                    <p className="text-[11px] truncate">{r.address}</p>
+                </div>
+                <div className="pt-4 border-t border-gray-50 flex items-center justify-between">
+                    <div className="text-lg font-black text-gray-900">Q{r.averagePrice || 0}</div>
+                    <span className="text-[10px] font-bold text-orange-600 uppercase">Ver menú →</span>
                 </div>
             </div>
         </div>
