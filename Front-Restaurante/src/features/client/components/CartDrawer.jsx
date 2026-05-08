@@ -181,7 +181,7 @@ function CartItem({ item, onAdd, onRemove, onDelete }) {
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
                 <p className="text-xs text-gray-400 mt-0.5">
-                    Q{item.unitPrice.toFixed(2)} c/u
+                    Q(item.unitPrice).toFixed(2)
                 </p>
             </div>
 
