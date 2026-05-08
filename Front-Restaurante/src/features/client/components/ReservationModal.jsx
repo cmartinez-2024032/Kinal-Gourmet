@@ -103,14 +103,18 @@ export const ReservationCard = ({ reservation: r, getStatusLabel, getStatusStyle
 
                 {/* Notas especiales */}
                 {r.specialRequests && (
-                    <div className="bg-gradient-to-r from-orange-500 to-amber-400 rounded-2xl px-4 py-3 mb-3 flex gap-2 items-center shadow-md shadow-orange-200">
-                        <span className="text-xl">✨</span>
-                        <div>
-                            <p className="text-[9px] font-black text-orange-100 uppercase tracking-widest mb-0.5">Nota especial</p>
-                            <p className="text-xs text-white font-bold leading-relaxed">"{r.specialRequests}"</p>
+                    <div className="relative rounded-2xl px-4 py-3 mb-3 flex gap-3 items-center overflow-hidden bg-zinc-900">
+                        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-amber-500/20 to-transparent" />
+                        <div className="shrink-0 w-8 h-8 bg-amber-400 rounded-xl flex items-center justify-center shadow-lg shadow-amber-400/30">
+                            <span className="text-base">📌</span>
+                        </div>
+                        <div className="relative">
+                            <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest mb-0.5">Nota especial</p>
+                            <p className="text-xs text-white font-medium leading-relaxed">"{r.specialRequests}"</p>
                         </div>
                     </div>
                 )}
+
                 {/* Botón cancelar */}
                 {canCancel && (
                     <button
