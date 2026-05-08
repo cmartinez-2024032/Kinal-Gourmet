@@ -71,7 +71,7 @@ export const getReservations = async (req, res) => {
 
         const reservations = await Reservation.find(filter)
             .populate('restaurant', 'name address phone')
-            .populate('table', 'number capacity location')
+            .populate('table', 'number capacity location image')
             .limit(limit * 1)
             .skip((page - 1) * limit)
             .sort({ date: -1, time: -1 });
@@ -107,7 +107,7 @@ export const getReservationById = async (req, res) => {
 
         const reservation = await Reservation.findById(id)
             .populate('restaurant', 'name address phone')
-            .populate('table', 'number capacity location');
+            .populate('table', 'number capacity location image') 
 
         if (!reservation) {
             return res.status(404).json({ success: false, message: "Reservación no encontrada" });
@@ -150,7 +150,7 @@ export const updateReservation = async (req, res) => {
 
         const updatedReservation = await Reservation.findByIdAndUpdate(id, req.body, { new: true, runValidators: true })
             .populate('restaurant', 'name address')
-            .populate('table', 'number capacity');
+            .populate('table', 'number capacity location image');
 
         res.status(200).json({ success: true, message: "Reservación actualizada exitosamente", data: updatedReservation });
     } catch (error) {

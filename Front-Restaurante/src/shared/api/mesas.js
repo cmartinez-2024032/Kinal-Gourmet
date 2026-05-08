@@ -1,16 +1,15 @@
-import { axiosPlatillos } from "./api"
+import { axiosRestaurante } from "./api"
 
-export const getTablesRequest = () =>
-    axiosPlatillos.get("/kinalGourmetHouse/v1/tables/")
-
+export const getTablesRequest = (params) =>
+    axiosRestaurante.get("/kinalGourmetHouse/v1/tables/", { params })
 export const getTableByIdRequest = (id) =>
-    axiosPlatillos.get(`/kinalGourmetHouse/v1/tables/${id}`)
+    axiosRestaurante.get(`/kinalGourmetHouse/v1/tables/${id}`)
 
 export const createTableRequest = (data) =>
-    axiosPlatillos.post("/kinalGourmetHouse/v1/tables/create", data)
+    axiosRestaurante.post("/kinalGourmetHouse/v1/tables/create", data)
 
 export const updateTableRequest = (id, data) =>
-    axiosPlatillos.put(`/kinalGourmetHouse/v1/tables/${id}`, data)
+    axiosRestaurante.put(`/kinalGourmetHouse/v1/tables/${id}`, data)
 
 export const deleteTableRequest = (id) =>
-    axiosPlatillos.delete(`/kinalGourmetHouse/v1/tables/${id}`)
+    axiosRestaurante.delete(`/kinalGourmetHouse/v1/tables/${id}`)

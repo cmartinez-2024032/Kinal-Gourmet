@@ -1,19 +1,19 @@
-import { axiosRestaurantAdmin } from "./api";
+import { axiosRestaurante } from "./api";
 
 export const getReservationsRequest = (params) =>
-    axiosRestaurantAdmin.get("/kinalGourmetHouse/v1/reservations/", { params });
+    axiosRestaurante.get("/kinalGourmetHouse/v1/reservations/", { params });
 
 export const createReservationRequest = (data) =>
-    axiosRestaurantAdmin.post("/kinalGourmetHouse/v1/reservations/create", data);
+    axiosRestaurante.post("/kinalGourmetHouse/v1/reservations/create", data);
 
 export const updateReservationRequest = (id, data) =>
-    axiosRestaurantAdmin.put(`/kinalGourmetHouse/v1/reservations/${id}`, data);
+    axiosRestaurante.put(`/kinalGourmetHouse/v1/reservations/${id}`, data);
 
 export const getReservationByIdRequest = (id) =>
-    axiosRestaurantAdmin.get(`/kinalGourmetHouse/v1/reservations/${id}`);
+    axiosRestaurante.get(`/kinalGourmetHouse/v1/reservations/${id}`);
 
 export const deleteReservationRequest = (id) =>
-    axiosRestaurantAdmin.delete(`/kinalGourmetHouse/v1/reservations/${id}`);
+    axiosRestaurante.delete(`/kinalGourmetHouse/v1/reservations/${id}`);
 
 export const updateReservationStatusRequest = (id, data) =>
-    axiosRestaurantAdmin.patch(`/reservations/${id}/status`, data);
+    axiosRestaurante.patch(`/kinalGourmetHouse/v1/reservations/${id}/status`, data);

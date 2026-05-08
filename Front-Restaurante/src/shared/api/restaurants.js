@@ -1,13 +1,13 @@
-import { axiosRestaurantAdmin } from "./api"
+import { axiosRestaurante } from "./api"
 
 export const getRestaurantsRequest = () =>
-  axiosRestaurantAdmin.get("/kinalGourmetHouse/v1/restaurants/")
+  axiosRestaurante.get("/kinalGourmetHouse/v1/restaurants/")
 
 export const getRestaurantByIdRequest = (id) =>
-  axiosRestaurantAdmin.get(`/kinalGourmetHouse/v1/restaurants/${id}`)
+  axiosRestaurante.get(`/kinalGourmetHouse/v1/restaurants/${id}`)
 
 export const createRestaurantRequest = (data) =>
-  axiosRestaurantAdmin.post(
+  axiosRestaurante.post(
     "/kinalGourmetHouse/v1/restaurants/create",
     data,
     {
@@ -19,7 +19,7 @@ export const createRestaurantRequest = (data) =>
   )
 
 export const updateRestaurantRequest = (id, data) =>
-  axiosRestaurantAdmin.put(
+  axiosRestaurante.put(
     `/kinalGourmetHouse/v1/restaurants/${id}`,
     data,
     {
@@ -31,4 +31,4 @@ export const updateRestaurantRequest = (id, data) =>
   )
 
 export const deleteRestaurantRequest = (id) =>
-  axiosRestaurantAdmin.delete(`/kinalGourmetHouse/v1/restaurants/${id}`)
+  axiosRestaurante.delete(`/kinalGourmetHouse/v1/restaurants/${id}`)

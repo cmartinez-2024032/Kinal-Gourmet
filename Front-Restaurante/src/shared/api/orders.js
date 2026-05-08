@@ -1,10 +1,10 @@
-import { axiosRestaurantAdmin } from "./api";
+import { axiosRestaurante } from "./api";
 
 export const getOrdersRequest = (params) =>
-    axiosRestaurantAdmin.get("/kinalGourmetHouse/v1/orders/", { params });
+    axiosRestaurante.get("/kinalGourmetHouse/v1/orders/", { params });
 
 export const getOrderByIdRequest = (id) =>
-    axiosRestaurantAdmin.get(`/kinalGourmetHouse/v1/orders/${id}`);
+    axiosRestaurante.get(`/kinalGourmetHouse/v1/orders/${id}`);
 
 export const cancelOrderRequest = (id) =>
-    axiosRestaurantAdmin.patch(`/kinalGourmetHouse/v1/orders/${id}/cancel`);
+    axiosRestaurante.patch(`/kinalGourmetHouse/v1/orders/${id}/cancel`);
