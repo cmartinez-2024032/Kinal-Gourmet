@@ -7,9 +7,9 @@ const router = Router();
 
 router.get('/', verifyToken, getEvents);
 
-router.get('/:id', getEventById);
-
 router.get('/restaurant/:restaurantId', getEventsByRestaurant);
+
+router.get('/:id', getEventById);
 
 router.post('/create', verifyToken, isRestaurantAdmin, belongsToRestaurant, createEvent);
 
@@ -19,6 +19,6 @@ router.patch('/:id/status', verifyToken, isRestaurantAdmin, belongsToRestaurant,
 
 router.patch('/:id/cancel', verifyToken, isRestaurantAdmin, belongsToRestaurant, cancelEvent);
 
-router.delete('/:id', verifyToken, isPlatformAdmin, deleteEvent);
+router.delete('/:id', verifyToken, isRestaurantAdmin, deleteEvent);
 
 export default router;
