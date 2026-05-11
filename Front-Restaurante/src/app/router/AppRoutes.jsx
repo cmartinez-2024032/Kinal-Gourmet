@@ -21,8 +21,9 @@ import { PlatilloPage }    from '../../features/admin-restaurante/pages/Platillo
 import { MesaPage }        from '../../features/admin-restaurante/pages/MesaPage.jsx'
 import { CuponPage }       from '../../features/admin-restaurante/pages/CuponPage.jsx'
 import PromotionPage       from '../../features/admin-restaurante/pages/PromotionPage.jsx'
-import { EventsPage }      from '../../features/admin-restaurante/pages/EventPage.jsx' // <--- NUEVA IMPORTACIÓN
-
+import { EventsPage }      from '../../features/admin-restaurante/pages/EventPage.jsx' 
+import { ReservationsPage } from '../../features/admin-restaurante/pages/ReservationPage.jsx'
+import { ReportsPage } from '../../features/admin-restaurante/pages/ReportsPage.jsx'
 // Cliente
 import { ClientLayout }           from '../../features/client/layout/ClientLayout.jsx'
 import { HomePage }               from '../../features/client/pages/HomePage.jsx'
@@ -83,7 +84,9 @@ export const AppRoutes = () => {
                 <Route path="mesas"        element={<MesaPage />} />
                 <Route path="cupones"      element={<CuponPage />} />
                 <Route path="promociones"  element={<PromotionPage />} />
-                <Route path="eventos"      element={<EventsPage />} /> {/* <--- NUEVA RUTA */}
+                <Route path="eventos"      element={<EventsPage />} /> 
+                <Route path='reservaciones' element= {<ReservationsPage/>} />
+                <Route path='reportes' element= {<ReportsPage/>} />
             </Route>
 
             {/* Cliente */}

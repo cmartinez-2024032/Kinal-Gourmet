@@ -111,7 +111,6 @@ export const getTopDishes = async (req, res) => {
     try {
         let { restaurantId, startDate, endDate, limit = 10 } = req.query;
 
-        // ADMIN_RESTAURANTE solo puede ver reportes de su restaurante
         if (req.user && req.user.role === 'ADMIN_RESTAURANTE') {
             restaurantId = req.user.restaurantId;
         }
@@ -275,7 +274,6 @@ export const getPeakHours = async (req, res) => {
 
         const filter = {};
 
-        // ADMIN_RESTAURANTE solo puede ver reportes de su restaurante
         if (req.user && req.user.role === 'ADMIN_RESTAURANTE') {
             restaurantId = req.user.restaurantId;
         }
@@ -331,7 +329,6 @@ export const getReservationStats = async (req, res) => {
 
         const filter = {};
 
-        // ADMIN_RESTAURANTE solo puede ver reportes de su restaurante
         if (req.user && req.user.role === 'ADMIN_RESTAURANTE') {
             restaurantId = req.user.restaurantId;
         }
@@ -383,7 +380,6 @@ export const getCustomerSatisfactionReport = async (req, res) => {
 
         const filter = {};
 
-        // ADMIN_RESTAURANTE solo puede ver reportes de su restaurante
         if (req.user && req.user.role === 'ADMIN_RESTAURANTE') {
             restaurantId = req.user.restaurantId;
         }
