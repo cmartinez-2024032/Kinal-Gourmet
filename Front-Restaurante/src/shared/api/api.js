@@ -1,33 +1,23 @@
-import axios from 'axios'
+import axios from 'axios';
 
-const axiosAuth = axios.create({
-  baseURL: 'http://localhost:3005/api'
-})
+const createInstance = (url) => {
+    const instance = axios.create({
+        baseURL: url
+    });
 
-const axiosRestaurante = axios.create({
-  baseURL: "http://localhost:3006"
-})
+    instance.interceptors.request.use((config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    });
 
+    return instance;
+};
 
+// Autenticación
+export const axiosAuth = createInstance('http://localhost:3005/api');
 
-axiosAuth.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-
-  return config
-})
-
-
-
-axiosRestaurante.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token")
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
-
-export { axiosAuth, axiosRestaurante }
+// Única instancia para todo lo demás (Restaurantes, Platillos, Eventos)
+export const axiosRestaurante = createInstance('http://localhost:3006');
