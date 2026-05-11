@@ -19,6 +19,16 @@ const TYPE_LABELS = {
     GUARNICION:   "Guarnición",
 };
 
+// Mongoose Decimal128 llega como { $numberDecimal: "75.00" } en JSON
+const parsePrice = (price) => {
+    if (price == null) return "0.00";
+    if (typeof price === "object" && price.$numberDecimal) {
+        return Number(price.$numberDecimal).toFixed(2);
+    }
+    const n = Number(price);
+    return isNaN(n) ? "0.00" : n.toFixed(2);
+};
+
 export const DishCard = ({ dish, restaurantId, restaurantName }) => {
     const { items, addItem, removeItem } = useCartStore();
 
@@ -86,7 +96,7 @@ export const DishCard = ({ dish, restaurantId, restaurantName }) => {
                 {/* Precio + controles */}
                 <div className="flex items-center justify-between mt-3">
                     <span className="text-base font-bold text-gray-900">
-                        Q{Number(dish.price).toFixed(2)}
+                        Q{parsePrice(dish.price)}
                     </span>
 
                     {isAvailable && (

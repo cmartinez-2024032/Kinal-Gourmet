@@ -7,7 +7,7 @@ export const useOrderStore = create((set, get) => ({
     loading: false,
     error: null,
 
-    // Etiquetas y estilos por estado
+    // ── Etiquetas y estilos ───────────────────────────────────────
     getStatusLabel: (status) => {
         const labels = {
             PENDIENTE:      "Pendiente",
@@ -49,49 +49,54 @@ export const useOrderStore = create((set, get) => ({
 
     getOrderTypeLabel: (type) => {
         const labels = {
-            EN_MESA:    "🪑 En mesa",
-            PARA_LLEVAR:"🥡 Para llevar",
-            DOMICILIO:  "🛵 Domicilio",
+            EN_MESA:     "🪑 En mesa",
+            PARA_LLEVAR: "🥡 Para llevar",
+            DOMICILIO:   "🛵 Domicilio",
         };
         return labels[type] ?? type;
     },
 
-    // Obtener mis pedidos
+    // ── Obtener lista de pedidos ──────────────────────────────────
     fetchOrders: async () => {
         try {
             set({ loading: true, error: null });
-            const res = await getOrdersRequest({ limit: 50 });
-            const data = res.data?.data ?? res.data ?? [];
+            const res  = await getOrdersRequest({ limit: 50 });
+            // El backend devuelve { success, data: [...] } o { success, data: { orders: [...] } }
+            const raw  = res.data?.data;
+            const data = Array.isArray(raw) ? raw : (raw?.orders ?? []);
             set({ orders: data, loading: false });
         } catch (err) {
             set({
-                error: err.response?.data?.message || "Error al cargar los pedidos",
+                error:   err.response?.data?.message || "Error al cargar los pedidos",
                 loading: false,
             });
         }
     },
 
-    // Obtener detalle de un pedido
+    // ── Obtener detalle de UN pedido por ID ───────────────────────
+    // ANTES: llamaba a getOrdersRequest (todos) — por eso llegaba un array
+    // y la vista mostraba NaN / Invalid Date / campos vacíos.
+    // AHORA: usa getOrderByIdRequest(id) y desenvuelve res.data.data
     fetchOrderById: async (id) => {
         try {
             set({ loading: true, error: null, selectedOrder: null });
-            const res = await getOrdersRequest({ limit: 50 });
-            const data = res.data?.data ?? res.data;
-            set({ selectedOrder: data, loading: false });
+            const res   = await getOrderByIdRequest(id);
+            // El backend responde: { success: true, data: { ...order } }
+            const order = res.data?.data ?? res.data;
+            set({ selectedOrder: order, loading: false });
         } catch (err) {
             set({
-                error: err.response?.data?.message || "Error al cargar el pedido",
+                error:   err.response?.data?.message || "Error al cargar el pedido",
                 loading: false,
             });
         }
     },
 
-    // Cancelar un pedido
+    // ── Cancelar un pedido ────────────────────────────────────────
     cancelOrder: async (id) => {
         try {
             set({ loading: true, error: null });
             await cancelOrderRequest(id);
-            // Actualizar en la lista local
             set((s) => ({
                 orders: s.orders.map((o) =>
                     o._id === id ? { ...o, status: "CANCELADO" } : o
@@ -103,13 +108,13 @@ export const useOrderStore = create((set, get) => ({
             }));
         } catch (err) {
             set({
-                error: err.response?.data?.message || "Error al cancelar el pedido",
+                error:   err.response?.data?.message || "Error al cancelar el pedido",
                 loading: false,
             });
             throw err;
         }
     },
 
-    clearError:        () => set({ error: null }),
+    clearError:         () => set({ error: null }),
     clearSelectedOrder: () => set({ selectedOrder: null }),
 }));

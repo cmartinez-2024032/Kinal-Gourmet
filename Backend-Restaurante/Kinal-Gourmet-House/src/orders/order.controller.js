@@ -77,23 +77,34 @@ export const createOrder = async (req, res) => {
             appliedCoupon = coupon._id;
         }
 
-        const order = new Order({
+        const orderData = {
             userId: req.user.id,
-            userInfo: {
-                name: req.user.name,
-                email: req.user.email
-            },
+            userInfo: { name: req.user.name, email: req.user.email },
             restaurant,
-            table: table || undefined,
-            orderType: orderType || 'EN_MESA',
+            orderType, // Debe ser 'EN_MESA', 'PARA_LLEVAR' o 'DOMICILIO'
             details,
             totalPrice: totalPrice - discount,
             discount,
             appliedCoupon: appliedCoupon || undefined,
-            deliveryAddress: deliveryAddress || undefined,
-            deliveryPhone: deliveryPhone || undefined
-        });
+            notes: req.body.notes
+        };
 
+        // Lógica de limpieza según el tipo de orden
+        if (orderType === 'EN_MESA') {
+            orderData.table = table;
+            orderData.deliveryAddress = undefined;
+            orderData.deliveryPhone = undefined;
+        } else if (orderType === 'DOMICILIO') {
+            orderData.deliveryAddress = deliveryAddress; // Objeto { street, city, zone... }
+            orderData.deliveryPhone = deliveryPhone;
+            orderData.table = undefined;
+        } else if (orderType === 'PARA_LLEVAR') {
+            orderData.table = undefined;
+            orderData.deliveryAddress = undefined;
+            orderData.deliveryPhone = undefined;
+        }
+
+        const order = new Order(orderData);
         await order.save();
 
         // Registrar uso del cupón ahora que ya tenemos el ID de la orden

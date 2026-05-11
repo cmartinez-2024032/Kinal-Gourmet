@@ -21,6 +21,7 @@ import invoiceRoutes from '../src/invoices/invoice.routes.js';
 import couponRoutes from '../src/coupons/coupon.routes.js';
 import notificationRoutes from '../src/notifications/notification.routes.js';
 import reportRoutes from '../src/reports/report.routes.js';
+import checkoutRoutes from '../src/checkout/checkout.routes.js';
 
 const BASE_PATH = '/kinalGourmetHouse/v1';
 
@@ -63,6 +64,7 @@ const routes = (app) => {
     app.use(`${BASE_PATH}/coupons`, couponRoutes);
     app.use(`${BASE_PATH}/notifications`, notificationRoutes);
     app.use(`${BASE_PATH}/reports`, reportRoutes);
+    app.use(`${BASE_PATH}/checkout`, checkoutRoutes);
 
     app.use((req, res) => {
         res.status(404).json({

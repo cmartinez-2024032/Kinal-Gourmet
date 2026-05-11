@@ -1,13 +1,28 @@
 import { create } from "zustand";
+import axios from 'axios';
 
 const CART_KEY = "restaurant_cart";
 
 const loadCart = () => {
     try {
         const raw = localStorage.getItem(CART_KEY);
-        return raw ? JSON.parse(raw) : { items: [], restaurantId: null, restaurantName: "" };
+        return raw ? JSON.parse(raw) : {
+            items: [],
+            restaurantId: null,
+            restaurantName: "",
+            orderType: "PARA_LLEVAR",
+            deliveryAddress: "",
+            deliveryPhone: "",
+        };
     } catch {
-        return { items: [], restaurantId: null, restaurantName: "" };
+        return {
+            items: [],
+            restaurantId: null,
+            restaurantName: "",
+            orderType: "PARA_LLEVAR",
+            deliveryAddress: "",
+            deliveryPhone: "",
+        };
     }
 };
 
@@ -16,6 +31,9 @@ const saveCart = (state) => {
         items: state.items,
         restaurantId: state.restaurantId,
         restaurantName: state.restaurantName,
+        orderType: state.orderType,
+        deliveryAddress: state.deliveryAddress,
+        deliveryPhone: state.deliveryPhone,
     }));
 };
 
@@ -23,50 +41,107 @@ export const useCartStore = create((set, get) => ({
     ...loadCart(),
     isCartOpen: false,
 
-    // Abrir / cerrar drawer
-    openCart:  () => set({ isCartOpen: true }),
-    closeCart: () => set({ isCartOpen: false }),
+    // ─── Drawer ───────────────────────────────────────────────
+    openCart:   () => set({ isCartOpen: true }),
+    closeCart:  () => set({ isCartOpen: false }),
     toggleCart: () => set((s) => ({ isCartOpen: !s.isCartOpen })),
 
-    // Agregar platillo al carrito
-    // Si es de un restaurante diferente, limpia el carrito primero
+    // ─── Tipo de orden y datos de entrega ─────────────────────
+    /**
+     * Valores válidos: "PARA_LLEVAR" | "DOMICILIO"
+     * EN_MESA fue eliminado del flujo del carrito porque las reservaciones
+     * tienen su propio módulo en la aplicación.
+     */
+    setOrderType: (type) => {
+        const next = { ...get(), orderType: type };
+        saveCart(next);
+        set({ orderType: type });
+    },
+
+    setDeliveryAddress: (address) => {
+        const next = { ...get(), deliveryAddress: address };
+        saveCart(next);
+        set({ deliveryAddress: address });
+    },
+
+    setDeliveryPhone: (phone) => {
+        const next = { ...get(), deliveryPhone: phone };
+        saveCart(next);
+        set({ deliveryPhone: phone });
+    },
+
+    // ─── Cupones ──────────────────────────────────────────────
+    appliedCoupon:     null,
+    appliedCouponCode: null,
+    discountAmount:    0,
+    isApplyingCoupon:  false,
+
+    applyCoupon: async (code, userId, restaurantId) => {
+        set({ isApplyingCoupon: true });
+        const total = get().getTotalPrice();
+
+        try {
+            const response = await axios.post(
+                'http://localhost:3006/kinalGourmetHouse/v1/coupons/validate',
+                { code, userId, restaurantId, orderTotal: total }
+            );
+
+            if (response.data.success) {
+                set({
+                    appliedCoupon:     response.data.data.coupon,
+                    appliedCouponCode: code,
+                    discountAmount:    response.data.data.estimatedDiscount,
+                    isApplyingCoupon:  false,
+                });
+                return { success: true, message: 'Cupón aplicado' };
+            }
+        } catch (error) {
+            set({ appliedCoupon: null, appliedCouponCode: null, discountAmount: 0, isApplyingCoupon: false });
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Error al validar cupón',
+            };
+        }
+    },
+
+    removeCoupon: () => set({ appliedCoupon: null, appliedCouponCode: null, discountAmount: 0 }),
+
+    // ─── Items ────────────────────────────────────────────────
     addItem: (dish, restaurantId, restaurantName) => {
         const state = get();
 
-        // Si cambia de restaurante, resetear
+        const cleanPrice = (p) => {
+            if (p && typeof p === 'object' && p.$numberDecimal) return parseFloat(p.$numberDecimal);
+            return parseFloat(p) || 0;
+        };
+
+        const price = cleanPrice(dish.price);
+
+        // Si cambia de restaurante, limpia el carrito
         if (state.restaurantId && state.restaurantId !== restaurantId) {
-            const reset = {
-                items: [],
+            const next = {
+                items: [{ dishId: dish._id, name: dish.name, unitPrice: price, image: dish.image, quantity: 1, specialInstructions: "" }],
                 restaurantId,
                 restaurantName,
+                orderType: state.orderType,
+                deliveryAddress: state.deliveryAddress,
+                deliveryPhone: state.deliveryPhone,
             };
-            const existing = reset.items.find((i) => i.dishId === dish._id);
-            const newItems = existing
-                ? reset.items.map((i) =>
-                    i.dishId === dish._id ? { ...i, quantity: i.quantity + 1 } : i
-                )
-                : [...reset.items, { dishId: dish._id, name: dish.name, unitPrice: dish.price, quantity: 1, specialInstructions: "" }];
-
-            const next = { ...reset, items: newItems };
             saveCart(next);
             set(next);
             return;
         }
 
-        const items = state.items;
-        const existing = items.find((i) => i.dishId === dish._id);
+        const existing = state.items.find((i) => i.dishId === dish._id);
         const newItems = existing
-            ? items.map((i) =>
-                i.dishId === dish._id ? { ...i, quantity: i.quantity + 1 } : i
-            )
-            : [...items, { dishId: dish._id, name: dish.name, unitPrice: dish.price, quantity: 1, specialInstructions: "" }];
+            ? state.items.map((i) => i.dishId === dish._id ? { ...i, quantity: i.quantity + 1 } : i)
+            : [...state.items, { dishId: dish._id, name: dish.name, unitPrice: price, image: dish.image, quantity: 1, specialInstructions: "" }];
 
-        const next = { items: newItems, restaurantId, restaurantName };
+        const next = { ...state, items: newItems, restaurantId, restaurantName };
         saveCart(next);
         set(next);
     },
 
-    // Quitar 1 unidad (si llega a 0 elimina el item)
     removeItem: (dishId) => {
         const state = get();
         const newItems = state.items
@@ -74,61 +149,90 @@ export const useCartStore = create((set, get) => ({
             .filter((i) => i.quantity > 0);
 
         const next = {
+            ...state,
             items: newItems,
-            restaurantId: newItems.length === 0 ? null : state.restaurantId,
+            restaurantId:   newItems.length === 0 ? null : state.restaurantId,
             restaurantName: newItems.length === 0 ? "" : state.restaurantName,
         };
         saveCart(next);
         set(next);
     },
 
-    // Eliminar item completo
     deleteItem: (dishId) => {
         const state = get();
         const newItems = state.items.filter((i) => i.dishId !== dishId);
         const next = {
+            ...state,
             items: newItems,
-            restaurantId: newItems.length === 0 ? null : state.restaurantId,
+            restaurantId:   newItems.length === 0 ? null : state.restaurantId,
             restaurantName: newItems.length === 0 ? "" : state.restaurantName,
         };
         saveCart(next);
         set(next);
     },
 
-    // Actualizar instrucciones especiales de un item
     updateInstructions: (dishId, specialInstructions) => {
         const state = get();
-        const newItems = state.items.map((i) =>
-            i.dishId === dishId ? { ...i, specialInstructions } : i
-        );
+        const newItems = state.items.map((i) => i.dishId === dishId ? { ...i, specialInstructions } : i);
         const next = { ...state, items: newItems };
         saveCart(next);
         set(next);
     },
 
-    // Limpiar carrito completo
     clearCart: () => {
-        const next = { items: [], restaurantId: null, restaurantName: "" };
+        const next = {
+            items: [],
+            restaurantId: null,
+            restaurantName: "",
+            orderType: "PARA_LLEVAR",
+            deliveryAddress: "",
+            deliveryPhone: "",
+        };
         saveCart(next);
-        set(next);
+        set({ ...next, appliedCoupon: null, appliedCouponCode: null, discountAmount: 0 });
     },
 
-    // Getters computados
+    // ─── Getters ──────────────────────────────────────────────
     getTotalItems: () => get().items.reduce((acc, i) => acc + i.quantity, 0),
     getTotalPrice: () => get().items.reduce((acc, i) => acc + i.quantity * i.unitPrice, 0),
+    getFinalTotal: () => {
+        const subtotal = get().items.reduce((acc, i) => acc + i.unitPrice * i.quantity, 0);
+        return Math.max(0, subtotal - get().discountAmount);
+    },
 
-    // Construir el payload para POST /orders/create
-    buildOrderPayload: (extras = {}) => {
-        const { items, restaurantId } = get();
+    // Construye el payload listo para enviar al backend
+    buildCheckoutPayload: (invoiceData) => {
+        const { items, restaurantId, restaurantName, orderType, deliveryAddress, deliveryPhone, appliedCouponCode, getFinalTotal } = get();
+
         return {
-            restaurant: restaurantId,
-            details: items.map((i) => ({
-                dish: i.dishId,
-                quantity: i.quantity,
-                unitPrice: i.unitPrice,
-                specialInstructions: i.specialInstructions || undefined,
-            })),
-            ...extras,
+            orderData: {
+                restaurant: restaurantId,
+                orderType,
+                details: items.map((i) => ({
+                    dish:      i.dishId,
+                    dishName:  i.name,
+                    quantity:  i.quantity,
+                    unitPrice: i.unitPrice,
+                })),
+                // Solo se incluye si es DOMICILIO
+                ...(orderType === 'DOMICILIO' && {
+                    deliveryAddress: { street: deliveryAddress },
+                    deliveryPhone,
+                }),
+                notes: invoiceData.notes || "",
+            },
+            customerInfo: {
+                name:  invoiceData.name,
+                email: invoiceData.email,
+                nit:   invoiceData.nit,
+            },
+            restaurantInfo: {
+                name:    restaurantName,
+                address: "Ciudad de Guatemala",
+            },
+            paymentMethod: invoiceData.paymentMethod,
+            amountPaid:    getFinalTotal(),
+            ...(appliedCouponCode && { couponCode: appliedCouponCode }),
         };
     },
 }));
