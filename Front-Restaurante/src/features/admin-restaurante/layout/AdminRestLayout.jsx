@@ -1,190 +1,79 @@
 import { NavLink, Outlet } from "react-router-dom"
-import { Navbar } from "../../admin-general/layout/Navbar.jsx"
+import { Navbar } from "./Navbar.jsx"
 
 export const AdminRestLayout = () => {
   return (
-    <div className="h-screen bg-gray-100 flex flex-col">
+    <div className="h-screen flex flex-col" style={{ background: '#0F0E0C', fontFamily: "'DM Sans', sans-serif" }}>
 
-      {/* Navbar arriba */}
       <Navbar />
 
-      {/* Contenido debajo */}
       <div className="flex flex-1 overflow-hidden">
 
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-r flex flex-col overflow-y-auto">
+        <aside className="flex flex-col overflow-y-auto flex-shrink-0" style={{
+          width: '220px',
+          background: '#181714',
+          borderRight: '1px solid #33302B'
+        }}>
 
-          <div className="p-6">
-            <h1 className="text-lg font-semibold text-orange-600 mb-1">
-              Admin Restaurante
-            </h1>
-            <p className="text-xs text-gray-400 mb-8">Panel de gestión</p>
+          {/* Brand */}
+          <div style={{ padding: '20px 20px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            </div>
+          </div>
 
-            <nav className="space-y-1">
+          {/* Restaurant card */}
+          <div style={{ margin: '16px 12px', background: '#211F1C', border: '1px solid #33302B', borderRadius: '12px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '14px', color: '#E8591A',fontWeight: 600,marginTop: '1px' }}>Gestión de tu Restaurante</div>
+            </div>
+          </div>
 
-              {/* Overview */}
-              <NavLink
-                to="/adminRestaurante"
-                end
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
-                    isActive
-                      ? "bg-orange-50 text-orange-600 font-medium"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`
-                }
-              >
-                <span className="text-base leading-none">⊞</span>
-                Resumen
-              </NavLink>
+          {/* Nav */}
+          <nav style={{ padding: '0 8px', flex: 1 }}>
 
-              {/* Divider con label */}
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-4 pt-4 pb-1">
-                Menú
-              </p>
+            <SideSection label="General" />
+            <SideLink to="/adminRestaurante" end icon="⊞" label="Resumen" />
 
-              <NavLink
-                to="/adminRestaurante/platillos"
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
-                    isActive
-                      ? "bg-orange-50 text-orange-600 font-medium"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`
-                }
-              >
-                <span className="text-base leading-none">🍽</span>
-                Platillos
-              </NavLink>
+            <SideSection label="Menú" />
+            <SideLink to="/adminRestaurante/platillos"    icon="🍽" label="Platillos" />
+            <SideLink to="/adminRestaurante/cupones"      icon="🏷" label="Cupones" />
+            <SideLink to="/adminRestaurante/promociones"  icon="🔥" label="Promociones" />
+            <SideLink to="/adminRestaurante/eventos"      icon="🎉" label="Eventos" />
 
-              <NavLink
-                to="/adminRestaurante/cupones"
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
-                    isActive
-                      ? "bg-orange-50 text-orange-600 font-medium"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`
-                }
-              >
-                <span className="text-base leading-none">🏷</span>
-                Cupones
-              </NavLink>
+            <SideSection label="Operaciones" />
+            <SideLink to="/adminRestaurante/mesas"        icon="▦"  label="Mesas" />
+            <SideLink to="/adminRestaurante/reservaciones" icon="📅" label="Reservaciones" />
+            <SideLink to="/adminRestaurante/pedidos"      icon="📋" label="Pedidos" />
+            <SideLink to="/adminRestaurante/reportes"     icon="📊" label="Reportes" />
 
-              <NavLink
-                to="/adminRestaurante/promociones"
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
-                    isActive
-                      ? "bg-orange-50 text-orange-600 font-medium"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`
-                }
-              >
-                <span className="text-base leading-none">🔥</span>
-                Promociones
-              </NavLink>
+            <SideSection label="Configuración" />
+            <SideLink to="/adminRestaurante/restaurante"  icon="🏪" label="Mi Restaurante" />
 
-              <NavLink
-                to="/adminRestaurante/eventos"
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
-                    isActive
-                      ? "bg-orange-50 text-orange-600 font-medium"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`
-                }
-              >
-                <span className="text-base leading-none">🎉</span>
-                Eventos
-              </NavLink>
+          </nav>
 
-              {/* Divider */}
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-4 pt-4 pb-1">
-                Operaciones
-              </p>
-
-              <NavLink
-                to="/adminRestaurante/mesas"
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
-                    isActive
-                      ? "bg-orange-50 text-orange-600 font-medium"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`
-                }
-              >
-                <span className="text-base leading-none">▦</span>
-                Mesas
-              </NavLink>
-
-              <NavLink
-                to="/adminRestaurante/reservaciones"
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
-                    isActive
-                      ? "bg-orange-50 text-orange-600 font-medium"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`
-                }
-              >
-                <span className="text-base leading-none">📅</span>
-                Reservaciones
-              </NavLink>
-
-              <NavLink
-                to="/adminRestaurante/pedidos"
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
-                    isActive
-                      ? "bg-orange-50 text-orange-600 font-medium"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`
-                }
-              >
-                <span className="text-base leading-none">📋</span>
-                Pedidos
-              </NavLink>
-
-              <NavLink
-  to="/adminRestaurante/reportes"
-  className={({ isActive }) =>
-    `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
-      isActive
-        ? "bg-orange-50 text-orange-600 font-medium"
-        : "text-gray-600 hover:bg-gray-50"
-    }`
-  }
->
-  <span className="text-base leading-none">📊</span>
-  Reportes
-</NavLink>
-
-              {/* Divider */}
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-4 pt-4 pb-1">
-                Configuración
-              </p>
-
-              <NavLink
-                to="/adminRestaurante/restaurante"
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
-                    isActive
-                      ? "bg-orange-50 text-orange-600 font-medium"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`
-                }
-              >
-                <span className="text-base leading-none">🏪</span>
-                Mi Restaurante
-              </NavLink>
-
-            </nav>
+          {/* Logout */}
+          <div style={{ padding: '12px', borderTop: '1px solid #33302B' }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              padding: '9px 12px', borderRadius: '10px', cursor: 'pointer',
+              color: '#6B6560', fontSize: '13px', transition: '.15s'
+            }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#E05555'; e.currentTarget.style.background = 'rgba(220,60,60,0.08)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = '#6B6560'; e.currentTarget.style.background = 'transparent' }}
+            >
+              <span>→</span> Cerrar sesión
+            </div>
           </div>
         </aside>
 
-        {/* Contenido principal */}
-        <main className="flex-1 p-8 bg-gray-50 overflow-y-auto">
+        {/* Main content */}
+        <main style={{
+          flex: 1,
+          background: '#0F0E0C',
+          overflowY: 'auto',
+          padding: '32px'
+        }}>
           <Outlet />
         </main>
 
@@ -192,3 +81,35 @@ export const AdminRestLayout = () => {
     </div>
   )
 }
+
+/* Helpers */
+const SideSection = ({ label }) => (
+  <p style={{
+    fontSize: '10px', color: '#6B6560', letterSpacing: '2px',
+    textTransform: 'uppercase', fontWeight: 500,
+    padding: '16px 12px 6px'
+  }}>{label}</p>
+)
+
+const SideLink = ({ to, end, icon, label }) => (
+  <NavLink
+    to={to}
+    end={end}
+    style={{ textDecoration: 'none' }}
+    className={({ isActive }) => isActive ? 'nav-active' : 'nav-idle'}
+  >
+    {({ isActive }) => (
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '10px',
+        padding: '9px 12px', borderRadius: '10px', margin: '2px 0',
+        fontSize: '13px', fontWeight: isActive ? 500 : 400, transition: '.15s',
+        background: isActive ? 'rgba(232,89,26,0.15)' : 'transparent',
+        color: isActive ? '#E8591A' : '#A09890',
+        cursor: 'pointer'
+      }}>
+        <span style={{ fontSize: '16px', width: '20px', textAlign: 'center', flexShrink: 0 }}>{icon}</span>
+        {label}
+      </div>
+    )}
+  </NavLink>
+)
