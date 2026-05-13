@@ -1,5 +1,11 @@
 import { axiosRestaurante } from "./api";
 
+export const createOrderRequest = (orderData) =>
+    axiosRestaurante.post("/kinalGourmetHouse/v1/orders/create", orderData);
+
+export const updateOrderRequest = (id, orderData) =>
+    axiosRestaurante.put(`/kinalGourmetHouse/v1/orders/${id}`, orderData);
+
 export const getOrdersRequest = (params) =>
     axiosRestaurante.get("/kinalGourmetHouse/v1/orders/", { params });
 
