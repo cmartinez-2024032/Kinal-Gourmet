@@ -272,7 +272,7 @@ export const updateOrderStatus = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        const statusValidos = ["PENDIENTE", "EN_PREPARACION", "LISTO", "ENTREGADO", "CANCELADO"];
+        const statusValidos = ["PENDIENTE", "EN_PREPARACION", "LISTO", "ENTREGADO", "CANCELADO", "EN_CAMINO", "CONFIRMADO"];
 
         if (!statusValidos.includes(status)) {
             return res.status(400).json({
