@@ -26,7 +26,6 @@ const EMPTY_DETAIL   = { dish: "", quantity: 1, unitPrice: 0, specialInstruction
 export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => {
     const { createOrder, updateOrder, updateOrderStatus, cancelOrder, loading } = useOrderStore();
 
-    // Stores externos
     const { dishes, getDishes, loading: loadingDishes }   = usePlatilloStore();
     const { tables, getTables, loading: loadingTables }   = useMesaStore();
     const { user, getProfile }                             = useAuthStore();
@@ -589,7 +588,9 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                     >
                         Cerrar
                     </button>
-                    {canEdit && (
+
+                    {/* Solo crear o editar info/platillos — NO en tab estado */}
+                    {canEdit && activeTab !== "status" && (
                         <button
                             onClick={handleSave}
                             disabled={loading}
@@ -598,6 +599,8 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                             {loading ? "Guardando..." : isCreate ? "Crear Pedido" : "Guardar Cambios"}
                         </button>
                     )}
+
+                    {/* Solo en tab estado o modo status */}
                     {showStatusActions && (
                         <button
                             onClick={handleStatusUpdate}

@@ -6,6 +6,9 @@ export const createOrderRequest = (orderData) =>
 export const updateOrderRequest = (id, orderData) =>
     axiosRestaurante.put(`/kinalGourmetHouse/v1/orders/${id}`, orderData);
 
+export const updateOrderStatusRequest = (id, status) =>
+    axiosRestaurante.patch(`/kinalGourmetHouse/v1/orders/${id}/status`, { status });
+
 export const getOrdersRequest = (params) =>
     axiosRestaurante.get("/kinalGourmetHouse/v1/orders/", { params });
 

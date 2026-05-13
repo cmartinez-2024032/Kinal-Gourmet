@@ -4,6 +4,7 @@ import {
     createOrderRequest,
     updateOrderRequest,
     getOrderByIdRequest,
+    updateOrderStatusRequest,
     cancelOrderRequest
 } from "../../../shared/api/orders";
 
@@ -144,5 +145,5 @@ export const useOrderStore = create((set, get) => ({
             });
         }
     }
-    
+
 }));
