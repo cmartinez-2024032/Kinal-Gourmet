@@ -24,6 +24,8 @@ import PromotionPage       from '../../features/admin-restaurante/pages/Promotio
 import { EventsPage }      from '../../features/admin-restaurante/pages/EventPage.jsx' 
 import { ReservationsPage } from '../../features/admin-restaurante/pages/ReservationPage.jsx'
 import { ReportsPage } from '../../features/admin-restaurante/pages/ReportsPage.jsx'
+import { OrderPage } from '../../features/admin-restaurante/pages/OrderPage.jsx'    
+
 // Cliente
 import { ClientLayout }           from '../../features/client/layout/ClientLayout.jsx'
 import { HomePage }               from '../../features/client/pages/HomePage.jsx'
@@ -86,6 +88,7 @@ export const AppRoutes = () => {
                 <Route path="promociones"  element={<PromotionPage />} />
                 <Route path="eventos"      element={<EventsPage />} /> 
                 <Route path='reservaciones' element= {<ReservationsPage/>} />
+                <Route path='pedidos' element= {<OrderPage/>} />
                 <Route path='reportes' element= {<ReportsPage/>} />
             </Route>
 

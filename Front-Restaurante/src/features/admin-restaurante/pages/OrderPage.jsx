@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useOrderStore } from "../stores/order.store";
-import OrderModal from "./OrderModal";
+import { useOrderStore } from "../store/useOrderStore";
+import {OrderModal} from "../components/OrderModal";
 
 const STATUS_CONFIG = {
     PENDIENTE:      { label: "Pendiente",      dot: "bg-amber-400",   badge: "bg-amber-100 text-amber-800",   pill: "bg-amber-50 text-amber-700 border-amber-400" },
@@ -26,7 +26,7 @@ const SUMMARY_CARDS = [
     { key: "CANCELADO",      label: "Cancelados",      icon: "✕",  bg: "bg-red-100",    text: "text-red-900" },
 ];
 
-export default function OrdersPage() {
+export const OrderPage = () => {
     const { orders, pagination, loading, error, fetchOrders } = useOrderStore();
 
     const [activeFilter, setActiveFilter]   = useState("ALL");
@@ -38,7 +38,7 @@ export default function OrdersPage() {
     useEffect(() => {
         fetchOrders({ force: true });
     }, []);
-
+    
     const summaryCounts = SUMMARY_CARDS.reduce((acc, c) => {
         acc[c.key] = orders.filter(o => o.status === c.key).length;
         return acc;
@@ -53,6 +53,7 @@ export default function OrdersPage() {
         return matchStatus && matchSearch;
     });
 
+    // ── Modal helpers ──────────────────────────────────────────────────────────
     const openModal = (mode, order = null) => {
         setModalMode(mode);
         setSelectedOrder(order);
@@ -65,6 +66,7 @@ export default function OrdersPage() {
         fetchOrders({ force: true });
     };
 
+    // ── Render ─────────────────────────────────────────────────────────────────
     return (
         <div className="px-8 py-7 max-w-[1100px] mx-auto font-sans">
 
