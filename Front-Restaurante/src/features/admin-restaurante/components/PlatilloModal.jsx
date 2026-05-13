@@ -2,20 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import { usePlatilloStore } from "../store/usePlatilloStore";
 
 const emptyForm = {
-  name: "",
-  description: "",
-  price: "",
-  type: "PLATO_FUERTE",
-  category: "NINGUNA",
-  ingredients: "",
-  preparationTime: "15",
-  spicyLevel: "NINGUNO",
-  isAvailable: true,
+  name: "", description: "", price: "", type: "PLATO_FUERTE",
+  category: "NINGUNA", ingredients: "", preparationTime: "15",
+  spicyLevel: "NINGUNO", isAvailable: true,
 };
 
 export const PlatilloModal = () => {
   const { isModalOpen, selectedDish, closeModal, createDish, updateDish } = usePlatilloStore();
-
   const isEditing = !!selectedDish;
   const fileInputRef = useRef(null);
 
@@ -76,14 +69,10 @@ export const PlatilloModal = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
+    if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return; }
 
     const token = localStorage.getItem("token");
     const restaurantId = JSON.parse(atob(token.split(".")[1]))?.restaurantId || "";
-
     const payload = new FormData();
     Object.keys(form).forEach((key) => {
       if (key === "ingredients") {
@@ -104,44 +93,54 @@ export const PlatilloModal = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-stone-900/40 backdrop-blur-sm flex items-center justify-center z-[2000] p-4 overflow-y-auto">
-      <div 
-        className="bg-white rounded-[2.5rem] w-full max-w-2xl shadow-2xl border border-stone-100 animate-in zoom-in-95 duration-200 overflow-hidden my-auto"
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[2000] p-4 overflow-y-auto">
+      <div
+        className="bg-[#181714] border border-[#33302B] rounded-2xl w-full max-w-2xl shadow-2xl my-auto overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-8 py-6 border-b border-stone-50 bg-stone-50/50">
+        <div className="flex items-center justify-between px-7 py-5 border-b border-[#33302B] bg-[#1C1A17]">
           <div>
-            <h2 className="text-xl font-black text-stone-900 tracking-tight">
+            <h2 className="text-lg font-bold text-[#F2EDE8]" style={{ fontFamily: 'Syne, sans-serif' }}>
               {isEditing ? "Editar Platillo" : "Nuevo Platillo"}
             </h2>
-            <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest mt-1">Configuración del Menú</p>
+            <p className="text-[10px] text-[#6B6560] font-semibold uppercase tracking-widest mt-0.5">
+              Configuración del Menú
+            </p>
           </div>
-          <button onClick={closeModal} className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-stone-200 text-stone-400 hover:text-red-500 transition-colors shadow-sm">
+          <button
+            onClick={closeModal}
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-[#211F1C] border border-[#33302B]
+              text-[#6B6560] hover:text-red-400 hover:border-red-500/30 transition-colors text-sm"
+          >
             ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          
+        <form onSubmit={handleSubmit} className="p-7 space-y-5">
+
           {/* Nombre y Precio */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
               <Field label="Nombre del Platillo" error={errors.name} required>
-                <input name="name" value={form.name} onChange={handleChange} placeholder="Ej. Lasaña de Carne" className={inputClass(errors.name)} />
+                <input name="name" value={form.name} onChange={handleChange}
+                  placeholder="Ej. Lasaña de Carne" className={inputClass(errors.name)} />
               </Field>
             </div>
             <Field label="Precio (Q)" error={errors.price} required>
-              <input name="price" type="number" step="0.01" value={form.price} onChange={handleChange} placeholder="0.00" className={inputClass(errors.price)} />
+              <input name="price" type="number" step="0.01" value={form.price}
+                onChange={handleChange} placeholder="0.00" className={inputClass(errors.price)} />
             </Field>
           </div>
 
-          <Field label="Descripción Corta" error={errors.description} required>
-            <textarea name="description" value={form.description} onChange={handleChange} rows={2} className={`${inputClass(errors.description)} resize-none`} placeholder="Describe los sabores..." />
+          <Field label="Descripción" error={errors.description} required>
+            <textarea name="description" value={form.description} onChange={handleChange}
+              rows={2} placeholder="Describe los sabores..."
+              className={`${inputClass(errors.description)} resize-none`} />
           </Field>
 
           {/* Clasificación */}
-          <div className="p-6 bg-stone-50 rounded-[2rem] grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-[#211F1C] border border-[#33302B] rounded-xl p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
             <Field label="Tipo">
               <select name="type" value={form.type} onChange={handleChange} className={inputClass()}>
                 <option value="ENTRADA">Entrada</option>
@@ -173,60 +172,69 @@ export const PlatilloModal = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="md:col-span-3">
               <Field label="Ingredientes (separados por coma)" error={errors.ingredients} required>
-                <input name="ingredients" value={form.ingredients} onChange={handleChange} placeholder="Sal, pimienta, ajo..." className={inputClass(errors.ingredients)} />
+                <input name="ingredients" value={form.ingredients} onChange={handleChange}
+                  placeholder="Sal, pimienta, ajo..." className={inputClass(errors.ingredients)} />
               </Field>
             </div>
             <Field label="Tiempo (min)">
-              <input name="preparationTime" type="number" value={form.preparationTime} onChange={handleChange} className={inputClass()} />
+              <input name="preparationTime" type="number" value={form.preparationTime}
+                onChange={handleChange} className={inputClass()} />
             </Field>
           </div>
 
-          {/* Imagen y Estado */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div 
+          {/* Imagen y Disponibilidad */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div
               onClick={() => fileInputRef.current?.click()}
-              className="h-32 rounded-[2rem] border-2 border-dashed border-stone-200 flex flex-col items-center justify-center gap-2 hover:border-orange-400 hover:bg-orange-50/30 transition-all cursor-pointer overflow-hidden relative group"
+              className="h-32 rounded-xl border-2 border-dashed border-[#33302B] flex flex-col items-center
+                justify-center gap-2 hover:border-orange-500/40 hover:bg-orange-500/5 transition-all cursor-pointer
+                overflow-hidden relative group"
             >
               {imagePreview ? (
                 <>
-                  <img src={imagePreview} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                    <span className="text-white text-[10px] font-black uppercase">Cambiar Imagen</span>
+                  <img src={imagePreview} className="w-full h-full object-cover" alt="preview" />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                    <span className="text-white text-[10px] font-bold uppercase tracking-wider">Cambiar imagen</span>
                   </div>
                 </>
               ) : (
                 <div className="text-center">
-                  <span className="text-2xl mb-1 block">🖼️</span>
-                  <span className="text-[10px] font-black text-stone-400 uppercase">Subir Foto</span>
+                  <span className="text-2xl block mb-1">🖼️</span>
+                  <span className="text-[10px] font-bold text-[#6B6560] uppercase tracking-wider">Subir foto</span>
                 </div>
               )}
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
             </div>
 
             <div className="flex flex-col justify-center">
-              <label className="flex items-center justify-between p-4 rounded-2xl bg-stone-50 cursor-pointer hover:bg-stone-100 transition-colors">
-                <div className="flex flex-col">
-                  <span className="text-[11px] font-black text-stone-600 uppercase tracking-tight">Disponibilidad</span>
-                  <span className="text-[10px] text-stone-400 font-bold">Mostrar en el menú</span>
+              <label className="flex items-center justify-between p-4 rounded-xl bg-[#211F1C] border border-[#33302B] cursor-pointer hover:border-orange-500/30 transition-colors">
+                <div>
+                  <p className="text-sm font-semibold text-[#F2EDE8]">Disponible</p>
+                  <p className="text-xs text-[#6B6560] mt-0.5">Mostrar en el menú</p>
                 </div>
-                <input 
-                  type="checkbox" 
-                  name="isAvailable" 
-                  checked={form.isAvailable} 
-                  onChange={handleChange} 
-                  className="w-6 h-6 rounded-lg accent-orange-500" 
+                <input
+                  type="checkbox" name="isAvailable" checked={form.isAvailable}
+                  onChange={handleChange} className="w-5 h-5 rounded accent-orange-500"
                 />
               </label>
             </div>
           </div>
 
-          {/* Footer Actions */}
-          <div className="flex justify-end gap-3 pt-4">
-            <button type="button" onClick={closeModal} className="px-8 py-4 rounded-2xl text-stone-400 font-bold hover:bg-stone-100 transition-all text-sm">
+          {/* Footer */}
+          <div className="flex justify-end gap-3 pt-2 border-t border-[#33302B]">
+            <button
+              type="button" onClick={closeModal}
+              className="px-6 py-2.5 rounded-xl text-sm font-semibold text-[#A09890]
+                hover:bg-[#211F1C] border border-transparent hover:border-[#33302B] transition-all"
+            >
               Cancelar
             </button>
-            <button type="submit" className="px-10 py-4 rounded-2xl bg-stone-900 text-white font-black text-sm shadow-xl hover:bg-orange-500 transition-all active:scale-95">
-              {isEditing ? "Actualizar Plato" : "Guardar Platillo"}
+            <button
+              type="submit"
+              className="px-8 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-white
+                font-bold text-sm transition-all hover:-translate-y-0.5 shadow-lg shadow-orange-500/20"
+            >
+              {isEditing ? "Actualizar" : "Guardar"}
             </button>
           </div>
         </form>
@@ -236,15 +244,18 @@ export const PlatilloModal = () => {
 };
 
 const Field = ({ label, children, error, required }) => (
-  <div className="flex flex-col gap-2">
-    <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest px-1">
+  <div className="flex flex-col gap-1.5">
+    <label className="text-[10px] font-bold text-[#6B6560] uppercase tracking-widest">
       {label} {required && <span className="text-orange-500">*</span>}
     </label>
     {children}
-    {error && <p className="text-[10px] font-bold text-red-500 ml-1">✕ {error}</p>}
+    {error && <p className="text-[10px] font-semibold text-red-400">✕ {error}</p>}
   </div>
 );
 
 const inputClass = (error) =>
-  `w-full px-5 py-3 rounded-2xl border-2 text-sm font-bold outline-none transition-all
-   ${error ? "border-red-100 bg-red-50 text-red-900" : "border-stone-100 bg-stone-50 text-stone-700 focus:bg-white focus:border-orange-200 focus:ring-4 focus:ring-orange-50"}`;
+  `w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-all bg-[#211F1C] text-[#F2EDE8]
+   placeholder-[#6B6560] focus:ring-2 focus:ring-orange-500/10
+   ${error
+     ? "border-red-500/30 bg-red-500/5 text-red-400"
+     : "border-[#33302B] focus:border-orange-500/40"}`;
