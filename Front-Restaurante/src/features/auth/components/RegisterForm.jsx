@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../store/useAuthStore'
 import { useNavigate, Link } from 'react-router-dom'
 import { Mail, Lock, User, Loader2, ArrowRight, CheckCircle2 } from 'lucide-react'
 import logo from "../../../assets/logo_1.png"

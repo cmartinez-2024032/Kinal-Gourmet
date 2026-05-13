@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useRestaurantClientStore } from "../store/UseRestaurantClientStore";
+import { useRestaurantClientStore } from "../store/useRestaurantClientStore";
 import { Search, SlidersHorizontal, MapPin, Star, X, UtensilsCrossed } from "lucide-react";
 
 const FEATURE_FILTERS = [

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useCartStore } from '../store/UseCartStore.js';
+import { useCartStore } from '../store/useCartStore.js';
 
 const CouponSection = ({ userId, restaurantId }) => {
     const [couponCode, setCouponCode] = useState("");

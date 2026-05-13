@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { UsePromotionStore } from "../store/UsePromotionStore";
+import { UsePromotionStore } from "../store/usePromotionStore";
 import PromotionModal from "../components/PromotionModal";
 
 const PromotionPage = () => {

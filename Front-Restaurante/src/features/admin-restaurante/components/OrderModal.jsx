@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useOrderStore }    from "../store/useOrderStore";
 import { usePlatilloStore } from "../store/usePlatilloStore";
 import { useMesaStore }     from "../store/useMesaStore";
-import { useAuthStore }     from "../../auth/store/authStore";
+import { useAuthStore }     from "../../auth/store/useAuthStore";
 
 const STATUS_CONFIG = {
     PENDIENTE:      { label: "Pendiente",      badge: "bg-amber-100 text-amber-800",     sel: "bg-amber-50 text-amber-700 border-amber-400" },

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { DishCard } from "../components/DishCard";
-import { useCartStore } from "../store/UseCartStore";
-import { useReviewStore } from "../../admin-restaurante/store/UseReviewStore";
-import { useAuthStore } from "../../auth/store/authStore";
+import { useCartStore } from "../store/useCartStore";
+import { useReviewStore } from "../../admin-restaurante/store/useReviewStore";
+import { useAuthStore } from "../../auth/store/useAuthStore";
 import { getRestaurantByIdRequest } from "../../../shared/api/restaurants.js";
 import { getDishesRequest } from "../../../shared/api/platillos.js";
 

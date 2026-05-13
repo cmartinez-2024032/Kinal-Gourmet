@@ -1,8 +1,8 @@
-import { useCartStore } from "../store/UseCartStore";
+import { useCartStore } from "../store/useCartStore.js";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import CouponSection from "./CouponSection";
-import { useAuthStore } from "../../auth/store/authStore.js";
+import { useAuthStore } from "../../auth/store/useAuthStore.js";
 import { InvoiceModal } from "./InvoiceModal";
 
 export const CartDrawer = () => {

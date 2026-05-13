@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useCuponStore } from "../store/UseCuponStore";
+import { useCuponStore } from "../store/useCuponStore";
 import { CuponModal } from "../components/CuponModal";
 
 const TYPE_STYLES = {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { UsePromotionStore } from "../store/UsePromotionStore";
+import { UsePromotionStore } from "../store/usePromotionStore";
 
 const promotionTypes = [
   { value: "DESCUENTO_PORCENTAJE", label: "Porcentaje %", icon: "📉" },

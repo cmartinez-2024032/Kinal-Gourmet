@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useMesaStore } from "../store/UseMesaStore";
+import { useMesaStore } from "../store/useMesaStore";
 
 const emptyForm = {
   number: "",

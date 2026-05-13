@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { usePlatilloStore } from "../store/UsePlatilloStore";
+import { usePlatilloStore } from "../store/usePlatilloStore";
 
 const emptyForm = {
   name: "",

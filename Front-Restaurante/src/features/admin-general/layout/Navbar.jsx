@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import { useAuthStore } from "../../auth/store/authStore"
+import { useAuthStore } from "../../auth/store/useAuthStore"
 import logo from "../../../assets/logo_2.png"
 
 export const Navbar = () => {

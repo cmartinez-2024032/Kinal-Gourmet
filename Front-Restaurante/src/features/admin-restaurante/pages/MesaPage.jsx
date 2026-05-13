@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useMesaStore } from "../store/UseMesaStore";
+import { useMesaStore } from "../store/useMesaStore";
 import { MesaModal } from "../components/MesaModal";
 
 const STATUS_STYLES = {

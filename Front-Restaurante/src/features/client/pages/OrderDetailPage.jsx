@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useOrderStore } from "../store/UseOrderStore";
+import { useOrderStore } from "../store/useOrderStore";
 
 export const OrderDetailPage = () => {
     const { id }     = useParams();

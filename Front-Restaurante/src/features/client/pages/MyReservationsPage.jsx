@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useReservationClientStore } from "../store/UseReservationClientStore";
+import { useReservationClientStore } from "../store/useReservationClientStore";
 import { ReservationModal, ReservationCard } from "../components/ReservationModal";
 
 export const MyReservationsPage = () => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useReservationStore } from "../store/UseReservationStore";
+import { useReservationStore } from "../store/useReservationStore";
 import { ReservationCard } from "../components/ReservationCard";
 
 const TABS = ["Todas", "PENDIENTE", "CONFIRMADA", "CANCELADA", "COMPLETADA"];

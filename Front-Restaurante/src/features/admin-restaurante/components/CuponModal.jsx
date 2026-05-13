@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useCuponStore } from "../store/UseCuponStore";
+import { useCuponStore } from "../store/useCuponStore";
 
 // Fecha local en formato datetime-local
 const toLocalDatetimeInput = (dateStr) => {

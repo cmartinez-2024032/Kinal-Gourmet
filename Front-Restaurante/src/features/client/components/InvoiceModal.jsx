@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom";
-import { useCartStore } from "../store/UseCartStore";
+import { useCartStore } from "../store/useCartStore";
 import { useState } from "react";
 import { axiosRestaurante } from "../../../shared/api/api";
 

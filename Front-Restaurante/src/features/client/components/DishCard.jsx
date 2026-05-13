@@ -1,4 +1,4 @@
-import { useCartStore } from "../store/UseCartStore";
+import { useCartStore } from "../store/useCartStore";
 
 const CATEGORY_LABELS = {
     VEGETARIANO: "🥗 Vegetariano",
