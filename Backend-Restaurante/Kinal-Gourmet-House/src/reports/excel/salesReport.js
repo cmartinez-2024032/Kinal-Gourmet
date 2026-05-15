@@ -15,7 +15,7 @@ export const buildSalesExcel = async (salesData) => {
         views: [{ showGridLines: false }],
     });
 
-    // ── Paleta de colores 
+    // ── Paleta de colores ──────────────────────────────────────────
     const ORANGE      = 'FFE65100';
     const ORANGE_SOFT = 'FFFFF3E0';
     const DARK        = 'FF1C1A17';
@@ -26,7 +26,7 @@ export const buildSalesExcel = async (salesData) => {
     const GREEN       = 'FF2E7D32';
     const GREEN_SOFT  = 'FFE8F5E9';
 
-    // ── Anchos de columna 
+    // ── Anchos de columna ──────────────────────────────────────────
     worksheet.columns = [
         { key: 'date',    width: 22 },
         { key: 'orders',  width: 16 },
@@ -34,7 +34,7 @@ export const buildSalesExcel = async (salesData) => {
         { key: 'avg',     width: 22 },
     ];
 
-    // ── Fila 1: Logo / Título principal
+    // ── Fila 1: Logo / Título principal ───────────────────────────
     worksheet.mergeCells('A1:D1');
     const titleCell = worksheet.getCell('A1');
     titleCell.value = '🍽  KINAL GOURMET HOUSE';
@@ -43,7 +43,7 @@ export const buildSalesExcel = async (salesData) => {
     titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
     worksheet.getRow(1).height = 42;
 
-    // ── Fila 2: Subtítulo
+    // ── Fila 2: Subtítulo ─────────────────────────────────────────
     worksheet.mergeCells('A2:D2');
     const subCell = worksheet.getCell('A2');
     subCell.value = 'REPORTE DE VENTAS';
@@ -52,7 +52,7 @@ export const buildSalesExcel = async (salesData) => {
     subCell.alignment = { horizontal: 'center', vertical: 'middle' };
     worksheet.getRow(2).height = 26;
 
-    // ── Fila 3: Fecha de generación
+    // ── Fila 3: Fecha de generación ───────────────────────────────
     worksheet.mergeCells('A3:D3');
     const dateCell = worksheet.getCell('A3');
     dateCell.value = `Generado el ${new Date().toLocaleDateString('es-GT', {
@@ -64,10 +64,10 @@ export const buildSalesExcel = async (salesData) => {
     dateCell.alignment = { horizontal: 'center', vertical: 'middle' };
     worksheet.getRow(3).height = 18;
 
-    // ── Fila 4: espacio
+    // ── Fila 4: espacio ───────────────────────────────────────────
     worksheet.getRow(4).height = 8;
 
-    // ── Fila 5: Encabezados de tabla 
+    // ── Fila 5: Encabezados de tabla ──────────────────────────────
     const headers = ['Fecha', 'Órdenes', 'Ingresos (Q)', 'Promedio por Orden (Q)'];
     const headerRow = worksheet.getRow(5);
     headerRow.height = 30;
@@ -90,7 +90,7 @@ export const buildSalesExcel = async (salesData) => {
         };
     });
 
-    // ── Filas de datos 
+    // ── Filas de datos ────────────────────────────────────────────
     salesData.forEach((item, index) => {
         const rowNum  = 6 + index;
         const isEven  = index % 2 === 0;
@@ -130,11 +130,11 @@ export const buildSalesExcel = async (salesData) => {
         });
     });
 
-    // ── Fila separadora 
+    // ── Fila separadora ───────────────────────────────────────────
     const sepRowNum = 6 + salesData.length;
     worksheet.getRow(sepRowNum).height = 6;
 
-    // ── Fila TOTAL 
+    // ── Fila TOTAL ────────────────────────────────────────────────
     const totalRowNum = sepRowNum + 1;
     const totalOrders  = salesData.reduce((acc, i) => acc + i.totalOrders,  0);
     const totalRevenue = salesData.reduce((acc, i) => acc + i.totalRevenue, 0);
@@ -168,7 +168,7 @@ export const buildSalesExcel = async (salesData) => {
         }
     });
 
-    // ── Fila resumen destacado
+    // ── Fila resumen destacado ─────────────────────────────────────
     const summaryRowNum = totalRowNum + 2;
     worksheet.mergeCells(`A${summaryRowNum}:D${summaryRowNum}`);
     const summaryCell   = worksheet.getCell(`A${summaryRowNum}`);
@@ -178,7 +178,7 @@ export const buildSalesExcel = async (salesData) => {
     summaryCell.alignment = { horizontal: 'center', vertical: 'middle' };
     worksheet.getRow(summaryRowNum).height = 22;
 
-    // ── Pie de página
+    // ── Pie de página ─────────────────────────────────────────────
     const footerRowNum = summaryRowNum + 2;
     worksheet.mergeCells(`A${footerRowNum}:D${footerRowNum}`);
     const footerCell   = worksheet.getCell(`A${footerRowNum}`);
