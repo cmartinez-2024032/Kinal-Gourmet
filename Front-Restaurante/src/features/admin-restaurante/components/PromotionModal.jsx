@@ -53,7 +53,7 @@ const PromotionModal = ({ onClose, promotion }) => {
       ...form,
       startDate: new Date(form.startDate),
       endDate: new Date(form.endDate),
-      restaurant: "69f911e74e89fe715645be87", // ID Estático según tu código original
+      restaurant: "69f911e74e89fe715645be87", 
     };
 
     if (form.type === "DESCUENTO_PORCENTAJE") dataToSend.discountPercentage = value;
@@ -69,42 +69,49 @@ const PromotionModal = ({ onClose, promotion }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-stone-900/40 backdrop-blur-sm flex items-center justify-center z-[2000] p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-[2000] p-4 animate-in fade-in duration-300 overflow-y-auto">
       <div 
-        className="bg-white rounded-[2.5rem] w-full max-w-xl shadow-2xl border border-stone-100 animate-in zoom-in-95 duration-200 overflow-hidden my-auto"
+        className="bg-[#1C1A17] border border-white/10 rounded-[40px] w-full max-w-xl shadow-[0_0_100px_rgba(0,0,0,0.5)] my-auto relative overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-orange-600/10 blur-[80px] pointer-events-none" />
+
         {/* Header */}
-        <div className="flex items-center justify-between px-8 py-6 border-b border-stone-50 bg-stone-50/50">
+        <div className="flex items-center justify-between px-10 py-8 border-b border-white/5 relative z-10">
           <div>
-            <h2 className="text-xl font-black text-stone-900 tracking-tight">
+            <h2 className="text-2xl font-black text-white" style={{ fontFamily: 'Syne, sans-serif' }}>
               {promotion ? "Editar Promoción" : "Nueva Promoción"}
             </h2>
-            <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest mt-1">Campañas y Descuentos</p>
+            <p className="text-[10px] text-orange-500 font-black uppercase tracking-[0.2em] mt-1">Campañas y Ofertas</p>
           </div>
-          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-stone-200 text-stone-400 hover:text-red-500 transition-colors shadow-sm">
+          <button 
+            onClick={onClose} 
+            className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-[#6B6560] hover:text-white hover:bg-red-500 transition-all duration-300 shadow-sm"
+          >
             ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="p-10 space-y-8 relative z-10">
           
           <Field label="Título de la promoción" required>
             <input 
               name="title" 
               value={form.title} 
               onChange={handleChange} 
-              placeholder="Ej. Black Friday" 
+              placeholder="Ej. Black Friday Especial" 
               className={inputClass()} 
               required 
             />
           </Field>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Field label="Tipo de Beneficio">
               <select name="type" value={form.type} onChange={handleChange} className={inputClass()}>
                 {promotionTypes.map((t) => (
-                  <option key={t.value} value={t.value}>{t.icon} {t.label}</option>
+                  <option key={t.value} value={t.value} className="bg-[#1C1A17]">
+                    {t.icon} {t.label}
+                  </option>
                 ))}
               </select>
             </Field>
@@ -135,7 +142,7 @@ const PromotionModal = ({ onClose, promotion }) => {
           </Field>
 
           {/* Vigencia */}
-          <div className="p-6 bg-stone-50 rounded-[2rem] grid grid-cols-2 gap-4 border border-stone-100">
+          <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 grid grid-cols-2 gap-6">
             <Field label="Fecha Inicio">
               <input type="date" name="startDate" value={form.startDate} onChange={handleChange} className={inputClass()} />
             </Field>
@@ -145,29 +152,39 @@ const PromotionModal = ({ onClose, promotion }) => {
           </div>
 
           {/* Estado */}
-          <div className="flex flex-col gap-3">
-             <label className="flex items-center justify-between p-4 rounded-2xl bg-stone-50 cursor-pointer hover:bg-stone-100 transition-colors border border-stone-100">
-                <div className="flex flex-col">
-                  <span className="text-[11px] font-black text-stone-600 uppercase tracking-tight">Estado de Campaña</span>
-                  <span className="text-[10px] text-stone-400 font-bold">Permitir aplicación del descuento</span>
-                </div>
+          <div>
+            <label className="group flex items-center justify-between p-6 rounded-3xl bg-white/[0.02] border border-white/5 cursor-pointer hover:border-orange-500/30 transition-all duration-300">
+              <div className="flex flex-col">
+                <span className="text-sm font-black text-white group-hover:text-orange-400 transition-colors uppercase tracking-tight">Estado de Campaña</span>
+                <span className="text-[10px] text-[#A09890] font-medium mt-1">Permitir aplicación del descuento</span>
+              </div>
+              <div className="relative">
                 <input 
                   type="checkbox" 
                   name="isActive" 
                   checked={form.isActive} 
                   onChange={handleChange} 
-                  className="w-6 h-6 rounded-lg accent-orange-500" 
+                  className="sr-only peer" 
                 />
-              </label>
+                <div className="w-12 h-6 bg-white/10 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600 shadow-inner"></div>
+              </div>
+            </label>
           </div>
 
           {/* Footer Actions */}
-          <div className="flex justify-end gap-3 pt-4">
-            <button type="button" onClick={onClose} className="px-8 py-4 rounded-2xl text-stone-400 font-bold hover:bg-stone-100 transition-all text-sm">
-              Cancelar
+          <div className="flex justify-end gap-4 pt-6 border-t border-white/5">
+            <button 
+              type="button" 
+              onClick={onClose} 
+              className="px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-[#6B6560] hover:text-white transition-all"
+            >
+              Cerrar
             </button>
-            <button type="submit" className="px-10 py-4 rounded-2xl bg-stone-900 text-white font-black text-sm shadow-xl hover:bg-orange-500 transition-all active:scale-95">
-              {promotion ? "Actualizar" : "Crear Promoción"}
+            <button 
+              type="submit" 
+              className="px-10 py-4 rounded-2xl bg-white text-black hover:bg-orange-500 hover:text-white font-black text-xs uppercase tracking-widest transition-all hover:-translate-y-1 shadow-xl hover:shadow-orange-500/20 active:scale-95"
+            >
+              {promotion ? "Guardar Cambios" : "Lanzar Campaña"}
             </button>
           </div>
         </form>
@@ -178,7 +195,7 @@ const PromotionModal = ({ onClose, promotion }) => {
 
 const Field = ({ label, children, required }) => (
   <div className="flex flex-col gap-2">
-    <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest px-1">
+    <label className="text-[10px] font-black text-[#6B6560] uppercase tracking-[0.15em] ml-1">
       {label} {required && <span className="text-orange-500">*</span>}
     </label>
     {children}
@@ -186,6 +203,6 @@ const Field = ({ label, children, required }) => (
 );
 
 const inputClass = () =>
-  `w-full px-5 py-3 rounded-2xl border-2 border-stone-100 bg-stone-50 text-stone-700 text-sm font-bold outline-none transition-all focus:bg-white focus:border-orange-200 focus:ring-4 focus:ring-orange-50`;
+  `w-full px-5 py-4 rounded-2xl border border-white/5 bg-[#1C1A17] text-white text-sm font-medium outline-none transition-all focus:border-orange-500/30 focus:bg-[#25221F] focus:ring-4 focus:ring-orange-500/5 appearance-none`;
 
 export default PromotionModal;
