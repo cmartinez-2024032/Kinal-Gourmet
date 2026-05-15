@@ -219,4 +219,4 @@ const inputClass = (error) =>
     `w-full px-5 py-4 rounded-2xl border text-sm font-medium outline-none transition-all duration-300 bg-[#1C1A17] text-white placeholder-[#6B6560] focus:ring-4 focus:ring-orange-500/5 appearance-none
     ${error 
         ? "border-red-500/30 bg-red-500/5 focus:border-red-500" 
-        : "border-white/5 focus:border-orange-500/30 focus:bg-[#25221F]"}`;
+        : "border-white/5 focus:border-orange-500/30 focus:bg-[#25221F]"}`; 
