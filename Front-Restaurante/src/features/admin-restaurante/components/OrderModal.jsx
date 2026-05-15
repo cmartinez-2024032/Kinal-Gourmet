@@ -5,13 +5,13 @@ import { useMesaStore }     from "../store/useMesaStore";
 import { useAuthStore }     from "../../auth/store/useAuthStore";
 
 const STATUS_CONFIG = {
-    PENDIENTE:      { label: "Pendiente",      badge: "bg-amber-100 text-amber-800",     sel: "bg-amber-50 text-amber-700 border-amber-400" },
-    CONFIRMADO:     { label: "Confirmado",     badge: "bg-blue-100 text-blue-800",       sel: "bg-blue-50 text-blue-700 border-blue-400" },
-    EN_PREPARACION: { label: "En preparación", badge: "bg-violet-100 text-violet-800",   sel: "bg-violet-50 text-violet-700 border-violet-400" },
-    LISTO:          { label: "Listo",          badge: "bg-emerald-100 text-emerald-800", sel: "bg-emerald-50 text-emerald-700 border-emerald-400" },
-    EN_CAMINO:      { label: "En camino",      badge: "bg-cyan-100 text-cyan-800",       sel: "bg-cyan-50 text-cyan-700 border-cyan-400" },
-    ENTREGADO:      { label: "Entregado",      badge: "bg-green-100 text-green-800",     sel: "bg-green-50 text-green-700 border-green-400" },
-    CANCELADO:      { label: "Cancelado",      badge: "bg-red-100 text-red-800",         sel: "bg-red-50 text-red-700 border-red-400" },
+    PENDIENTE:      { label: "Pendiente",      badge: "bg-amber-500/15 text-amber-300 border-amber-400/30",     sel: "bg-amber-500/15 text-amber-300 border-amber-400/50" },
+    CONFIRMADO:     { label: "Confirmado",     badge: "bg-blue-500/15 text-blue-300 border-blue-400/30",       sel: "bg-blue-500/15 text-blue-300 border-blue-400/50" },
+    EN_PREPARACION: { label: "En preparación", badge: "bg-violet-500/15 text-violet-300 border-violet-400/30", sel: "bg-violet-500/15 text-violet-300 border-violet-400/50" },
+    LISTO:          { label: "Listo",          badge: "bg-emerald-500/15 text-emerald-300 border-emerald-400/30", sel: "bg-emerald-500/15 text-emerald-300 border-emerald-400/50" },
+    EN_CAMINO:      { label: "En camino",      badge: "bg-cyan-500/15 text-cyan-300 border-cyan-400/30",       sel: "bg-cyan-500/15 text-cyan-300 border-cyan-400/50" },
+    ENTREGADO:      { label: "Entregado",      badge: "bg-green-500/15 text-green-300 border-green-400/30",    sel: "bg-green-500/15 text-green-300 border-green-400/50" },
+    CANCELADO:      { label: "Cancelado",      badge: "bg-red-500/15 text-red-300 border-red-400/30",          sel: "bg-red-500/15 text-red-300 border-red-400/50" },
 };
 
 const ORDER_TYPE_LABELS = {
@@ -52,7 +52,6 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
         details:         [{ ...EMPTY_DETAIL }],
     });
 
-    // ── Cargar platillos y mesas al abrir ──────────────────────────────────────
     useEffect(() => {
         if (!isOpen) return;
         if (!user) getProfile();
@@ -96,7 +95,6 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
     const setDetail = (i, key, val) => {
         const details = [...form.details];
         details[i]    = { ...details[i], [key]: val };
-        // Auto-rellenar precio unitario al seleccionar un platillo
         if (key === "dish") {
             const found = dishes.find(d => d._id === val);
             if (found) details[i].unitPrice = found.priceNumber ?? parseFloat(found.price?.["$numberDecimal"]) ?? 0;
@@ -110,24 +108,16 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
     const total     = form.details.reduce((s, d) => s + d.quantity * d.unitPrice, 0);
     const statusCfg = order ? STATUS_CONFIG[order.status] : null;
 
-    // Mesas disponibles para EN_MESA
     const availableTables = tables.filter(t => t.status === "AVAILABLE" || t._id === form.table);
 
-    // Clases reutilizables
-    const inputCls  = "w-full px-3.5 py-2.5 rounded-xl border-[1.5px] border-gray-200 bg-gray-50 text-sm text-gray-900 outline-none focus:border-orange-400 transition-colors placeholder:text-gray-400 disabled:opacity-60 disabled:cursor-not-allowed";
+    const inputCls  = "w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] backdrop-blur-sm text-sm text-[#F2EDE8] outline-none focus:border-orange-500/40 focus:ring-2 focus:ring-orange-500/10 focus:bg-white/[0.07] transition-all duration-200 placeholder:text-[#6B6560] disabled:opacity-40 disabled:cursor-not-allowed";
     const selectCls = `${inputCls} cursor-pointer`;
 
     const handleSave = async () => {
         setError(null);
-
-        // Validaciones básicas
-        if (form.orderType === "EN_MESA" && !form.table) {
-            return setError("Selecciona una mesa.");
-        }
+        if (form.orderType === "EN_MESA" && !form.table) return setError("Selecciona una mesa.");
         const validDetails = form.details.filter(d => d.dish);
-        if (validDetails.length === 0) {
-            return setError("Agrega al menos un platillo.");
-        }
+        if (validDetails.length === 0) return setError("Agrega al menos un platillo.");
 
         const restaurantId = user?.restaurantId ?? null;
         const payload = { ...form, details: validDetails, restaurant: restaurantId };
@@ -166,28 +156,38 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
             onClick={e => e.target === e.currentTarget && onClose()}
         >
-            <div className="bg-white rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div className="relative bg-[#1C1A17]/90 backdrop-blur-2xl border border-white/10 rounded-[32px] w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl shadow-black/60 overflow-hidden">
+
+                {/* Ambient top glow */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/4 via-transparent to-transparent pointer-events-none rounded-[32px]" />
 
                 {/* ── Header ──────────────────────────────────────────── */}
-                <div className="flex items-start justify-between px-7 pt-6 pb-4 border-b border-gray-100">
+                <div className="relative flex items-start justify-between px-7 pt-6 pb-4 border-b border-white/8">
                     <div>
-                        <h2 className="text-xl font-extrabold text-gray-900 leading-tight">
-                            {isCreate && "Nuevo Pedido"}
-                            {isEdit   && "Editar Pedido"}
-                            {isView   && `Pedido #${order?._id?.slice(-6).toUpperCase()}`}
-                            {isStatus && "Actualizar Estado"}
-                        </h2>
-                        <div className="mt-1.5 flex items-center gap-2">
+                        <div className="flex items-center gap-3 mb-1.5">
+                            <div className="w-1 h-7 rounded-full bg-gradient-to-b from-orange-400 to-orange-600 shadow-lg shadow-orange-500/40" />
+                            <h2
+                                className="text-xl font-extrabold text-[#F2EDE8] leading-tight"
+                                style={{ fontFamily: 'Syne, sans-serif' }}
+                            >
+                                {isCreate && "Nuevo Pedido"}
+                                {isEdit   && "Editar Pedido"}
+                                {isView   && `Pedido #${order?._id?.slice(-6).toUpperCase()}`}
+                                {isStatus && "Actualizar Estado"}
+                            </h2>
+                        </div>
+                        <div className="pl-4 flex items-center gap-2">
                             {(isCreate || isEdit) && (
-                                <span className="text-[10px] font-bold tracking-widest text-gray-400">
-                                    GESTIÓN DE PEDIDOS
+                                <span className="text-[10px] font-black tracking-widest text-[#6B6560] uppercase">
+                                    Gestión de Pedidos
                                 </span>
                             )}
                             {(isView || isStatus) && statusCfg && (
-                                <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${statusCfg.badge}`}>
+                                <span className={`text-[10px] font-black px-3 py-1 rounded-full border backdrop-blur-sm uppercase tracking-wider ${statusCfg.badge}`}>
                                     {statusCfg.label}
                                 </span>
                             )}
@@ -195,7 +195,9 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors text-sm font-bold flex-shrink-0"
+                        className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/[0.06] border border-white/10
+                            text-[#A09890] hover:bg-white/[0.12] hover:text-[#F2EDE8] hover:border-white/20
+                            transition-all duration-200 text-sm font-bold flex-shrink-0"
                     >
                         ✕
                     </button>
@@ -203,15 +205,15 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
 
                 {/* ── Tabs ────────────────────────────────────────────── */}
                 {!isCreate && !isStatus && (
-                    <div className="flex gap-1 px-7 border-b border-gray-100">
+                    <div className="relative flex gap-1 px-6 pt-2 border-b border-white/8">
                         {TABS.map(t => (
                             <button
                                 key={t.key}
                                 onClick={() => setActiveTab(t.key)}
-                                className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
+                                className={`px-4 py-2.5 text-[11px] font-black uppercase tracking-widest border-b-2 transition-all duration-200 ${
                                     activeTab === t.key
-                                        ? "border-orange-500 text-orange-500"
-                                        : "border-transparent text-gray-400 hover:text-gray-600"
+                                        ? "border-orange-500 text-orange-400"
+                                        : "border-transparent text-[#6B6560] hover:text-[#A09890]"
                                 }`}
                             >
                                 {t.label}
@@ -221,15 +223,19 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                 )}
 
                 {/* ── Body ────────────────────────────────────────────── */}
-                <div className="flex-1 overflow-y-auto px-7 py-5 space-y-4">
+                <div className="relative flex-1 overflow-y-auto px-7 py-5 space-y-4
+                    [&::-webkit-scrollbar]:w-1.5
+                    [&::-webkit-scrollbar-track]:bg-transparent
+                    [&::-webkit-scrollbar-thumb]:bg-white/10
+                    [&::-webkit-scrollbar-thumb]:rounded-full">
 
                     {/* ══ TAB: Información ══════════════════════════════ */}
                     {(activeTab === "info" || isCreate) && !isStatus && (
                         <>
                             {/* Tipo de orden */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-bold tracking-widest text-gray-400">
-                                    TIPO DE ORDEN
+                                <label className="text-[10px] font-black tracking-widest text-[#6B6560] uppercase">
+                                    Tipo de Orden
                                 </label>
                                 <div className="flex gap-2 flex-wrap">
                                     {Object.entries(ORDER_TYPE_LABELS).map(([val, lbl]) => (
@@ -237,10 +243,10 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                                             key={val}
                                             onClick={() => canEdit && setField("orderType", val)}
                                             disabled={isView}
-                                            className={`px-4 py-2 rounded-xl border-[1.5px] text-sm font-medium transition-all ${
+                                            className={`px-4 py-2 rounded-xl border text-sm font-bold transition-all duration-200 ${
                                                 form.orderType === val
-                                                    ? "border-orange-400 bg-orange-50 text-orange-500"
-                                                    : "border-gray-200 text-gray-500 hover:border-gray-300 disabled:cursor-default"
+                                                    ? "border-orange-500/50 bg-orange-500/15 text-orange-300 shadow-lg shadow-orange-500/10"
+                                                    : "border-white/8 bg-white/[0.04] text-[#A09890] hover:border-white/20 hover:text-[#F2EDE8] disabled:cursor-default"
                                             }`}
                                         >
                                             {lbl}
@@ -252,11 +258,11 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                             {/* ── Selector de Mesa ── */}
                             {form.orderType === "EN_MESA" && (
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] font-bold tracking-widest text-gray-400">
-                                        MESA
+                                    <label className="text-[10px] font-black tracking-widest text-[#6B6560] uppercase">
+                                        Mesa
                                     </label>
                                     {loadingTables ? (
-                                        <p className="text-xs text-gray-400 py-2">Cargando mesas...</p>
+                                        <p className="text-xs text-[#6B6560] py-2">Cargando mesas...</p>
                                     ) : (
                                         <select
                                             className={selectCls}
@@ -275,7 +281,7 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                                         </select>
                                     )}
                                     {!loadingTables && availableTables.length === 0 && (
-                                        <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-2 rounded-xl">
+                                        <p className="text-xs text-amber-300 bg-amber-500/10 border border-amber-400/20 px-4 py-2.5 rounded-xl">
                                             ⚠ No hay mesas disponibles en este momento.
                                         </p>
                                     )}
@@ -285,8 +291,8 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                             {/* ── Dirección de domicilio ── */}
                             {form.orderType === "DOMICILIO" && (
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] font-bold tracking-widest text-gray-400">
-                                        DIRECCIÓN DE ENTREGA
+                                    <label className="text-[10px] font-black tracking-widest text-[#6B6560] uppercase">
+                                        Dirección de Entrega
                                     </label>
                                     <div className="grid grid-cols-2 gap-2.5">
                                         {[
@@ -318,8 +324,8 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
 
                             {/* Notas */}
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold tracking-widest text-gray-400">
-                                    NOTAS
+                                <label className="text-[10px] font-black tracking-widest text-[#6B6560] uppercase">
+                                    Notas
                                 </label>
                                 <textarea
                                     className={`${inputCls} h-20 resize-none`}
@@ -333,8 +339,8 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                             {/* Cupón */}
                             {canEdit && (
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] font-bold tracking-widest text-gray-400">
-                                        CUPÓN (OPCIONAL)
+                                    <label className="text-[10px] font-black tracking-widest text-[#6B6560] uppercase">
+                                        Cupón (Opcional)
                                     </label>
                                     <input
                                         className={inputCls}
@@ -347,12 +353,12 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
 
                             {/* Info cliente (solo vista) */}
                             {isView && order?.userInfo && (
-                                <div className="bg-gray-50 rounded-xl p-3.5 border border-gray-100">
-                                    <p className="text-[10px] font-bold tracking-widest text-gray-400 mb-1">
-                                        CLIENTE
+                                <div className="bg-white/[0.04] backdrop-blur-sm rounded-2xl p-4 border border-white/8">
+                                    <p className="text-[10px] font-black tracking-widest text-[#6B6560] uppercase mb-2">
+                                        Cliente
                                     </p>
-                                    <p className="text-sm font-semibold text-gray-800">{order.userInfo.name}</p>
-                                    <p className="text-xs text-gray-400">{order.userInfo.email}</p>
+                                    <p className="text-sm font-bold text-[#F2EDE8]">{order.userInfo.name}</p>
+                                    <p className="text-xs text-[#6B6560] mt-0.5">{order.userInfo.email}</p>
                                 </div>
                             )}
                         </>
@@ -362,13 +368,15 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                     {(activeTab === "items" || isCreate) && !isStatus && (
                         <>
                             <div className="flex items-center justify-between">
-                                <label className="text-[10px] font-bold tracking-widest text-gray-400">
-                                    PLATILLOS
+                                <label className="text-[10px] font-black tracking-widest text-[#6B6560] uppercase">
+                                    Platillos
                                 </label>
                                 {canEdit && (
                                     <button
                                         onClick={addDetail}
-                                        className="text-xs font-bold text-orange-500 bg-orange-50 border border-orange-200 px-3 py-1 rounded-lg hover:bg-orange-100 transition-colors"
+                                        className="text-[11px] font-black text-orange-400 bg-orange-500/10 border border-orange-500/20
+                                            px-3.5 py-1.5 rounded-xl hover:bg-orange-500/20 hover:border-orange-500/40
+                                            transition-all duration-200 uppercase tracking-wider"
                                     >
                                         + Agregar platillo
                                     </button>
@@ -376,16 +384,17 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                             </div>
 
                             {loadingDishes && (
-                                <p className="text-xs text-gray-400 py-2">Cargando platillos...</p>
+                                <p className="text-xs text-[#6B6560] py-2">Cargando platillos...</p>
                             )}
 
-                            <div className="space-y-2.5">
+                            <div className="space-y-3">
                                 {form.details.map((d, i) => {
                                     const selectedDish = dishes.find(dish => dish._id === d.dish);
                                     return (
                                         <div
                                             key={i}
-                                            className="bg-gray-50 rounded-xl p-3.5 border border-gray-100 space-y-2"
+                                            className="bg-white/[0.04] backdrop-blur-sm rounded-2xl p-4 border border-white/8 space-y-3
+                                                hover:border-white/12 transition-all duration-200"
                                         >
                                             {/* Selector de platillo */}
                                             {canEdit ? (
@@ -403,10 +412,10 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                                                     ))}
                                                 </select>
                                             ) : (
-                                                <p className="text-sm font-semibold text-gray-800">
+                                                <p className="text-sm font-bold text-[#F2EDE8]">
                                                     {selectedDish?.name || d.dish}
                                                     {selectedDish?.category && (
-                                                        <span className="ml-2 text-xs font-normal text-gray-400">
+                                                        <span className="ml-2 text-xs font-normal text-[#6B6560]">
                                                             {selectedDish.category}
                                                         </span>
                                                     )}
@@ -415,36 +424,37 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
 
                                             {/* Cantidad · Precio · Subtotal */}
                                             <div className="grid grid-cols-[1fr_1fr_auto] items-center gap-2">
-                                                <div className="space-y-0.5">
-                                                    <p className="text-[10px] font-bold tracking-widest text-gray-400">
-                                                        CANTIDAD
+                                                <div className="space-y-1">
+                                                    <p className="text-[10px] font-black tracking-widest text-[#6B6560] uppercase">
+                                                        Cantidad
                                                     </p>
                                                     <input
                                                         type="number"
                                                         min="1"
-                                                        className={`${inputCls} bg-white`}
+                                                        className={inputCls}
                                                         value={d.quantity}
                                                         onChange={e => setDetail(i, "quantity", Math.max(1, Number(e.target.value)))}
                                                         disabled={isView}
                                                     />
                                                 </div>
-                                                <div className="space-y-0.5">
-                                                    <p className="text-[10px] font-bold tracking-widest text-gray-400">
-                                                        PRECIO UNIT.
+                                                <div className="space-y-1">
+                                                    <p className="text-[10px] font-black tracking-widest text-[#6B6560] uppercase">
+                                                        Precio Unit.
                                                     </p>
                                                     <input
                                                         type="number"
                                                         min="0"
                                                         step="0.01"
-                                                        className={`${inputCls} bg-white`}
+                                                        className={inputCls}
                                                         value={d.unitPrice}
                                                         onChange={e => setDetail(i, "unitPrice", parseFloat(e.target.value) || 0)}
                                                         disabled={isView}
                                                     />
                                                 </div>
-                                                <div className="text-right pt-4">
-                                                    <span className="text-sm font-bold text-gray-700">
-                                                        Q{(d.quantity * d.unitPrice).toFixed(2)}
+                                                <div className="text-right pt-5">
+                                                    <span className="text-sm font-extrabold text-[#F2EDE8]">
+                                                        <span className="text-orange-400 text-xs mr-0.5">Q</span>
+                                                        {(d.quantity * d.unitPrice).toFixed(2)}
                                                     </span>
                                                 </div>
                                             </div>
@@ -452,7 +462,7 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                                             {/* Instrucciones especiales + botón eliminar */}
                                             <div className="flex items-center gap-2">
                                                 <input
-                                                    className={`${inputCls} bg-white flex-1`}
+                                                    className={`${inputCls} flex-1`}
                                                     value={d.specialInstructions}
                                                     onChange={e => setDetail(i, "specialInstructions", e.target.value)}
                                                     disabled={isView}
@@ -461,7 +471,10 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                                                 {canEdit && form.details.length > 1 && (
                                                     <button
                                                         onClick={() => removeDetail(i)}
-                                                        className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-red-50 text-red-400 hover:bg-red-100 text-xs font-bold transition-colors"
+                                                        className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl
+                                                            bg-red-500/10 border border-red-400/20 text-red-400
+                                                            hover:bg-red-500/20 hover:border-red-400/40
+                                                            text-xs font-bold transition-all duration-200"
                                                     >
                                                         ✕
                                                     </button>
@@ -473,10 +486,13 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                             </div>
 
                             {/* Total */}
-                            <div className="flex items-center justify-between pt-3 border-t border-dashed border-gray-200">
-                                <span className="text-sm text-gray-500">Total estimado</span>
-                                <span className="text-2xl font-extrabold text-orange-500">
-                                    Q{total.toFixed(2)}
+                            <div className="flex items-center justify-between pt-4 border-t border-dashed border-white/10">
+                                <span className="text-sm font-bold text-[#6B6560] uppercase tracking-widest text-[11px]">
+                                    Total estimado
+                                </span>
+                                <span className="text-2xl font-extrabold text-[#F2EDE8]" style={{ fontFamily: 'Syne, sans-serif' }}>
+                                    <span className="text-orange-400 text-sm mr-1">Q</span>
+                                    {total.toFixed(2)}
                                 </span>
                             </div>
                         </>
@@ -487,11 +503,11 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                         <>
                             {/* Estado actual */}
                             {order && statusCfg && (
-                                <div className="bg-gray-50 rounded-xl p-3.5 border border-gray-100">
-                                    <p className="text-[10px] font-bold tracking-widest text-gray-400 mb-2">
-                                        ESTADO ACTUAL
+                                <div className="bg-white/[0.04] backdrop-blur-sm rounded-2xl p-4 border border-white/8">
+                                    <p className="text-[10px] font-black tracking-widest text-[#6B6560] uppercase mb-2.5">
+                                        Estado Actual
                                     </p>
-                                    <span className={`text-sm font-bold px-3 py-1 rounded-full ${statusCfg.badge}`}>
+                                    <span className={`text-[11px] font-black px-3.5 py-1.5 rounded-xl border uppercase tracking-wider backdrop-blur-sm ${statusCfg.badge}`}>
                                         {statusCfg.label}
                                     </span>
                                 </div>
@@ -500,8 +516,8 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                             {/* Selector de nuevo estado */}
                             {!isView && (
                                 <>
-                                    <label className="text-[10px] font-bold tracking-widest text-gray-400 block">
-                                        CAMBIAR A
+                                    <label className="text-[10px] font-black tracking-widest text-[#6B6560] uppercase block">
+                                        Cambiar a
                                     </label>
                                     <div className="grid grid-cols-3 gap-2">
                                         {VALID_STATUSES.map(s => {
@@ -511,10 +527,10 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                                                 <button
                                                     key={s}
                                                     onClick={() => setSelectedStatus(s)}
-                                                    className={`py-2.5 px-2 rounded-xl border-[1.5px] text-xs font-semibold transition-all ${
+                                                    className={`py-2.5 px-2 rounded-xl border text-[11px] font-black uppercase tracking-wider transition-all duration-200 ${
                                                         isSelected
-                                                            ? cfg.sel
-                                                            : "border-gray-200 text-gray-500 hover:border-gray-300"
+                                                            ? `${cfg.sel} shadow-lg scale-[1.03]`
+                                                            : "border-white/8 bg-white/[0.03] text-[#6B6560] hover:border-white/20 hover:text-[#A09890]"
                                                     }`}
                                                 >
                                                     {cfg.label}
@@ -529,33 +545,38 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                             {!isView &&
                              order?.status !== "CANCELADO" &&
                              order?.status !== "ENTREGADO" && (
-                                <div className="pt-4 border-t border-gray-100 space-y-3">
-                                    <p className="text-[10px] font-bold tracking-widest text-red-400">
-                                        ZONA DE PELIGRO
+                                <div className="pt-4 border-t border-white/8 space-y-3">
+                                    <p className="text-[10px] font-black tracking-widest text-red-400 uppercase">
+                                        Zona de Peligro
                                     </p>
                                     {!confirmCancel ? (
                                         <button
                                             onClick={() => setConfirmCancel(true)}
-                                            className="px-4 py-2 rounded-xl border-[1.5px] border-red-200 text-red-500 text-sm font-semibold hover:bg-red-50 transition-colors"
+                                            className="px-4 py-2.5 rounded-xl border border-red-400/25 bg-red-500/8
+                                                text-red-400 text-sm font-bold hover:bg-red-500/15 hover:border-red-400/40
+                                                transition-all duration-200"
                                         >
                                             Cancelar este pedido
                                         </button>
                                     ) : (
-                                        <div className="bg-red-50 rounded-xl p-4 border border-red-200 space-y-3">
-                                            <p className="text-sm text-gray-700">
+                                        <div className="bg-red-500/8 backdrop-blur-sm rounded-2xl p-4 border border-red-400/20 space-y-3">
+                                            <p className="text-sm text-[#A09890]">
                                                 ¿Confirmar cancelación? Esta acción no se puede deshacer.
                                             </p>
                                             <div className="flex gap-2">
                                                 <button
                                                     onClick={handleCancel}
                                                     disabled={loading}
-                                                    className="px-4 py-2 bg-red-500 text-white rounded-xl text-sm font-semibold hover:bg-red-600 transition-colors disabled:opacity-60"
+                                                    className="px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl text-sm font-bold
+                                                        hover:from-red-400 hover:to-red-500 shadow-lg shadow-red-500/20
+                                                        transition-all duration-200 disabled:opacity-50"
                                                 >
                                                     {loading ? "Cancelando..." : "Sí, cancelar"}
                                                 </button>
                                                 <button
                                                     onClick={() => setConfirmCancel(false)}
-                                                    className="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-sm font-semibold hover:bg-gray-200 transition-colors"
+                                                    className="px-4 py-2.5 bg-white/[0.06] border border-white/10 text-[#A09890] rounded-xl text-sm font-bold
+                                                        hover:bg-white/[0.10] hover:text-[#F2EDE8] transition-all duration-200"
                                                 >
                                                     No, volver
                                                 </button>
@@ -568,44 +589,49 @@ export const OrderModal = ({ isOpen, onClose, order = null, mode = "view" }) => 
                     )}
 
                     {/* Mensajes */}
-                    {error   && (
-                        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-2.5">
+                    {error && (
+                        <p className="text-sm text-red-300 bg-red-500/10 border border-red-400/20 rounded-xl px-4 py-3 backdrop-blur-sm">
                             ⚠ {error}
                         </p>
                     )}
                     {success && (
-                        <p className="text-sm text-green-700 font-semibold bg-green-50 border border-green-200 rounded-xl px-4 py-2.5">
+                        <p className="text-sm text-emerald-300 font-bold bg-emerald-500/10 border border-emerald-400/20 rounded-xl px-4 py-3 backdrop-blur-sm">
                             {success}
                         </p>
                     )}
                 </div>
 
                 {/* ── Footer ──────────────────────────────────────────── */}
-                <div className="flex items-center justify-end gap-2.5 px-7 py-4 border-t border-gray-100">
+                <div className="relative flex items-center justify-end gap-2.5 px-7 py-4 border-t border-white/8">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-white/8 to-transparent" />
                     <button
                         onClick={onClose}
-                        className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200 transition-colors"
+                        className="px-5 py-2.5 bg-white/[0.06] border border-white/10 text-[#A09890] rounded-xl text-sm font-bold
+                            hover:bg-white/[0.10] hover:text-[#F2EDE8] hover:border-white/20
+                            transition-all duration-200"
                     >
                         Cerrar
                     </button>
 
-                    {/* Solo crear o editar info/platillos — NO en tab estado */}
                     {canEdit && activeTab !== "status" && (
                         <button
                             onClick={handleSave}
                             disabled={loading}
-                            className="px-5 py-2.5 bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-xl text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-60"
+                            className="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl text-sm font-bold
+                                hover:from-orange-400 hover:to-orange-500 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40
+                                transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? "Guardando..." : isCreate ? "Crear Pedido" : "Guardar Cambios"}
                         </button>
                     )}
 
-                    {/* Solo en tab estado o modo status */}
                     {showStatusActions && (
                         <button
                             onClick={handleStatusUpdate}
                             disabled={loading}
-                            className="px-5 py-2.5 bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-xl text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-60"
+                            className="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl text-sm font-bold
+                                hover:from-orange-400 hover:to-orange-500 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40
+                                transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? "Actualizando..." : "Actualizar Estado"}
                         </button>
