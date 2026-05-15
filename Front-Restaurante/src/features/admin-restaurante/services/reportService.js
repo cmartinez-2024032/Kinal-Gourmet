@@ -1,17 +1,15 @@
 import { axiosRestaurante } from "../../../shared/api/api";
 
-// Descargar reporte de ventas en Excel
-export const downloadSalesReportRequest = async (startDate, endDate) => {
-    const response = await axiosRestaurante.get(
-        "/kinalGourmetHouse/v1/reports/sales/excel",
-        {
-            params: {
-                startDate,
-                endDate
-            },
-            responseType: "blob"
-        }
-    );
-
-    return response;
+export const downloadSalesReportRequest = (startDate, endDate) => {
+    return api.get("/reports/sales/excel", {
+        params: { startDate, endDate },
+        responseType: "arraybuffer",
+    });
 };
+ 
+export const getSalesReportRequest = (startDate, endDate) => {
+    return api.get("/reports/sales", {
+        params: { startDate, endDate },
+    });
+};
+ 
