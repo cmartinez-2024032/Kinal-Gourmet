@@ -93,35 +93,35 @@ export const PlatilloModal = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[2000] p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-[2000] p-4 animate-in fade-in duration-300 overflow-y-auto">
       <div
-        className="bg-[#181714] border border-[#33302B] rounded-2xl w-full max-w-2xl shadow-2xl my-auto overflow-hidden"
+        className="bg-[#1C1A17] border border-white/10 rounded-[40px] w-full max-w-2xl shadow-[0_0_100px_rgba(0,0,0,0.5)] my-auto overflow-hidden relative"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-7 py-5 border-b border-[#33302B] bg-[#1C1A17]">
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-orange-600/10 blur-[80px] pointer-events-none" />
+
+        <div className="flex items-center justify-between px-10 py-8 border-b border-white/5 relative z-10">
           <div>
-            <h2 className="text-lg font-bold text-[#F2EDE8]" style={{ fontFamily: 'Syne, sans-serif' }}>
+            <h2 className="text-2xl font-black text-white" style={{ fontFamily: 'Syne, sans-serif' }}>
               {isEditing ? "Editar Platillo" : "Nuevo Platillo"}
             </h2>
-            <p className="text-[10px] text-[#6B6560] font-semibold uppercase tracking-widest mt-0.5">
-              Configuración del Menú
+            <p className="text-[10px] text-orange-500 font-black uppercase tracking-[0.2em] mt-1">
+              {isEditing ? `ID: ${selectedDish._id.slice(-6)}` : "Configuración del Menú"}
             </p>
           </div>
           <button
             onClick={closeModal}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-[#211F1C] border border-[#33302B]
-              text-[#6B6560] hover:text-red-400 hover:border-red-500/30 transition-colors text-sm"
+            className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10
+              text-[#6B6560] hover:text-white hover:bg-red-500 transition-all duration-300"
           >
             ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-7 space-y-5">
+        <form onSubmit={handleSubmit} className="p-10 space-y-8 relative z-10">
 
-          {/* Nombre y Precio */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="md:col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="md:col-span-3">
               <Field label="Nombre del Platillo" error={errors.name} required>
                 <input name="name" value={form.name} onChange={handleChange}
                   placeholder="Ej. Lasaña de Carne" className={inputClass(errors.name)} />
@@ -135,41 +135,39 @@ export const PlatilloModal = () => {
 
           <Field label="Descripción" error={errors.description} required>
             <textarea name="description" value={form.description} onChange={handleChange}
-              rows={2} placeholder="Describe los sabores..."
+              rows={3} placeholder="Describe los sabores, texturas y detalles únicos..."
               className={`${inputClass(errors.description)} resize-none`} />
           </Field>
 
-          {/* Clasificación */}
-          <div className="bg-[#211F1C] border border-[#33302B] rounded-xl p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Field label="Tipo">
               <select name="type" value={form.type} onChange={handleChange} className={inputClass()}>
-                <option value="ENTRADA">Entrada</option>
-                <option value="PLATO_FUERTE">Plato fuerte</option>
-                <option value="POSTRE">Postre</option>
-                <option value="BEBIDA">Bebida</option>
+                <option className="bg-[#1C1A17] text-white" value="ENTRADA">Entrada</option>
+                <option className="bg-[#1C1A17] text-white" value="PLATO_FUERTE">Plato fuerte</option>
+                <option className="bg-[#1C1A17] text-white" value="POSTRE">Postre</option>
+                <option className="bg-[#1C1A17] text-white" value="BEBIDA">Bebida</option>
               </select>
             </Field>
             <Field label="Categoría">
               <select name="category" value={form.category} onChange={handleChange} className={inputClass()}>
-                <option value="NINGUNA">Ninguna</option>
-                <option value="VEGETARIANO">Vegetariano</option>
-                <option value="VEGANO">Vegano</option>
-                <option value="SIN_GLUTEN">Sin gluten</option>
-                <option value="PICANTE">Picante</option>
+                <option className="bg-[#1C1A17] text-white" value="NINGUNA">Ninguna</option>
+                <option className="bg-[#1C1A17] text-white" value="VEGETARIANO">Vegetariano</option>
+                <option className="bg-[#1C1A17] text-white" value="VEGANO">Vegano</option>
+                <option className="bg-[#1C1A17] text-white" value="SIN_GLUTEN">Sin gluten</option>
+                <option className="bg-[#1C1A17] text-white" value="PICANTE">Picante</option>
               </select>
             </Field>
             <Field label="Nivel Picante">
               <select name="spicyLevel" value={form.spicyLevel} onChange={handleChange} className={inputClass()}>
-                <option value="NINGUNO">Ninguno</option>
-                <option value="SUAVE">Suave 🌶️</option>
-                <option value="MEDIO">Medio 🌶️🌶️</option>
-                <option value="PICANTE">Picante 🌶️🌶️🌶️</option>
+                <option className="bg-[#1C1A17] text-white" value="NINGUNO">Ninguno</option>
+                <option className="bg-[#1C1A17] text-white" value="SUAVE">Suave 🌶️</option>
+                <option className="bg-[#1C1A17] text-white" value="MEDIO">Medio 🌶️🌶️</option>
+                <option className="bg-[#1C1A17] text-white" value="PICANTE">Picante 🌶️🌶️🌶️</option>
               </select>
             </Field>
           </div>
 
-          {/* Ingredientes y Tiempo */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="md:col-span-3">
               <Field label="Ingredientes (separados por coma)" error={errors.ingredients} required>
                 <input name="ingredients" value={form.ingredients} onChange={handleChange}
@@ -182,59 +180,60 @@ export const PlatilloModal = () => {
             </Field>
           </div>
 
-          {/* Imagen y Disponibilidad */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="h-32 rounded-xl border-2 border-dashed border-[#33302B] flex flex-col items-center
-                justify-center gap-2 hover:border-orange-500/40 hover:bg-orange-500/5 transition-all cursor-pointer
+              className="h-40 rounded-3xl border-2 border-dashed border-white/10 flex flex-col items-center
+                justify-center gap-3 hover:border-orange-500/40 hover:bg-orange-500/5 transition-all cursor-pointer
                 overflow-hidden relative group"
             >
               {imagePreview ? (
                 <>
-                  <img src={imagePreview} className="w-full h-full object-cover" alt="preview" />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                    <span className="text-white text-[10px] font-bold uppercase tracking-wider">Cambiar imagen</span>
+                  <img src={imagePreview} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="preview" />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all backdrop-blur-sm">
+                    <span className="text-white text-[10px] font-black uppercase tracking-widest bg-orange-600 px-4 py-2 rounded-full">Cambiar imagen</span>
                   </div>
                 </>
               ) : (
                 <div className="text-center">
-                  <span className="text-2xl block mb-1">🖼️</span>
-                  <span className="text-[10px] font-bold text-[#6B6560] uppercase tracking-wider">Subir foto</span>
+                  <span className="text-3xl block mb-2 opacity-50">🖼️</span>
+                  <span className="text-[10px] font-black text-[#6B6560] uppercase tracking-widest">Subir Fotografía</span>
                 </div>
               )}
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
             </div>
 
             <div className="flex flex-col justify-center">
-              <label className="flex items-center justify-between p-4 rounded-xl bg-[#211F1C] border border-[#33302B] cursor-pointer hover:border-orange-500/30 transition-colors">
+              <label className="group flex items-center justify-between p-6 rounded-3xl bg-white/[0.02] border border-white/5 cursor-pointer hover:border-orange-500/30 transition-all duration-300">
                 <div>
-                  <p className="text-sm font-semibold text-[#F2EDE8]">Disponible</p>
-                  <p className="text-xs text-[#6B6560] mt-0.5">Mostrar en el menú</p>
+                  <p className="text-sm font-black text-white group-hover:text-orange-400 transition-colors">Estado de Venta</p>
+                  <p className="text-[11px] text-[#A09890] mt-1 font-medium">Visible en el menú público</p>
                 </div>
-                <input
-                  type="checkbox" name="isAvailable" checked={form.isAvailable}
-                  onChange={handleChange} className="w-5 h-5 rounded accent-orange-500"
-                />
+                <div className="relative">
+                  <input
+                    type="checkbox" name="isAvailable" checked={form.isAvailable}
+                    onChange={handleChange} className="sr-only peer"
+                  />
+                  <div className="w-12 h-6 bg-white/10 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+                </div>
               </label>
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="flex justify-end gap-3 pt-2 border-t border-[#33302B]">
+          <div className="flex justify-end gap-4 pt-6 border-t border-white/5">
             <button
               type="button" onClick={closeModal}
-              className="px-6 py-2.5 rounded-xl text-sm font-semibold text-[#A09890]
-                hover:bg-[#211F1C] border border-transparent hover:border-[#33302B] transition-all"
+              className="px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-[#6B6560]
+                hover:text-white transition-all"
             >
-              Cancelar
+              Cerrar
             </button>
             <button
               type="submit"
-              className="px-8 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-white
-                font-bold text-sm transition-all hover:-translate-y-0.5 shadow-lg shadow-orange-500/20"
+              className="px-10 py-4 rounded-2xl bg-white text-black hover:bg-orange-500 hover:text-white
+                font-black text-xs uppercase tracking-widest transition-all hover:-translate-y-1 shadow-xl hover:shadow-orange-500/20 active:scale-95"
             >
-              {isEditing ? "Actualizar" : "Guardar"}
+              {isEditing ? "Guardar Cambios" : "Crear Platillo"}
             </button>
           </div>
         </form>
@@ -244,18 +243,18 @@ export const PlatilloModal = () => {
 };
 
 const Field = ({ label, children, error, required }) => (
-  <div className="flex flex-col gap-1.5">
-    <label className="text-[10px] font-bold text-[#6B6560] uppercase tracking-widest">
+  <div className="flex flex-col gap-2">
+    <label className="text-[10px] font-black text-[#6B6560] uppercase tracking-[0.15em] ml-1">
       {label} {required && <span className="text-orange-500">*</span>}
     </label>
     {children}
-    {error && <p className="text-[10px] font-semibold text-red-400">✕ {error}</p>}
+    {error && <p className="text-[10px] font-bold text-red-500 animate-pulse ml-1">✕ {error}</p>}
   </div>
 );
 
 const inputClass = (error) =>
-  `w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-all bg-[#211F1C] text-[#F2EDE8]
-   placeholder-[#6B6560] focus:ring-2 focus:ring-orange-500/10
+  `w-full px-5 py-4 rounded-2xl border text-sm font-medium outline-none transition-all bg-[#1C1A17] text-white
+   placeholder-[#6B6560] focus:ring-4 focus:ring-orange-500/5 appearance-none
    ${error
      ? "border-red-500/30 bg-red-500/5 text-red-400"
-     : "border-[#33302B] focus:border-orange-500/40"}`;
+     : "border-white/5 focus:border-orange-500/30 focus:bg-[#25221F]"}`;  
