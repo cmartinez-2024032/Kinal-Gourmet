@@ -12,7 +12,6 @@ export const getSalesReport = async (req, res) => {
     try {
         let { restaurantId, startDate, endDate, groupBy = 'day' } = req.query;
 
-        // ADMIN_RESTAURANTE solo puede ver reportes de su restaurante
         if (req.user && req.user.role === 'ADMIN_RESTAURANTE') {
             restaurantId = req.user.restaurantId;
         }
@@ -24,12 +23,13 @@ export const getSalesReport = async (req, res) => {
             });
         }
 
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+
         const filter = {
-            createdAt: {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate)
-            },
-            status: 'ENTREGADO'
+            createdAt: { $gte: start, $lte: end },
+            status: { $in: ['ENTREGADO', 'LISTO', 'EN_CAMINO'] }
         };
 
         if (restaurantId) {
@@ -116,14 +116,14 @@ export const getTopDishes = async (req, res) => {
         }
 
         const matchFilter = {
-            status: 'ENTREGADO'
+            status: { $in: ['ENTREGADO', 'LISTO', 'EN_CAMINO'] }
         };
 
         if (startDate && endDate) {
-            matchFilter.createdAt = {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate)
-            };
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            matchFilter.createdAt = { $gte: start, $lte: end };
         }
 
         if (restaurantId) {
@@ -185,7 +185,6 @@ export const getSalesReportExcel = async (req, res) => {
     try {
         let { restaurantId, startDate, endDate, groupBy = 'day' } = req.query;
 
-        
         if (req.user && req.user.role === 'ADMIN_RESTAURANTE') {
             restaurantId = req.user.restaurantId;
         }
@@ -197,12 +196,13 @@ export const getSalesReportExcel = async (req, res) => {
             });
         }
 
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+
         const filter = {
-            createdAt: {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate)
-            },
-            status: 'ENTREGADO'
+            createdAt: { $gte: start, $lte: end },
+            status: { $in: ['ENTREGADO', 'LISTO', 'EN_CAMINO'] }
         };
 
         if (restaurantId) {
@@ -245,12 +245,10 @@ export const getSalesReportExcel = async (req, res) => {
 
         const workbook = await buildSalesExcel(salesData);
 
-        // Descargar
         res.setHeader(
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         );
-
         res.setHeader(
             'Content-Disposition',
             'attachment; filename=reporte_ventas.xlsx'
@@ -279,10 +277,10 @@ export const getPeakHours = async (req, res) => {
         }
 
         if (startDate && endDate) {
-            filter.createdAt = {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate)
-            };
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            filter.createdAt = { $gte: start, $lte: end };
         }
 
         if (restaurantId) {
@@ -334,10 +332,10 @@ export const getReservationStats = async (req, res) => {
         }
 
         if (startDate && endDate) {
-            filter.date = {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate)
-            };
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            filter.date = { $gte: start, $lte: end };
         }
 
         if (restaurantId) {
@@ -385,10 +383,10 @@ export const getCustomerSatisfactionReport = async (req, res) => {
         }
 
         if (startDate && endDate) {
-            filter.date = {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate)
-            };
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            filter.date = { $gte: start, $lte: end };
         }
 
         if (restaurantId) {
@@ -402,9 +400,7 @@ export const getCustomerSatisfactionReport = async (req, res) => {
                     _id: '$restaurant',
                     averageRating: { $avg: '$rating' },
                     totalReviews: { $sum: 1 },
-                    ratings: {
-                        $push: '$rating'
-                    }
+                    ratings: { $push: '$rating' }
                 }
             },
             {
@@ -438,7 +434,7 @@ export const getCustomerSatisfactionReport = async (req, res) => {
                     ...(startDate && endDate && {
                         createdAt: {
                             $gte: new Date(startDate),
-                            $lte: new Date(endDate)
+                            $lte: (() => { const e = new Date(endDate); e.setHours(23,59,59,999); return e; })()
                         }
                     })
                 }
@@ -502,7 +498,7 @@ export const getRestaurantDashboard = async (req, res) => {
                 $match: {
                     restaurant: new mongoose.Types.ObjectId(restaurantId),
                     createdAt: { $gte: today, $lt: tomorrow },
-                    status: 'ENTREGADO'
+                    status: { $in: ['ENTREGADO', 'LISTO', 'EN_CAMINO'] }
                 }
             },
             {
@@ -523,7 +519,7 @@ export const getRestaurantDashboard = async (req, res) => {
             { $match: { restaurant: new mongoose.Types.ObjectId(restaurantId) } },
             { $group: { _id: null, avgRating: { $avg: '$rating' } } }
         ]);
-        
+
         const activeOrders = await Order.countDocuments({
             restaurant: restaurantId,
             status: { $in: ['PENDIENTE', 'CONFIRMADO', 'EN_PREPARACION'] }

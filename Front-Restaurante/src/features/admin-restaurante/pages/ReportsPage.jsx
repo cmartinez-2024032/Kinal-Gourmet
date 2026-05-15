@@ -11,9 +11,11 @@ export const ReportsPage = () => {
 
     const { downloadSalesReport, loading } = useReportStore();
 
+    const today = new Date().toISOString().split('T')[0]; // "2025-05-14"
+
     const [filters, setFilters] = useState({
-        startDate: "",
-        endDate: ""
+        startDate: today,
+        endDate: today
     });
 
     const handleChange = (e) => {
