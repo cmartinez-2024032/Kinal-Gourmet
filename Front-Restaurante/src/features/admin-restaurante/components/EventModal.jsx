@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useEventStore } from "../store/useEventStore";
-import { TrashIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 const emptyForm = {
     name: "",
@@ -81,6 +81,7 @@ export const EventModal = () => {
             ...form,
             capacity: Number(form.capacity),
             restaurant: restaurantId,
+            additionalServices: form.additionalServices ? form.additionalServices.split(",").map(s => s.trim()) : []
         };
 
         try {
@@ -97,42 +98,44 @@ export const EventModal = () => {
 
     return (
         <div 
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 transition-all"
+            className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-[2000] p-4 animate-in fade-in duration-300 overflow-y-auto"
             onClick={closeModal}
         >
             <div 
-                className="bg-white rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100 animate-in fade-in zoom-in duration-200"
+                className="bg-[#1C1A17] border border-white/10 rounded-[40px] w-full max-w-2xl shadow-[0_0_100px_rgba(0,0,0,0.5)] my-auto relative overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Header Elegante */}
-                <div className="flex items-center justify-between px-8 py-6 border-b border-gray-50">
+                <div className="absolute -top-24 -right-24 w-48 h-48 bg-orange-600/10 blur-[80px] pointer-events-none" />
+
+                {/* Header Premium */}
+                <div className="flex items-center justify-between px-10 py-8 border-b border-white/5 relative z-10">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900">
-                            {isEditing ? "Editar Detalles" : "Nuevo Evento"}
+                        <h2 className="text-2xl font-black text-white" style={{ fontFamily: 'Syne, sans-serif' }}>
+                            {isEditing ? "Editar Evento" : "Nuevo Evento"}
                         </h2>
-                        <p className="text-sm text-gray-500 font-medium">
-                            {isEditing ? "Modifica la información de tu evento" : "Completa los campos para tu próximo gran evento"}
+                        <p className="text-[10px] text-orange-500 font-black uppercase tracking-[0.2em] mt-1">
+                            {isEditing ? "Ajusta los detalles de la reserva" : "Configuración de Agenda"}
                         </p>
                     </div>
                     <button 
                         onClick={closeModal} 
-                        className="p-2 rounded-xl bg-gray-50 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all"
+                        className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-[#6B6560] hover:text-white hover:bg-red-500 transition-all duration-300"
                     >
                         <XMarkIcon className="w-6 h-6" />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                <form onSubmit={handleSubmit} className="p-10 space-y-8 relative z-10">
                     
                     <Field label="Nombre del Evento" error={errors.name} required>
                         <input name="name" value={form.name} onChange={handleChange} className={inputClass(errors.name)} placeholder="Ej. Gala Anual 2024" />
                     </Field>
 
                     <Field label="Descripción" error={errors.description} required>
-                        <textarea name="description" value={form.description} onChange={handleChange} rows="3" className={inputClass(errors.description)} placeholder="Escribe de qué trata el evento..." />
+                        <textarea name="description" value={form.description} onChange={handleChange} rows="3" className={`${inputClass(errors.description)} resize-none`} placeholder="Escribe de qué trata el evento..." />
                     </Field>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <Field label="Fecha" error={errors.date} required>
                             <input type="date" name="date" value={form.date} onChange={handleChange} className={inputClass(errors.date)} />
                         </Field>
@@ -144,51 +147,54 @@ export const EventModal = () => {
                         </Field>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <Field label="Capacidad" error={errors.capacity} required>
                             <div className="relative">
                                 <input type="number" name="capacity" value={form.capacity} onChange={handleChange} className={inputClass(errors.capacity)} placeholder="0" />
-                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold uppercase">Pax</span>
+                                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[#6B6560] text-[10px] font-black uppercase tracking-widest">Pax</span>
                             </div>
                         </Field>
-                        <Field label="Estado Actual">
+                        <Field label="Estado del Evento">
                             <select name="status" value={form.status} onChange={handleChange} className={inputClass()}>
-                                <option value="PROGRAMADO">📅 Programado</option>
-                                <option value="EN_CURSO">🔥 En curso</option>
-                                <option value="FINALIZADO">✅ Finalizado</option>
-                                <option value="CANCELADO">🚫 Cancelado</option>
+                                <option value="PROGRAMADO" className="bg-[#1C1A17]">📅 Programado</option>
+                                <option value="EN_CURSO" className="bg-[#1C1A17]">🔥 En curso</option>
+                                <option value="FINALIZADO" className="bg-[#1C1A17]">✅ Finalizado</option>
+                                <option value="CANCELADO" className="bg-[#1C1A17]">🚫 Cancelado</option>
                             </select>
                         </Field>
                     </div>
 
                     <Field label="Servicios Adicionales">
-                        <input name="additionalServices" value={form.additionalServices} onChange={handleChange} className={inputClass()} placeholder="Separados por comas: Música, Buffet, Luces..." />
+                        <input name="additionalServices" value={form.additionalServices} onChange={handleChange} className={inputClass()} placeholder="Música, Buffet, Luces..." />
                     </Field>
 
-                    <div className="flex items-center p-4 bg-orange-50/50 rounded-2xl border border-orange-100">
-                        <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="flex items-center p-6 bg-white/[0.02] rounded-3xl border border-white/5">
+                        <label className="group flex items-center justify-between w-full cursor-pointer">
+                            <div className="flex flex-col">
+                                <span className="text-sm font-black text-white group-hover:text-orange-400 transition-colors uppercase tracking-tight">Visibilidad Pública</span>
+                                <span className="text-[10px] text-[#A09890] font-medium mt-1">Mostrar este evento en el portal de clientes</span>
+                            </div>
                             <div className="relative">
                                 <input type="checkbox" name="isActive" checked={form.isActive} onChange={handleChange} className="sr-only peer" />
-                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                                <div className="w-12 h-6 bg-white/10 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600 shadow-inner"></div>
                             </div>
-                            <span className="text-sm font-bold text-gray-700 group-hover:text-orange-600 transition-colors">Visibilidad Pública</span>
                         </label>
                     </div>
 
-                    {/* Footer con diseño Premium */}
-                    <div className="flex justify-end gap-4 pt-4">
+                    {/* Footer Actions */}
+                    <div className="flex justify-end gap-4 pt-6 border-t border-white/5">
                         <button 
                             type="button" 
                             onClick={closeModal} 
-                            className="px-8 py-3 rounded-2xl border border-gray-200 text-sm font-bold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all active:scale-95"
+                            className="px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-[#6B6560] hover:text-white transition-all"
                         >
-                            Cerrar
+                            Cancelar
                         </button>
                         <button 
                             type="submit" 
-                            className="px-8 py-3 rounded-2xl bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 shadow-xl shadow-orange-200 transition-all active:scale-95"
+                            className="px-10 py-4 rounded-2xl bg-white text-black hover:bg-orange-500 hover:text-white font-black text-xs uppercase tracking-widest transition-all hover:-translate-y-1 shadow-xl hover:shadow-orange-500/20 active:scale-95"
                         >
-                            {isEditing ? "Actualizar Evento" : "Crear Evento"}
+                            {isEditing ? "Guardar Cambios" : "Crear Evento"}
                         </button>
                     </div>
                 </form>
@@ -197,21 +203,20 @@ export const EventModal = () => {
     );
 };
 
-// --- Sub-componentes Refinados ---
 function Field({ label, children, error, required }) {
     return (
-        <div className="space-y-2">
-            <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.1em] ml-1">
+        <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-black text-[#6B6560] uppercase tracking-[0.15em] ml-1">
                 {label} {required && <span className="text-orange-500">*</span>}
             </label>
             {children}
-            {error && <p className="text-xs text-red-500 font-bold ml-1 animate-pulse italic">{error}</p>}
+            {error && <p className="text-[10px] font-bold text-red-500 animate-pulse ml-1">✕ {error}</p>}
         </div>
     );
 }
 
 const inputClass = (error) =>
-    `w-full px-5 py-3.5 rounded-[1.2rem] border text-sm font-medium outline-none transition-all duration-200
+    `w-full px-5 py-4 rounded-2xl border text-sm font-medium outline-none transition-all duration-300 bg-[#1C1A17] text-white placeholder-[#6B6560] focus:ring-4 focus:ring-orange-500/5 appearance-none
     ${error 
-        ? "border-red-200 bg-red-50/30 focus:border-red-500 focus:ring-4 focus:ring-red-500/10" 
-        : "border-gray-100 bg-gray-50/50 focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/10"}`;
+        ? "border-red-500/30 bg-red-500/5 focus:border-red-500" 
+        : "border-white/5 focus:border-orange-500/30 focus:bg-[#25221F]"}`;
