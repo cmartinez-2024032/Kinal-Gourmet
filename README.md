@@ -1,157 +1,207 @@
-# INSTRUCCIONES GENERALES
-1er paso - Crear una carpeta en el disco local C: (De preferencia llamarla Kinal-Gourmet-House)
-2do paso - Abrir la terminar y situarse dentro de la carpeta anteriormente creada
-3er paso - Realizar git 
-4to paso - Clonar el repositorio dentro de la carpeta ya antes mencionada por medio del siguiente comando: git clone https://github.com/jrealiquez-2021549/Kinal-Gourmet-House.git
+# 🍽️ Kinal Gourmet House
 
-5to paso - Ingresar a la carpeta clonada por medio del siguiente comando: cd Kinal-Gourmet-House
-6to paso - Realizar "code . " dentro de la terminar para abrir el proyecto en Visual Studio Code
-7mo paso - Dentro e VS abrir 2 terminales distintas
-	Terminal 1 - Para la autenticacion 
-	Terminal 2 - Para probar el sistema del restaurante
+Sistema de gestión de restaurantes con autenticación JWT, roles diferenciados y API REST completa.
 
-8vo paso - Para probar los endpoints se recomienda ir a PostMan e importar las peticiones por medio de import -- IMPORTAR EL ARCHIVO LLAMADO Kinal-Gourmet-House.postman_collection ubicado en la carpeta ArchivoJSONpostMan
+---
 
+## 📋 Tabla de Contenidos
 
-# INTRUCCIONES AUTENTICACION DE USUARIO
-1er paso - Ubicarse dentro de la terminal 1 y situarse en la carpeta AuthRestaurante por medio del siguiente comando : cd AuthRestaurante
-2do paso - Estando ahi, realizar el comando: pnpm install nodemon
+- [Requisitos Previos](#-requisitos-previos)
+- [Instalación del Proyecto](#-instalación-del-proyecto)
+- [Configuración del Servicio de Autenticación](#-configuración-del-servicio-de-autenticación)
+- [Configuración de la API Principal](#-configuración-de-la-api-principal)
+- [Configuración del Frontend](#-configuración-del-frontend)
+- [Prueba de Endpoints con Postman](#-prueba-de-endpoints-con-postman)
+- [Roles y Permisos](#-roles-y-permisos)
+- [Funciones por Rol](#-funciones-por-rol)
 
-ANTES DE CONTINUAR, IMPORTANTE: ES IMPORTANTE QUE TENGA ABIERTO docker desktop y asi mismo, pgAdmin
+---
 
-3er paso - en la terminal 1, ingresar el siguiente comando: docker run -d --name restaurante-postgres -e POSTGRES_DB=KGourmetAuth -e POSTGRES_USER=root -e POSTGRES_PASSWORD=admin -p 5436:5432 postgres:16
-4to paso - Verificar en docker-desktop que el contenedor se haya inicializado correctamente y este activo
-5to paso - Ejecutar en la terminal 1 el siguiente comando : pnpm add -D cross-env
-7mo paso - Ejecutar en la terminal 1 el siguiente comando : docker compose up -d
-8vo paso - Realizar el siguiente comando para correr el programa: pnpm run dev
+## 🔧 Requisitos Previos
 
-Forma de probar las peticiones:
-1. Probar la carpeta llamada (FuncionesUsuario - Registrar)
-	1.1 Registrate (reemplaza el correo, nombre y contraseña por una original)
-	1.2 En Verificar tu cuenta ingresa el token que se mando a tu correo únicamente lo que sigue luego del verify/ DENTRO DE LA URL
-	1.3 Inicia sesión y copia tu token
-	1.4 Si deseas cambiar tu contraseña, PARA PROBAR LA PETICION, ve a Authorization, elige la opción de BEARER TOKEN e  ingresa el token que se te dio al iniciar sesión e ingresa tu contraseña actual y contraseña nueva
+Antes de comenzar, asegúrate de tener instalado y en ejecución:
 
-2. Probar la carpeta llamada (FuncionesAdmin - Login)
-  1.1 Inicia sesion con las credenciales del admin general (CREADO AUTOMATICAMENTE)
-  1.2 Para crear un Admin de restaurante debes haber hecho primero el paso 1.1 ya que para crear el Admin de restaurante, aparte los datos, se te pedira el token que se genero al iniciar sesion, esto confimara que eres el ADMIN GENERAL
-  1.3 Para obtener el token de un Admin de restaurante, el admin general tuvo que haber creado primeramente el usuario, con la cuenta creada puedes hacer login en el admin de restaurante, para probar las consultas del mismo en furutas ocasiones, copia el token generado al iniciar sesion.
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- [pgAdmin](https://www.pgadmin.org/)
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [Node.js + pnpm](https://pnpm.io/)
+- [Postman](https://www.postman.com/)
 
-3. Probar la carpeta llamada (CambiarContrasena - Cualquier rol)
-  1.1 Para poder cambiar tu contraseña unicamente debes antes de ingresar tu contrasena pasada y la nueva, debes poner tu token generado al iniciar sesion en la parte de Authorization y escoge BEARER TOKEN e ingresalo.
+---
 
+## 📦 Instalación del Proyecto
 
-# Api Kinal-Gourmet-House
+```bash
+# 1. Crear la carpeta del proyecto en disco local C:
+mkdir C:\Kinal-Gourmet-House
 
-/ Para probar el Kinal-Gourmet-House se debe de estar en la ruta:
-  C:\Kinal-Gourmet-House\Kinal-Gourmet-House\Kinal-Gourmet-House
+# 2. Entrar a la carpeta
+cd C:\Kinal-Gourmet-House
 
-/ **Instalar en la terminal pnpm con:** pnpm install nodemon
+# 3. Clonar el repositorio
+git clone https://github.com/jrealiquez-2021549/Kinal-Gourmet-House.git
 
-/ **Instalar la dependencia en la terminar de axios con: :** pnpm add axios
+# 4. Ingresar al proyecto clonado
+cd Kinal-Gourmet-House
 
-/ **En la terminar iniciar la API:** pnpm run dev
+# 5. Abrir en Visual Studio Code
+code .
+```
 
-/ La API Kinal-Gourmet-House utiliza autenticación mediante JWT (JSON Web Token).
+> 💡 **Tip:** Dentro de VS Code, abre **2 terminales separadas**: una para autenticación y otra para la API principal.
 
- **IMPORTANTE: Cada peticion debe llevar su BEARER TOKEN correspondiente, segun sea la peticion debe ser, token de ADMIN_GENERAL, ADMIN_RESTAURANTE o CLIENTE **
+---
 
-Forma de probar las peticiones:
+## 🔐 Configuración del Servicio de Autenticación
 
-🔴 FUNCIONES ADMIN_GENERAL
-El ADMIN_GENERAL tiene la función de crear restaurantes.
+> Usar la **Terminal 1**
 
-Forma de probar:
-Probar la carpeta llamada (Restaurantes - Crear Restaurante)
-1.1 Inicia sesión como ADMIN_GENERAL
-1.2 Copia el token generado al iniciar sesión
-1.3 Ve a la petición de crear restaurante (POST)
-1.4 En Authorization selecciona BEARER TOKEN
-1.5 Ingresa el token del ADMIN_GENERAL
-1.6 Ingresa los datos requeridos del restaurante y envía la petición
+```bash
+# 1. Ir a la carpeta de autenticación
+cd AuthRestaurante
 
-⚠ IMPORTANTE:
-Si no ingresas el token del ADMIN_GENERAL la petición no será autorizada.
+# 2. Instalar dependencias
+pnpm install nodemon
+pnpm add -D cross-env
 
-🟡 FUNCIONES ADMIN_RESTAURANTE
-El ADMIN_RESTAURANTE puede:
-- Agregar mesa
-- Agregar platillo
-- Crear cupón
-- Crear factura
+# 3. Levantar el contenedor de PostgreSQL
+docker run -d --name restaurante-postgres \
+  -e POSTGRES_DB=KGourmetAuth \
+  -e POSTGRES_USER=root \
+  -e POSTGRES_PASSWORD=admin \
+  -p 5436:5432 postgres:16
 
-⚠ IMPORTANTE:
-Todas estas funciones requieren el token del ADMIN_RESTAURANTE.
+# 4. Verificar en Docker Desktop que el contenedor esté activo
 
-1. Agregar Mesa
-Inicia sesión como ADMIN_RESTAURANTE
-Copia el token generado
-Ve a la petición (POST - Crear Mesa)
-En Authorization selecciona BEARER TOKEN
-Ingresa el token del ADMIN_RESTAURANTE
-Envía la petición con los datos correspondientes
+# 5. Levantar los servicios con Docker Compose
+docker compose up -d
 
-2. Agregar Platillo
-Inicia sesión como ADMIN_RESTAURANTE
-Copia el token generado
-Ve a la petición (POST - Crear Platillo)
-En Authorization selecciona BEARER TOKEN
-Ingresa el token del ADMIN_RESTAURANTE
-Envía la petición
+# 6. Correr el servidor de autenticación
+pnpm run dev
+```
 
-3. Crear Cupón
-Inicia sesión como ADMIN_RESTAURANTE
-Copia el token generado
-Ve a la petición (POST - Crear Cupón)
-En Authorization selecciona BEARER TOKEN
-Ingresa el token del ADMIN_RESTAURANTE
-Envía la petición con los datos del cupón
+### Probar la Autenticación en Postman
 
-4. Crear Factura
-Inicia sesión como ADMIN_RESTAURANTE
-Copia el token generado
-Ve a la petición (POST - Crear Factura)
-En Authorization selecciona BEARER TOKEN
-Ingresa el token del ADMIN_RESTAURANTE
-Envía la petición
+**Carpeta: `FuncionesUsuario - Registrar`**
 
-🟢 FUNCIONES USUARIO
-El USUARIO puede:
-- Hacer reseña
-- Listar platillos (ver menú)
-- Crear pedido / orden
-- Iniciar sesión
+| Paso | Acción |
+|------|--------|
+| 1 | Regístrate con tu correo, nombre y contraseña |
+| 2 | Verifica tu cuenta con el token recibido por correo (solo el fragmento después de `verify/`) |
+| 3 | Inicia sesión y copia tu token |
+| 4 | Para cambiar contraseña: en Authorization → Bearer Token, pega tu token e ingresa la contraseña actual y la nueva |
 
-⚠ Todas las funciones (excepto registro y login) requieren BEARER TOKEN del CLIENTE.
+**Carpeta: `FuncionesAdmin - Login`**
 
-1. Hacer Reseña
-Inicia sesión como CLIENTE
-Copia el token generado
-Ve a la petición (POST - Crear Reseña)
-En Authorization selecciona BEARER TOKEN
-Ingresa el token del CLIENTE
-Envía la petición
+| Paso | Acción |
+|------|--------|
+| 1 | Inicia sesión con las credenciales del Admin General (creado automáticamente) |
+| 2 | Crea un Admin de Restaurante usando el token del Admin General como Bearer Token |
+| 3 | Inicia sesión con las credenciales del Admin de Restaurante y copia su token |
 
-2. Listar Platillos (Menú)
-Inicia sesión como CLIENTE
-Copia el token generado
-Ve a la petición (GET - Listar Platillos)
-En Authorization selecciona BEARER TOKEN
-Ingresa el token del CLIENTE
-Envía la petición
+**Carpeta: `CambiarContrasena - Cualquier rol`**
 
-3. Crear Pedido / Orden
-Inicia sesión como CLIENTE
-Copia el token generado
-Ve a la petición (POST - Crear Orden)
-En Authorization selecciona BEARER TOKEN
-Ingresa el token del CLIENTE
-Envía la petición
+Agrega tu token en Authorization → Bearer Token, luego ingresa tu contraseña actual y la nueva.
 
+---
 
-# 🔐 IMPORTANTE SOBRE LOS TOKENS
-ADMIN_GENERAL solo puede usar endpoints de ADMIN_GENERAL.
-ADMIN_RESTAURANTE solo puede usar endpoints de su rol.
-CLIENTE solo puede usar endpoints de cliente.
-Todas las peticiones protegidas requieren BEARER TOKEN.
-El token se obtiene únicamente al iniciar sesión.
+## 🚀 Configuración de la API Principal
+
+> Usar la **Terminal 2**
+
+```bash
+# 1. Ir a la carpeta correcta
+cd C:\Kinal-Gourmet-House\Kinal-Gourmet-House\Kinal-Gourmet-House
+
+# 2. Instalar dependencias
+pnpm install nodemon
+pnpm add axios
+
+# 3. Correr la API
+pnpm run dev
+```
+
+---
+
+## 🖥️ Configuración del Frontend
+
+> Abrir una **tercera terminal** o una nueva dentro de VS Code
+
+```bash
+# 1. Ir a la carpeta del frontend
+cd Frontend-restaurante
+
+# 2. Instalar dependencias
+pnpm install
+
+# 3. Iniciar el servidor de desarrollo
+pnpm run dev
+```
+
+---
+
+## 📬 Prueba de Endpoints con Postman
+
+Importa la colección desde la carpeta `ArchivoJSONpostMan`:
+
+1. Abre Postman
+2. Haz clic en **Import**
+3. Selecciona el archivo `Kinal-Gourmet-House.postman_collection`
+
+> ⚠️ **Importante:** Cada petición protegida requiere un Bearer Token según el rol correspondiente.
+
+---
+
+## 👥 Roles y Permisos
+
+| Rol | Acceso |
+|-----|--------|
+| `ADMIN_GENERAL` | Solo endpoints de Admin General |
+| `ADMIN_RESTAURANTE` | Solo endpoints de su rol |
+| `CLIENTE` | Solo endpoints de cliente |
+
+> 🔑 El token se obtiene **únicamente al iniciar sesión** y debe enviarse como **Bearer Token** en la sección de Authorization de cada petición.
+
+---
+
+## 📖 Funciones por Rol
+
+### 🔴 Admin General
+
+**Función principal:** Crear restaurantes.
+
+```
+POST → Crear Restaurante
+Authorization: Bearer <token_admin_general>
+```
+
+---
+
+### 🟡 Admin de Restaurante
+
+| Función | Método | Descripción |
+|---------|--------|-------------|
+| Agregar Mesa | `POST` | Registra una nueva mesa |
+| Agregar Platillo | `POST` | Añade un platillo al menú |
+| Crear Cupón | `POST` | Genera un cupón de descuento |
+| Crear Factura | `POST` | Emite una factura |
+
+> Todas las peticiones requieren: `Authorization: Bearer <token_admin_restaurante>`
+
+---
+
+### 🟢 Cliente
+
+| Función | Método | Descripción |
+|---------|--------|-------------|
+| Hacer Reseña | `POST` | Escribe una reseña |
+| Listar Platillos | `GET` | Consulta el menú disponible |
+| Crear Pedido / Orden | `POST` | Realiza un pedido |
+
+> Todas las peticiones requieren: `Authorization: Bearer <token_cliente>`
+
+---
+
+<p align="center">
+  Desarrollado con ❤️ para <strong>Kinal Gourmet House</strong>
+</p>
