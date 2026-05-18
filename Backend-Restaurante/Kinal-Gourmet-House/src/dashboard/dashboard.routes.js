@@ -1,15 +1,16 @@
 import { Router } from 'express';
 import { getDashboardSummary } from './dashboard.controller.js';
-import { validateRole } from '../../middlewares/role.middleware.js';
-import { validateJWT } from '../../middlewares/validate-jwt';
+import { checkRole } from '../../middlewares/role.middleware.js';
+// Importamos tu middleware de integración correcto
+import { verifyToken } from '../../middlewares/auth-integration.middleware.js';
 
 const router = Router();
 
 router.get(
     '/summary',
     [
-        validateJWT,
-        validateRole('ADMIN_RESTAURANTE')
+        verifyToken,                  
+        checkRole('ADMIN_RESTAURANTE') 
     ],
     getDashboardSummary
 );

@@ -1,18 +1,23 @@
-import axios from "axios";
+import axios from 'axios';
 
-const api = axios.create({
-    baseURL: "http://localhost:3006/kinalGourmetHouse/v1"
+const apiClient = axios.create({
+    baseURL: 'http://localhost:3006/kinalGourmetHouse/v1'
 });
+apiClient.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+        
+            config.headers.Authorization = `Bearer ${token.trim()}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
 export const getDashboardSummary = async () => {
-
-    const token = localStorage.getItem("token");
-
-    const res = await api.get("/dashboard/summary", {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
-
-    return res.data;
+    const response = await apiClient.get('/dashboard/summary');
+    return response.data;
 };
