@@ -37,9 +37,6 @@ export const AdminRestLayout = () => {
             <SideLink to="/adminRestaurante/reservaciones" icon="📅"  label="Reservaciones" />
             <SideLink to="/adminRestaurante/pedidos"       icon="📋"  label="Pedidos" />
             <SideLink to="/adminRestaurante/reportes"      icon="📊"  label="Reportes" />
-
-            <SideSection label="Configuración" />
-            <SideLink to="/adminRestaurante/restaurante"   icon="🏪"  label="Mi Restaurante" />
           </nav>
 
           <div style={{ padding: '12px', borderTop: '1px solid #33302B' }}>

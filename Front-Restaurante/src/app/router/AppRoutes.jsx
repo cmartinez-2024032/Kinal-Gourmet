@@ -25,6 +25,7 @@ import { EventsPage }      from '../../features/admin-restaurante/pages/EventPag
 import { ReservationsPage } from '../../features/admin-restaurante/pages/ReservationPage.jsx'
 import { ReportsPage } from '../../features/admin-restaurante/pages/ReportsPage.jsx'
 import { OrderPage } from '../../features/admin-restaurante/pages/OrderPage.jsx'    
+import { ResumenPage } from '../../features/admin-restaurante/pages/ResumenPage.jsx'
 
 // Cliente
 import { ClientLayout }           from '../../features/client/layout/ClientLayout.jsx'
@@ -81,7 +82,7 @@ export const AppRoutes = () => {
                     </PrivateRoute>
                 }
             >
-                <Route index               element={<div>Resumen</div>} />
+               <Route index element={<ResumenPage />} />
                 <Route path="platillos"    element={<PlatilloPage />} />
                 <Route path="mesas"        element={<MesaPage />} />
                 <Route path="cupones"      element={<CuponPage />} />
