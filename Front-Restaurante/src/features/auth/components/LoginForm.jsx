@@ -99,7 +99,12 @@ export const LoginForm = () => {
                         <div className="space-y-2">
                             <div className="flex justify-between items-center px-1">
                                 <label className="text-sm font-semibold text-gray-700">Contraseña</label>
-                                <button type="button" className="text-xs font-bold text-orange-600 hover:text-orange-700">¿Olvidaste tu contraseña?</button>
+                                <Link
+                                    to="/forgot-password"
+                                    className="text-xs font-bold text-orange-600 hover:text-orange-700"
+                                    >
+                                    ¿Olvidaste tu contraseña?
+                                </Link>
                             </div>
                             <div className="relative group">
                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-orange-600 transition-colors" size={20} />

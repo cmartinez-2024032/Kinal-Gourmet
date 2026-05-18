@@ -6,6 +6,8 @@ import { sendVerificationEmail } from '../../helpers/send-email.js'
 import { Op } from 'sequelize'
 import jwt from 'jsonwebtoken'
 import { config } from '../../configs/config.js'
+import crypto from 'crypto'
+import { sendResetPasswordEmail } from '../../helpers/send-email.js'
 
 
 export const registerUser = async (data) => {
@@ -126,4 +128,48 @@ export const getUsers = async () => {
   })
 
   return users
+}
+
+export const forgotPasswordService = async (email) => {
+  const user = await User.findOne({ where: { email: email.trim() } })
+
+  // Por seguridad, siempre respondemos igual aunque el correo no exista
+  if (!user) {
+    return { message: 'Si el correo existe, recibirás un enlace para restablecer tu contraseña.' }
+  }
+
+  const resetToken = crypto.randomBytes(32).toString('hex')
+  const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000) // 1 hora
+
+  await user.update({
+    resetPasswordToken: resetToken,
+    resetPasswordExpiry: resetTokenExpiry
+  })
+
+  await sendResetPasswordEmail(user.email, user.name, resetToken)
+
+  return { message: 'Si el correo existe, recibirás un enlace para restablecer tu contraseña.' }
+}
+
+export const resetPasswordService = async (token, newPassword) => {
+  if (!token || !newPassword) throw new Error('Token y nueva contraseña son requeridos')
+  if (newPassword.trim().length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres')
+
+  const user = await User.findOne({ where: { resetPasswordToken: token } })
+
+  if (!user) throw new Error('Token inválido o expirado')
+
+  if (new Date() > new Date(user.resetPasswordExpiry)) {
+    throw new Error('El enlace ha expirado. Solicita uno nuevo.')
+  }
+
+  const hashedPassword = await hashPassword(newPassword.trim())
+
+  await user.update({
+    password: hashedPassword,
+    resetPasswordToken: null,
+    resetPasswordExpiry: null
+  })
+
+  return { message: 'Contraseña actualizada correctamente' }
 }

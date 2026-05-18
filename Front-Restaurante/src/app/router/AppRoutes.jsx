@@ -35,6 +35,10 @@ import { MyOrdersPage }           from '../../features/client/pages/MyOrdersPage
 import { OrderDetailPage }        from '../../features/client/pages/OrderDetailPage.jsx'
 import { MyReservationsPage }     from '../../features/client/pages/MyReservationsPage.jsx'
 
+
+// Cambiar contraseña
+import {ForgotPasswordPage} from '../../features/auth/pages/ForgotPasswordPage'
+import{ResetPasswordPage}  from '../../features/auth/pages/ResetPasswordPage'
 import { PrivateRoute } from './PrivateRoute'
 
 export const AppRoutes = () => {
@@ -47,7 +51,9 @@ export const AppRoutes = () => {
             <Route path="/login"         element={<AuthPage />} />
             <Route path="/register"      element={<AuthPage><RegisterForm /></AuthPage>} />
             <Route path="/verify/:token" element={<VerifyPage />} />
-
+            <Route path="/forgot-password"                 element={<ForgotPasswordPage />} /> 
+            <Route path="/reset-password/:token"           element={<ResetPasswordPage />} />           
+            
             {/* Dashboard */}
             <Route
                 path="/dashboard"
@@ -92,7 +98,7 @@ export const AppRoutes = () => {
                 <Route path='pedidos' element= {<OrderPage/>} />
                 <Route path='reportes' element= {<ReportsPage/>} />
             </Route>
-
+            
             {/* Cliente */}
             <Route
                 path="/client"

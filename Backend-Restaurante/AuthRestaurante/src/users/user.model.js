@@ -51,5 +51,15 @@ export const initUserModel = (sequelize) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    resetPasswordToken: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null
+    },
+    resetPasswordExpiry: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: null
+    }
   })
 }

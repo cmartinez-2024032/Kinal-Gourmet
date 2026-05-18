@@ -64,3 +64,9 @@ export const deleteAdminUserRequest = (id) =>
       Authorization: `Bearer ${localStorage.getItem('token')}`
     }
   })
+
+export const forgotPasswordRequest = (email) =>
+  axiosAuth.post('/auth/forgot-password', { email })
+
+export const resetPasswordRequest = (token, newPassword) =>
+  axiosAuth.post(`/auth/reset-password/${token}`, { newPassword })
